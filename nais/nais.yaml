@@ -1,0 +1,38 @@
+apiVersion: "nais.io/v1alpha1"
+kind: "Application"
+metadata:
+  name: dittnav-ktor-template
+  namespace: {{namespace}}
+  labels:
+    team: personbruker
+spec:
+  envFrom:
+    - configmap: loginservice-idporten
+  image: {{version}}
+  port: 8080
+  liveness:
+    path: /person/dittnav-ktor-template/internal/isAlive
+    initialDelay: 10
+  readiness:
+    path: /person/dittnav-ktor-template/internal/isReady
+    initialDelay: 10
+  prometheus:
+    enabled: true
+    path: /person/dittnav-ktor-template/metrics
+  replicas:
+    min: 2
+    max: 4
+  webproxy: true
+  ingresses:
+{{#each ingresses}}
+  - "{{this}}"
+{{/each}}
+  vault:
+    enabled: true
+  resources:
+    limits:
+      cpu: "3"
+      memory: 768Mi
+    requests:
+      cpu: "500m"
+      memory: 580Mi
