@@ -38,6 +38,8 @@ fun Application.mainModule(appContext: ApplicationContext = ApplicationContext()
         json(jsonConfig())
     }
 
+    install(CallLogging)
+
     routing {
         healthApi(appContext.healthService)
         authenticate {
