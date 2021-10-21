@@ -9,7 +9,7 @@ import java.net.URL
 
 suspend inline fun <reified T> HttpClient.post(url: URL, requestBody: Any, token: String): T = withContext(Dispatchers.IO) {
     request {
-        url(url)
+        url("$url")
         contentType(ContentType.Application.Json)
         method = HttpMethod.Post
         body = requestBody
