@@ -33,6 +33,8 @@ spec:
         - application: sokos-utbetaldata
           namespace: okonomi
           cluster: dev-fss
+      external:
+        - host: sokos-utbetaldata.dev-fss-pub.nais.io
   ingresses:
     - "https://tms-utbetalingsoversikt-api.dev.nav.no"
   resources:
