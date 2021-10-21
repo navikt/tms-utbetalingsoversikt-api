@@ -1,6 +1,0 @@
-{
-  "namespace": "personbruker",
-  "ingresses": [
-    "https://dittnav-ktor-template.nais.oera.no/person/dittnav-ktor-template"
-  ]
-}
