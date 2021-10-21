@@ -3,7 +3,7 @@ package no.nav.tms.utbetalingsoversikt.api.ytelse
 import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.internal.Hovedytelse
 import java.time.LocalDate
 
-object HovedytelseSorting {
+object HovedytelseComparator {
     fun compareYtelse(ytelse1: Hovedytelse, ytelse2: Hovedytelse): Int {
         val datoComparison = compareDatoNewFirstNullLast(ytelse1.ytelseDato, ytelse2.ytelseDato)
 

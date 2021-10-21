@@ -2,7 +2,7 @@ package no.nav.tms.utbetalingsoversikt.api.utbetaling
 
 import no.nav.tms.token.support.idporten.user.IdportenUser
 import no.nav.tms.utbetalingsoversikt.api.ytelse.HovedytelseService
-import no.nav.tms.utbetalingsoversikt.api.ytelse.HovedytelseSorting
+import no.nav.tms.utbetalingsoversikt.api.ytelse.HovedytelseComparator
 import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.internal.Hovedytelse
 import java.time.LocalDate
 
@@ -15,7 +15,7 @@ class UtbetalingService(private val hovedytelseService: HovedytelseService) {
 
         return hovedytelseService.getHovedytelserBetaltTilBruker(user.ident, fromDate, toDate)
             .filter { it.isInPeriod(fromDate, toDate)}
-            .sortedWith(HovedytelseSorting::compareYtelse)
+            .sortedWith(HovedytelseComparator::compareYtelse)
             .let { createUtbetalingResponse(it) }
     }
 

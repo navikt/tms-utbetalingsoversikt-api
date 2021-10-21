@@ -66,7 +66,11 @@ object TrekkTransformer {
     }
 
     private fun addTilbakebetalingTextIfNecessary(belop: BigDecimal, tekst: String): String {
-        return if (belop > ZERO) "Tilbakebetaling " + tekst.toLowerCase() else tekst
+        return if (belop > ZERO) {
+            "Tilbakebetaling " + tekst.toLowerCase()
+        } else {
+            tekst
+        }
     }
 
     private val TrekkEsktern.nonNullBeloepOrZero get() = this.trekkbeloep?: ZERO
