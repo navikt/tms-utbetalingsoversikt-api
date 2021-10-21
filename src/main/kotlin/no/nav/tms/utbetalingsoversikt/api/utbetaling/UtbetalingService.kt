@@ -31,7 +31,7 @@ class UtbetalingService(private val hovedytelseService: HovedytelseService) {
     private fun createUtbetalingResponse(hovedytelser: List<Hovedytelse>): UtbetalingResponse {
         val (utbetalte, kommende) = hovedytelser.partition { it.erUtbetalt }
 
-        val rettighetshaver = hovedytelser.map { it.rettighetshaver }.first()
+        val rettighetshaver = hovedytelser.map { it.rettighetshaver }.firstOrNull()
 
         return UtbetalingResponse(rettighetshaver, utbetalte, kommende)
     }
