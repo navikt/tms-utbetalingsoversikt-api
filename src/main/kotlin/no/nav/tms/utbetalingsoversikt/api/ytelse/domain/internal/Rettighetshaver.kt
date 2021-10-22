@@ -5,6 +5,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Rettighetshaver (
-    @SerialName("aktoer_id") val aktoerId: String,
+    val aktoerId: String,
     val navn: String?
 )
