@@ -8,6 +8,8 @@ import io.ktor.routing.*
 
 fun Route.utbetalingApiDebug(utbetalingService: UtbetalingService) {
 
+
+
     get("/debug/utbetalinger") {
         val fromDate = call.request.fromDateParam
         val toDate = call.request.toDateParam
