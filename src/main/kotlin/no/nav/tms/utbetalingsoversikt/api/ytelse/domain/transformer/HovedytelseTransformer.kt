@@ -13,8 +13,6 @@ import java.time.LocalDate
 
 object HovedytelseTransformer {
 
-    val log = LoggerFactory.getLogger(HovedytelseTransformer::class.java)
-
     fun toHovedYtelse(utbetaling: UtbetalingEkstern): List<Hovedytelse> {
         return utbetaling.ytelseListe.map { ytelseEkstern ->
             Hovedytelse(
@@ -53,7 +51,6 @@ object HovedytelseTransformer {
 
     private fun createPeriode(ytelsesperiode: PeriodeEkstern?): Periode? {
         return if (ytelsesperiode == null) {
-            log.debug("Ytelsesperiode er tom, setter ikke fom og tom felt for periode")
             null
         } else {
             Periode(ytelsesperiode.fom, ytelsesperiode.tom)

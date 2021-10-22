@@ -1,6 +1,5 @@
 package no.nav.tms.utbetalingsoversikt.api.ytelse.domain.internal
 
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
