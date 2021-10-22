@@ -16,11 +16,16 @@ class HovedytelseService(private val consumer: SokosUtbetalingConsumer) {
     }
 
     private fun Hovedytelse.isUtbetaltTilBruker(): Boolean {
-        log.info("$this")
         return if (utbetaltTil == null || rettighetshaver.navn == null) {
             false
         } else {
-            utbetaltTil.toLowerCase().trim() == rettighetshaver.navn.toLowerCase().trim()
+            val utbetaltTilString = utbetaltTil.toLowerCase().trim()
+            val rettighetshaverString = rettighetshaver.navn.toLowerCase().trim()
+
+            val compare = utbetaltTilString == rettighetshaverString
+
+            log.info("$utbetaltTilString == $rettighetshaverString = $compare")
+            return compare
         }
     }
 }
