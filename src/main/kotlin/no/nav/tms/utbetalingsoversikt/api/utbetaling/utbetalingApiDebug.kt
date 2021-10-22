@@ -5,24 +5,20 @@ import io.ktor.http.*
 import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
-import io.ktor.util.pipeline.*
-import no.nav.tms.token.support.idporten.user.IdportenUser
-import no.nav.tms.token.support.idporten.user.IdportenUserFactory
 
-fun Route.utbetalingApi(utbetalingService: UtbetalingService) {
+fun Route.utbetalingApiDebug(utbetalingService: UtbetalingService) {
 
-    get("/utbetalinger") {
+    get("/debug/utbetalinger") {
         val fromDate = call.request.fromDateParam
         val toDate = call.request.toDateParam
+        val ident = call.request.ident
 
-        utbetalingService.fetchUtbetalingForPeriod (authenticatedUser.ident, fromDate, toDate).let { utbetaling ->
+        utbetalingService.fetchUtbetalingForPeriod (ident, fromDate, toDate).let { utbetaling ->
             call.respond(HttpStatusCode.OK, utbetaling)
         }
     }
 }
 
+private val ApplicationRequest.ident: String get() = queryParameters["ident"]!!
 private val ApplicationRequest.fromDateParam: String? get() = queryParameters["fom"]
 private val ApplicationRequest.toDateParam: String? get() = queryParameters["tom"]
-
-private val PipelineContext<Unit, ApplicationCall>.authenticatedUser: IdportenUser
-    get() = IdportenUserFactory.createIdportenUser(call)

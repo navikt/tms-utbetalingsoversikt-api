@@ -12,11 +12,11 @@ data class UtbetalingEkstern(
     val utbetalingsmetode: String,
     val utbetalingsstatus: String,
     @Serializable(with = LocalDateSerializer::class) val posteringsdato: LocalDate,
-    @Serializable(with = LocalDateSerializer::class) val forfallsdato: LocalDate?,
-    @Serializable(with = LocalDateSerializer::class) val utbetalingsdato: LocalDate?,
-    @Serializable(with = BigDecimalSerializer::class) val utbetalingNettobeloep: BigDecimal?,
-    val utbetalingsmelding: String?,
-    val utbetaltTilKonto: BankkontoEsktern?,
+    @Serializable(with = LocalDateSerializer::class) val forfallsdato: LocalDate? = null,
+    @Serializable(with = LocalDateSerializer::class) val utbetalingsdato: LocalDate? = null,
+    @Serializable(with = BigDecimalSerializer::class) val utbetalingNettobeloep: BigDecimal? = null,
+    val utbetalingsmelding: String? = null,
+    val utbetaltTilKonto: BankkontoEsktern? = null,
     val ytelseListe: List<YtelseEkstern> = emptyList(),
 )
 

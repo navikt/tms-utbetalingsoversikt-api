@@ -4,16 +4,19 @@ import no.nav.tms.token.support.idporten.user.IdportenUser
 import no.nav.tms.utbetalingsoversikt.api.ytelse.HovedytelseService
 import no.nav.tms.utbetalingsoversikt.api.ytelse.HovedytelseComparator
 import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.internal.Hovedytelse
+import org.slf4j.LoggerFactory
 import java.time.LocalDate
 
 class UtbetalingService(private val hovedytelseService: HovedytelseService) {
 
-    suspend fun fetchUtbetalingForPeriod(user: IdportenUser, fromDateString: String?, toDateString: String?) {
+    val log = LoggerFactory.getLogger(UtbetalingService::class.java)
+
+    suspend fun fetchUtbetalingForPeriod(ident: String, fromDateString: String?, toDateString: String?) {
 
         val fromDate = InputDateParser.getEffectiveFromDate(fromDateString)
         val toDate = InputDateParser.getToDate(toDateString)
 
-        return hovedytelseService.getHovedytelserBetaltTilBruker(user.ident, fromDate, toDate)
+        return hovedytelseService.getHovedytelserBetaltTilBruker(ident, fromDate, toDate)
             .filter { it.isInPeriod(fromDate, toDate)}
             .sortedWith(HovedytelseComparator::compareYtelse)
             .let { createUtbetalingResponse(it) }
@@ -21,11 +24,15 @@ class UtbetalingService(private val hovedytelseService: HovedytelseService) {
 
     private fun Hovedytelse.isInPeriod(fromDate: LocalDate, toDate: LocalDate): Boolean {
 
-        return when {
+        val isInPeriod = when {
             ytelseDato != null && erUtbetalt -> ytelseDato in fromDate..toDate
             ytelseDato == null -> false
             else -> true
         }
+
+        log.info("{ytelseDato: $ytelseDato, fromDate: $fromDate, toDate: $toDate, isInPeriod: $isInPeriod} ")
+
+        return isInPeriod
     }
 
     private fun createUtbetalingResponse(hovedytelser: List<Hovedytelse>): UtbetalingResponse {

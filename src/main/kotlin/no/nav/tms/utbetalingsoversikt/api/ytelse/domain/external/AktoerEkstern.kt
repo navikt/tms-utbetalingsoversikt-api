@@ -6,5 +6,5 @@ import kotlinx.serialization.Serializable
 data class AktoerEkstern(
     val aktoertype: AktoertypeEsktern,
     val aktoerId: String,
-    val navn: String?,
+    val navn: String? = null,
 )
