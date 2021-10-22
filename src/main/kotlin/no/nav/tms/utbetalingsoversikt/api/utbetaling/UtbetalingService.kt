@@ -11,7 +11,7 @@ class UtbetalingService(private val hovedytelseService: HovedytelseService) {
 
     val log = LoggerFactory.getLogger(UtbetalingService::class.java)
 
-    suspend fun fetchUtbetalingForPeriod(ident: String, fromDateString: String?, toDateString: String?) {
+    suspend fun fetchUtbetalingForPeriod(ident: String, fromDateString: String?, toDateString: String?): UtbetalingResponse {
 
         val fromDate = InputDateParser.getEffectiveFromDate(fromDateString)
         val toDate = InputDateParser.getToDate(toDateString)
