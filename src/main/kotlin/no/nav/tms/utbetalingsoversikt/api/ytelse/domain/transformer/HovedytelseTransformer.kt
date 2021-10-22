@@ -8,7 +8,6 @@ import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.internal.Hovedytelse
 import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.internal.Periode
 import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.internal.Rettighetshaver
 import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.internal.Underytelse
-import org.slf4j.LoggerFactory
 import java.time.LocalDate
 
 object HovedytelseTransformer {
@@ -43,17 +42,22 @@ object HovedytelseTransformer {
 
     private fun determineYtelseDato(utbetaling: UtbetalingEkstern): LocalDate? {
         return if (isUtbetalt(utbetaling)) {
-            utbetaling.utbetalingsdato
+            utbetaling.utbetalingsdato?.parseLocalDate()
         } else {
-            utbetaling.forfallsdato
+            utbetaling.forfallsdato?.parseLocalDate()
         }
     }
+
+    private fun String.parseLocalDate(): LocalDate = LocalDate.parse(this)
 
     private fun createPeriode(ytelsesperiode: PeriodeEkstern?): Periode? {
         return if (ytelsesperiode == null) {
             null
         } else {
-            Periode(ytelsesperiode.fom, ytelsesperiode.tom)
+            Periode (
+                fom = LocalDate.parse(ytelsesperiode.fom),
+                tom = LocalDate.parse(ytelsesperiode.tom)
+            )
         }
     }
 

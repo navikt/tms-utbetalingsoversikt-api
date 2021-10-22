@@ -4,8 +4,6 @@ import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.external.SkattEsktern
 import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.external.TrekkEsktern
 import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.external.YtelseEkstern
 import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.internal.Trekk
-import java.math.BigDecimal
-import java.math.BigDecimal.ZERO
 
 object TrekkTransformer {
     fun createTrekkList(ytelse: YtelseEkstern): List<Trekk> {
@@ -28,7 +26,7 @@ object TrekkTransformer {
 
         return Trekk(
             id = skatt.hashCode(),
-            trekkType = if (trekkBeloep > ZERO) "Tilbakebetaling skattetrekk" else "Skattetrekk",
+            trekkType = if (trekkBeloep > 0) "Tilbakebetaling skattetrekk" else "Skattetrekk",
             trekkBelop = trekkBeloep
         )
     }
@@ -65,14 +63,14 @@ object TrekkTransformer {
         }
     }
 
-    private fun addTilbakebetalingTextIfNecessary(belop: BigDecimal, tekst: String): String {
-        return if (belop > ZERO) {
+    private fun addTilbakebetalingTextIfNecessary(belop: Double, tekst: String): String {
+        return if (belop > 0) {
             "Tilbakebetaling " + tekst.toLowerCase()
         } else {
             tekst
         }
     }
 
-    private val TrekkEsktern.nonNullBeloepOrZero get() = this.trekkbeloep?: ZERO
-    private val SkattEsktern.nonNullBeloepOrZero get() = this.skattebeloep?: ZERO
+    private val TrekkEsktern.nonNullBeloepOrZero get() = this.trekkbeloep?: 0.0
+    private val SkattEsktern.nonNullBeloepOrZero get() = this.skattebeloep?: 0.0
 }

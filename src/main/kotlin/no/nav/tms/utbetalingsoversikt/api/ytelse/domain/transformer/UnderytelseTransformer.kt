@@ -2,8 +2,6 @@ package no.nav.tms.utbetalingsoversikt.api.ytelse.domain.transformer
 
 import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.external.YtelseskomponentEkstern
 import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.internal.Underytelse
-import java.math.BigDecimal
-import java.math.BigDecimal.ZERO
 
 object UnderytelseTransformer {
     fun createUnderytelser(ytelseskomponentListe: List<YtelseskomponentEkstern>): List<Underytelse> {
@@ -44,10 +42,10 @@ object UnderytelseTransformer {
         return ytelse1.nonNullAntallOrZero + ytelse2.nonNullAntallOrZero
     }
 
-    private fun sumOfBelop(ytelse1: Underytelse, ytelse2: Underytelse): BigDecimal {
+    private fun sumOfBelop(ytelse1: Underytelse, ytelse2: Underytelse): Double {
         return ytelse1.nonNullBelopOrZero + ytelse2.nonNullBelopOrZero
     }
 
     private val Underytelse.nonNullAntallOrZero get() = this.antall ?: 0
-    private val Underytelse.nonNullBelopOrZero get() = this.belop ?: ZERO
+    private val Underytelse.nonNullBelopOrZero get() = this.belop ?: 0.0
 }
