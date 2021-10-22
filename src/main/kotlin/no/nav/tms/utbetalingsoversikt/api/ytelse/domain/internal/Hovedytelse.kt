@@ -1,13 +1,16 @@
 package no.nav.tms.utbetalingsoversikt.api.ytelse.domain.internal
 
+import kotlinx.serialization.Serializable
+import no.nav.tms.utbetalingsoversikt.api.config.LocalDateSerializer
 import java.time.LocalDate
 
+@Serializable
 data class Hovedytelse(
     val id: Int,
     val ytelse: String,
     val status: String,
-    val ytelseDato: LocalDate?,
-    val forfallDato: LocalDate?,
+    @Serializable(with = LocalDateSerializer::class) val ytelseDato: LocalDate?,
+    @Serializable(with = LocalDateSerializer::class) val forfallDato: LocalDate?,
     val ytelsePeriode: Periode?,
     val utbetaltTil: String?,
     val kontonummer: String,

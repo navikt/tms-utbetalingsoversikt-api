@@ -5,8 +5,11 @@ import io.ktor.http.*
 import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
+import org.slf4j.LoggerFactory
 
 fun Route.utbetalingApiDebug(utbetalingService: UtbetalingService) {
+
+    val log = LoggerFactory.getLogger(Route::class.java)
 
     get("/debug/utbetalinger") {
         val fromDate = call.request.fromDateParam
@@ -14,6 +17,8 @@ fun Route.utbetalingApiDebug(utbetalingService: UtbetalingService) {
         val ident = call.request.ident
 
         utbetalingService.fetchUtbetalingForPeriod (ident, fromDate, toDate).let { utbetaling ->
+            log.info("utbetaling: $utbetaling")
+
             call.respond(HttpStatusCode.OK, utbetaling)
         }
     }
