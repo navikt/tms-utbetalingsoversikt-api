@@ -6,9 +6,9 @@ import java.math.BigDecimal
 
 @Serializable
 data class YtelseskomponentEkstern(
-    val ytelseskomponenttype: String?,
-    @Serializable(with = BigDecimalSerializer::class) val satsbeloep: BigDecimal?,
-    val satstype: String?,
-    val satsantall: Int?,
-    @Serializable(with = BigDecimalSerializer::class) val ytelseskomponentbeloep: BigDecimal?,
+    val ytelseskomponenttype: String? = null,
+    @Serializable(with = BigDecimalSerializer::class) val satsbeloep: BigDecimal? = null,
+    val satstype: String? = null,
+    val satsantall: Int? = null,
+    @Serializable(with = BigDecimalSerializer::class) val ytelseskomponentbeloep: BigDecimal? = null,
 )

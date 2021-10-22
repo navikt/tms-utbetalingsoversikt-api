@@ -6,7 +6,7 @@ import java.math.BigDecimal
 
 @Serializable
 data class TrekkEsktern(
-    val trekktype: String?,
-    @Serializable(with = BigDecimalSerializer::class) val trekkbeloep: BigDecimal?,
-    val kreditor: String?,
+    val trekktype: String? = null,
+    @Serializable(with = BigDecimalSerializer::class) val trekkbeloep: BigDecimal? = null,
+    val kreditor: String? = null,
 )

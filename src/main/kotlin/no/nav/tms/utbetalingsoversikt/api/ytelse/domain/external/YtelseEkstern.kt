@@ -6,7 +6,7 @@ import java.math.BigDecimal
 
 @Serializable
 data class YtelseEkstern(
-    val ytelsestype: String?,
+    val ytelsestype: String? = null,
     val ytelsesperiode: PeriodeEkstern,
     @Serializable(with = BigDecimalSerializer::class) val ytelseNettobeloep: BigDecimal,
     val rettighetshaver: AktoerEkstern,
@@ -18,6 +18,6 @@ data class YtelseEkstern(
     val trekkListe: List<TrekkEsktern>? = null,
     val ytelseskomponentListe: List<YtelseskomponentEkstern>? = null,
 
-    val bilagsnummer: String?,
-    val refundertForOrg: AktoerEkstern?,
+    val bilagsnummer: String? = null,
+    val refundertForOrg: AktoerEkstern? = null,
 )
