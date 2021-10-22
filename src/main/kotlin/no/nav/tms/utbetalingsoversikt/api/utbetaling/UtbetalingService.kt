@@ -8,12 +8,12 @@ import java.time.LocalDate
 
 class UtbetalingService(private val hovedytelseService: HovedytelseService) {
 
-    suspend fun fetchUtbetalingForPeriod(user: IdportenUser, fromDateString: String?, toDateString: String?) {
+    suspend fun fetchUtbetalingForPeriod(ident: String, fromDateString: String?, toDateString: String?) {
 
         val fromDate = InputDateParser.getEffectiveFromDate(fromDateString)
         val toDate = InputDateParser.getToDate(toDateString)
 
-        return hovedytelseService.getHovedytelserBetaltTilBruker(user.ident, fromDate, toDate)
+        return hovedytelseService.getHovedytelserBetaltTilBruker(ident, fromDate, toDate)
             .filter { it.isInPeriod(fromDate, toDate)}
             .sortedWith(HovedytelseComparator::compareYtelse)
             .let { createUtbetalingResponse(it) }

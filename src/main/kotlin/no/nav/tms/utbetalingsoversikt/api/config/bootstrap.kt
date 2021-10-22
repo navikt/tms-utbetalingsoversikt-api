@@ -12,6 +12,7 @@ import io.prometheus.client.hotspot.DefaultExports
 import no.nav.tms.utbetalingsoversikt.api.health.healthApi
 import no.nav.tms.token.support.idporten.installIdPortenAuth
 import no.nav.tms.utbetalingsoversikt.api.utbetaling.utbetalingApi
+import no.nav.tms.utbetalingsoversikt.api.utbetaling.utbetalingApiDebug
 
 @KtorExperimentalAPI
 fun Application.mainModule(appContext: ApplicationContext = ApplicationContext()) {
@@ -45,6 +46,7 @@ fun Application.mainModule(appContext: ApplicationContext = ApplicationContext()
         authenticate {
             utbetalingApi(appContext.utbetalingService)
         }
+        utbetalingApiDebug(appContext.utbetalingService)
     }
 
     configureShutdownHook(appContext.httpClient)
