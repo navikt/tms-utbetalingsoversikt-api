@@ -23,10 +23,15 @@ class SokosUtbetalingConsumer(
     }
 
     private fun createRequest(fnr: String, fom: LocalDate, tom: LocalDate): Utbetalingsoppslag {
+        val periode = PeriodeEkstern(
+            fom = fom.toString(),
+            tom = tom.plusDays(1).toString() // Compensate for external service being end-exclusive.
+        )
+
         return Utbetalingsoppslag(
             ident = fnr,
             rolle = RolleEkstern.RETTIGHETSHAVER,
-            periode = PeriodeEkstern(fom, tom.plusDays(1)),
+            periode = periode,
             periodetype = PeriodetypeEkstern.UTBETALINGSPERIODE
         )
     }
