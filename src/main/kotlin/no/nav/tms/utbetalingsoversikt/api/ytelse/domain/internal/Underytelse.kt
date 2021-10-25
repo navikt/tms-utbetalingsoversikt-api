@@ -4,7 +4,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Underytelse (
-    val id:  Int,
     val beskrivelse:  String?,
     val satstype:  String?,
     val sats:  Double?,

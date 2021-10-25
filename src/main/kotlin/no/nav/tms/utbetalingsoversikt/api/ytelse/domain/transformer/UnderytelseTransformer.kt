@@ -16,24 +16,22 @@ object UnderytelseTransformer {
 
     private fun toUnderytelse(ytelseskomponent: YtelseskomponentEkstern): Underytelse {
         return Underytelse(
-            ytelseskomponent.hashCode(),
-            ytelseskomponent.ytelseskomponenttype,
-            ytelseskomponent.satstype,
-            ytelseskomponent.satsbeloep,
-            ytelseskomponent.satsantall,
-            ytelseskomponent.ytelseskomponentbeloep,
+            beskrivelse = ytelseskomponent.ytelseskomponenttype,
+            satstype = ytelseskomponent.satstype,
+            sats = ytelseskomponent.satsbeloep,
+            antall = ytelseskomponent.satsantall,
+            belop = ytelseskomponent.ytelseskomponentbeloep,
         )
     }
 
     private fun sumOfUnderytelse(grupperteUnderytelser: List<Underytelse>): Underytelse {
         return grupperteUnderytelser.reduce { prev, curr ->
                 Underytelse(
-                    curr.id,
-                    curr.beskrivelse,
-                    curr.satstype,
-                    curr.sats,
-                    sumOfAntall(prev, curr),
-                    sumOfBelop(prev, curr)
+                    beskrivelse = curr.beskrivelse,
+                    satstype = curr.satstype,
+                    sats = curr.sats,
+                    antall = sumOfAntall(prev, curr),
+                    belop = sumOfBelop(prev, curr)
                 )
             }
     }

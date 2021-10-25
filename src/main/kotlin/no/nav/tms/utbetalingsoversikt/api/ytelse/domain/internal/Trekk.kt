@@ -5,7 +5,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Trekk (
-    val id: Int,
     @SerialName("trekk_type") val trekkType: String,
     @SerialName("trekk_belop") val trekkBelop: Double
 )

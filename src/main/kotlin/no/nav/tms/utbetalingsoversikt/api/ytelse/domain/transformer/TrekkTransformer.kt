@@ -25,7 +25,6 @@ object TrekkTransformer {
         val trekkBeloep = skatt.nonNullBeloepOrZero
 
         return Trekk(
-            id = skatt.hashCode(),
             trekkType = if (trekkBeloep > 0) "Tilbakebetaling skattetrekk" else "Skattetrekk",
             trekkBelop = trekkBeloep
         )
@@ -47,7 +46,6 @@ object TrekkTransformer {
         }
 
         return Trekk(
-            id = trekk.hashCode(),
             trekkType = trekkType,
             trekkBelop = trekkBeloep
         )
@@ -56,7 +54,6 @@ object TrekkTransformer {
     private fun sumOfTrekk(trekk: List<Trekk>): Trekk {
         return trekk.reduce { prev, curr ->
             Trekk(
-                id = curr.id,
                 trekkType = curr.trekkType,
                 trekkBelop = prev.trekkBelop + curr.trekkBelop,
             )

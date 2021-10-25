@@ -19,7 +19,7 @@ object HovedytelseComparator {
             dato1 == null && dato2 == null -> 0
             dato1 == null -> 1
             dato2 == null -> -1
-            else -> dato2.compareTo(dato1)
+            else -> dato1.compareTo(dato2).unaryMinus()
         }
     }
 

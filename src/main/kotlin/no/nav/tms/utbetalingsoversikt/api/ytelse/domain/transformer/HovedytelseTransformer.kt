@@ -15,7 +15,6 @@ object HovedytelseTransformer {
     fun toHovedYtelse(utbetaling: UtbetalingEkstern): List<Hovedytelse> {
         return utbetaling.ytelseListe.map { ytelseEkstern ->
             Hovedytelse(
-                id = ytelseEkstern.hashCode(),
                 rettighetshaver = createRettighetshaver(ytelseEkstern.rettighetshaver),
                 ytelse = ytelseEkstern.ytelsestype?: "",
                 status = utbetaling.utbetalingsstatus,
