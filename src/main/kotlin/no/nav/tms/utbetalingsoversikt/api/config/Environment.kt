@@ -1,5 +1,6 @@
 package no.nav.tms.utbetalingsoversikt.api.config
 
+import no.nav.personbruker.dittnav.common.util.config.BooleanEnvVar
 import no.nav.personbruker.dittnav.common.util.config.StringEnvVar.getEnvVar
 import no.nav.personbruker.dittnav.common.util.config.StringEnvVar.getEnvVarAsList
 import no.nav.personbruker.dittnav.common.util.config.UrlEnvVar.getEnvVarAsURL
@@ -10,6 +11,7 @@ data class Environment(
     val corsAllowedSchemes: List<String> = getEnvVarAsList("CORS_ALLOWED_SCHEMES"),
     val postLogoutUrl: String = getEnvVar("POST_LOGOUT_URL"),
     val sokosUtebatlingAzureClientId: String = getEnvVar("SOKOS_UTBETALING_AZURE_CLIENT_ID"),
-    val sokosUtbetalingUrl: URL = getEnvVarAsURL("SOKOS_UTBETALDATA_URL")
+    val sokosUtbetalingUrl: URL = getEnvVarAsURL("SOKOS_UTBETALDATA_URL"),
+    val enableDebugApi: Boolean = BooleanEnvVar.getEnvVarAsBoolean("ENABLE_DEBUG_API", default = false)
 )
 
