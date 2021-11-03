@@ -14,15 +14,15 @@ class SokosUtbetalingConsumer(
 ) {
     private val utbetalingsinformasjonInternUrl = URL("$baseUrl/utbetaldata/api/v1/hent-utbetalingsinformasjon/intern")
 
-    suspend fun fetchUtbetalingsInfo(ident: String, fom: LocalDate, tom: LocalDate): List<UtbetalingEkstern> {
+    suspend fun fetchUtbetalingsInfo(ident: String, fom: LocalDate, tom: LocalDate, rolle: RolleEkstern): List<UtbetalingEkstern> {
         val azureToken = azureTokenFetcher.getSokosUtbetaldataToken()
 
-        val requestBody = createRequest(ident, fom, tom)
+        val requestBody = createRequest(ident, fom, tom, rolle)
 
         return client.post(utbetalingsinformasjonInternUrl, requestBody, azureToken)
     }
 
-    private fun createRequest(fnr: String, fom: LocalDate, tom: LocalDate): Utbetalingsoppslag {
+    private fun createRequest(fnr: String, fom: LocalDate, tom: LocalDate, rolle: RolleEkstern): Utbetalingsoppslag {
         val periode = PeriodeEkstern(
             fom = fom.toString(),
             tom = tom.plusDays(1).toString() // Compensate for external service being end-exclusive.
@@ -30,7 +30,7 @@ class SokosUtbetalingConsumer(
 
         return Utbetalingsoppslag(
             ident = fnr,
-            rolle = RolleEkstern.RETTIGHETSHAVER,
+            rolle = rolle,
             periode = periode,
             periodetype = PeriodetypeEkstern.UTBETALINGSPERIODE
         )
