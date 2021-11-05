@@ -1,7 +1,6 @@
 package no.nav.tms.utbetalingsoversikt.api.config
 
-import io.ktor.client.features.json.serializer.*
-import no.nav.tms.token.support.azure.exchange.AzureServiceBuilder
+import no.nav.tms.token.support.tokendings.exchange.TokendingsServiceBuilder
 import no.nav.tms.utbetalingsoversikt.api.health.HealthService
 import no.nav.tms.utbetalingsoversikt.api.utbetaling.UtbetalingService
 import no.nav.tms.utbetalingsoversikt.api.ytelse.HovedytelseService
@@ -14,10 +13,10 @@ class ApplicationContext {
     val httpClient = HttpClientBuilder.build()
     val healthService = HealthService(this)
 
-    private val azureService = AzureServiceBuilder.buildAzureService()
-    private val azureTokenFetcher = AzureTokenFetcher(azureService, environment.sokosUtebatlingAzureClientId)
+    private val tokendingsService = TokendingsServiceBuilder.buildTokendingsService()
+    private val tokendingsTokenFetcher = TokendingsTokenFetcher(tokendingsService, environment.sokosUtebatlingTokenxClientId)
 
-    private val sokosUtbetalingConsumer = SokosUtbetalingConsumer(httpClient, azureTokenFetcher, environment.sokosUtbetalingUrl)
+    private val sokosUtbetalingConsumer = SokosUtbetalingConsumer(httpClient, tokendingsTokenFetcher, environment.sokosUtbetalingUrl)
     private val hovedytelseService = HovedytelseService(sokosUtbetalingConsumer)
     val utbetalingService = UtbetalingService(hovedytelseService)
 }

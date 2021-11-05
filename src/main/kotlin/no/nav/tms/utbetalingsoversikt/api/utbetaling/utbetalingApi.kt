@@ -15,7 +15,7 @@ fun Route.utbetalingApi(utbetalingService: UtbetalingService) {
         val fromDate = call.request.fromDateParam
         val toDate = call.request.toDateParam
 
-        utbetalingService.fetchUtbetalingForPeriod (authenticatedUser.ident, fromDate, toDate).let { utbetaling ->
+        utbetalingService.fetchUtbetalingForPeriod(authenticatedUser, fromDate, toDate).let { utbetaling ->
             call.respond(HttpStatusCode.OK, utbetaling)
         }
     }
