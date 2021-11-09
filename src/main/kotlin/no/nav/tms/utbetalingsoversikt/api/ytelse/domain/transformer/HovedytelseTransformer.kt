@@ -49,15 +49,11 @@ object HovedytelseTransformer {
 
     private fun String.parseLocalDate(): LocalDate = LocalDate.parse(this)
 
-    private fun createPeriode(ytelsesperiode: PeriodeEkstern?): Periode? {
-        return if (ytelsesperiode == null) {
-            null
-        } else {
-            Periode (
-                fom = LocalDate.parse(ytelsesperiode.fom),
-                tom = LocalDate.parse(ytelsesperiode.tom)
-            )
-        }
+    private fun createPeriode(ytelsesperiode: PeriodeEkstern): Periode {
+        return Periode (
+            fom = LocalDate.parse(ytelsesperiode.fom),
+            tom = LocalDate.parse(ytelsesperiode.tom)
+        )
     }
 
     private fun createUnderYtelser(ytelse: YtelseEkstern): List<Underytelse> {
