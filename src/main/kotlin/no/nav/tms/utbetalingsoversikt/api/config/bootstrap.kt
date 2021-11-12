@@ -43,7 +43,7 @@ fun Application.mainModule(appContext: ApplicationContext = ApplicationContext()
     routing {
         healthApi(appContext.healthService)
         authenticate {
-            utbetalingApi(appContext.utbetalingService)
+            utbetalingApi(appContext.utbetalingService, appContext.tokendingsTokenFetcher)
         }
     }
 

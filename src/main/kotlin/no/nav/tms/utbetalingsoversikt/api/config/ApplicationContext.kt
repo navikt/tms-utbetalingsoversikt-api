@@ -14,7 +14,7 @@ class ApplicationContext {
     val healthService = HealthService(this)
 
     private val tokendingsService = TokendingsServiceBuilder.buildTokendingsService()
-    private val tokendingsTokenFetcher = TokendingsTokenFetcher(tokendingsService, environment.sokosUtebatlingTokenxClientId)
+    val tokendingsTokenFetcher = TokendingsTokenFetcher(tokendingsService, environment.sokosUtebatlingTokenxClientId)
 
     private val sokosUtbetalingConsumer = SokosUtbetalingConsumer(httpClient, tokendingsTokenFetcher, environment.sokosUtbetalingUrl)
     private val hovedytelseService = HovedytelseService(sokosUtbetalingConsumer)
