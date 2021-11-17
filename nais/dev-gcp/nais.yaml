@@ -11,10 +11,10 @@ spec:
   image: {{version}}
   port: 8080
   liveness:
-    path: /internal/isAlive
+    path: /tms-utbetalingsoversikt-api/internal/isAlive
     initialDelay: 10
   readiness:
-    path: /internal/isReady
+    path: /tms-utbetalingsoversikt-api/internal/isReady
     initialDelay: 10
   replicas:
     min: 2
@@ -35,7 +35,7 @@ spec:
       external:
         - host: sokos-utbetaldata.dev-fss-pub.nais.io
   ingresses:
-    - "https://tms-utbetalingsoversikt-api.dev.nav.no"
+    - "https://tms-utbetalingsoversikt-api.dev.nav.no/tms-utbetalingsoversikt-api"
   resources:
     limits:
       cpu: "3"
