@@ -35,7 +35,7 @@ spec:
       external:
         - host: sokos-utbetaldata.prod-fss-pub.nais.io
   ingresses:
-    - "https://peron.nav.no/tms-utbetalingsoversikt-api"
+    - "https://person.nav.no/tms-utbetalingsoversikt-api"
   resources:
     limits:
       cpu: "3"
