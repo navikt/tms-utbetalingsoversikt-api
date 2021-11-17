@@ -11,7 +11,6 @@ import io.ktor.util.*
 import io.prometheus.client.hotspot.DefaultExports
 import no.nav.tms.utbetalingsoversikt.api.health.healthApi
 import no.nav.tms.token.support.idporten.installIdPortenAuth
-import no.nav.tms.utbetalingsoversikt.api.utbetaling.debugUtbetalingApi
 import no.nav.tms.utbetalingsoversikt.api.utbetaling.utbetalingApi
 
 @KtorExperimentalAPI
@@ -45,9 +44,6 @@ fun Application.mainModule(appContext: ApplicationContext = ApplicationContext()
         healthApi(appContext.healthService)
         authenticate {
             utbetalingApi(appContext.utbetalingService)
-        }
-        if(environment.enableDebugApi) {
-            debugUtbetalingApi(appContext.utbetalingService)
         }
     }
 

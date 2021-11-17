@@ -20,9 +20,8 @@ spec:
     min: 2
     max: 4
   webproxy: true
-  azure:
-    application:
-      enabled: true
+  tokenx:
+    enabled: true
   idporten:
     enabled: true
     postLogoutRedirectURIs:

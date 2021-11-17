@@ -11,7 +11,7 @@ data class Hovedytelse(
     val status: String,
     @SerialName("ytelse_dato") @Serializable(with = LocalDateSerializer::class) val ytelseDato: LocalDate?,
     @SerialName("forfall_dato") @Serializable(with = LocalDateSerializer::class) val forfallDato: LocalDate?,
-    @SerialName("ytelse_periode") val ytelsePeriode: Periode?,
+    @SerialName("ytelse_periode") val ytelsePeriode: Periode,
     @SerialName("utbetalt_til") val utbetaltTil: String?,
     val kontonummer: String,
     val underytelser: List<Underytelse>,

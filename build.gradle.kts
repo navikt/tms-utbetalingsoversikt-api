@@ -43,7 +43,7 @@ dependencies {
     implementation(Ktor.serverNetty)
     implementation(DittNAV.Common.logging)
     implementation(DittNAV.Common.utils)
-    implementation(Tms.KtorTokenSupport.azureExchange)
+    implementation(Tms.KtorTokenSupport.tokendingsExchange)
     implementation(Tms.KtorTokenSupport.idporten)
     implementation(Logback.classic)
     implementation(Logstash.logbackEncoder)

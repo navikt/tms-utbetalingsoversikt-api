@@ -1,5 +1,6 @@
 package no.nav.tms.utbetalingsoversikt.api.utbetaling
 
+import no.nav.tms.token.support.idporten.user.IdportenUser
 import no.nav.tms.utbetalingsoversikt.api.ytelse.HovedytelseService
 import no.nav.tms.utbetalingsoversikt.api.ytelse.HovedytelseComparator
 import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.internal.Hovedytelse
@@ -7,13 +8,13 @@ import java.time.LocalDate
 
 class UtbetalingService(private val hovedytelseService: HovedytelseService) {
 
-    suspend fun fetchUtbetalingForPeriod(ident: String, fromDateString: String?, toDateString: String?): UtbetalingResponse {
+    suspend fun fetchUtbetalingForPeriod(user: IdportenUser, fromDateString: String?, toDateString: String?): UtbetalingResponse {
 
         val fromDate = InputDateService.getFromDate(fromDateString)
         val adjustedFromDate = InputDateService.getEarlierFromDateWithinMaxBound(fromDate)
         val toDate = InputDateService.getToDate(toDateString)
 
-        return hovedytelseService.getHovedytelserBetaltTilBruker(ident, adjustedFromDate, toDate)
+        return hovedytelseService.getHovedytelserBetaltTilBruker(user, adjustedFromDate, toDate)
             .filter { it.isInPeriod(fromDate, toDate)}
             .sortedWith(HovedytelseComparator::compareYtelse)
             .let { createUtbetalingResponse(it) }
