@@ -1,0 +1,45 @@
+apiVersion: "nais.io/v1alpha1"
+kind: "Application"
+metadata:
+  name: tms-utbetalingsoversikt-api
+  namespace: min-side
+  labels:
+    team: min-side
+spec:
+  envFrom:
+    - secret: tms-utbetalingsoversikt-api-secrets
+  image: {{version}}
+  port: 8080
+  liveness:
+    path: /tms-utbetalingsoversikt-api/internal/isAlive
+    initialDelay: 10
+  readiness:
+    path: /tms-utbetalingsoversikt-api/internal/isReady
+    initialDelay: 10
+  replicas:
+    min: 2
+    max: 4
+  webproxy: true
+  tokenx:
+    enabled: true
+  idporten:
+    enabled: true
+    postLogoutRedirectURIs:
+      - "https://www.nav.no"
+  accessPolicy:
+    outbound:
+      rules:
+        - application: sokos-utbetaldata
+          namespace: okonomi
+          cluster: prod-fss
+      external:
+        - host: sokos-utbetaldata.prod-fss-pub.nais.io
+  ingresses:
+    - "https://peron.nav.no/tms-utbetalingsoversikt-api"
+  resources:
+    limits:
+      cpu: "3"
+      memory: 768Mi
+    requests:
+      cpu: "500m"
+      memory: 580Mi

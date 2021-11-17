@@ -28,7 +28,7 @@ fun Application.mainModule(appContext: ApplicationContext = ApplicationContext()
     }
 
     installIdPortenAuth {
-        tokenCookieName = "tms-utbetalingsoversikt"
+        tokenCookieName = "tms-utbetalingsoversikt-token"
         postLogoutRedirectUri = environment.postLogoutUrl
         secureCookie = true
         setAsDefault = true
