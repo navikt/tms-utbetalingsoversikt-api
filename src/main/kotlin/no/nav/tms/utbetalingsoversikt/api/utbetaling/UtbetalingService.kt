@@ -4,9 +4,12 @@ import no.nav.tms.token.support.idporten.user.IdportenUser
 import no.nav.tms.utbetalingsoversikt.api.ytelse.HovedytelseService
 import no.nav.tms.utbetalingsoversikt.api.ytelse.HovedytelseComparator
 import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.internal.Hovedytelse
+import org.slf4j.LoggerFactory
 import java.time.LocalDate
 
 class UtbetalingService(private val hovedytelseService: HovedytelseService) {
+
+    private val log = LoggerFactory.getLogger(UtbetalingService::class.java)
 
     suspend fun fetchUtbetalingForPeriod(user: IdportenUser, fromDateString: String?, toDateString: String?): UtbetalingResponse {
 
@@ -14,13 +17,23 @@ class UtbetalingService(private val hovedytelseService: HovedytelseService) {
         val adjustedFromDate = InputDateService.getEarlierFromDateWithinMaxBound(fromDate)
         val toDate = InputDateService.getToDate(toDateString)
 
-        return hovedytelseService.getHovedytelserBetaltTilBruker(user, adjustedFromDate, toDate)
-            .filter { it.isInPeriod(fromDate, toDate)}
+        val unfilteredHovedYtelser = hovedytelseService.getHovedytelserBetaltTilBruker(user, adjustedFromDate, toDate)
+
+        val filteredAndSortedHovedytelser = unfilteredHovedYtelser.filter { it.isWithinPeriod(fromDate, toDate) }
             .sortedWith(HovedytelseComparator::compareYtelse)
-            .let { createUtbetalingResponse(it) }
+
+        conditionallyLogFilteringResult(unfilteredHovedYtelser, filteredAndSortedHovedytelser)
+
+        return createUtbetalingResponse(filteredAndSortedHovedytelser)
     }
 
-    private fun Hovedytelse.isInPeriod(fromDate: LocalDate, toDate: LocalDate): Boolean {
+    private fun conditionallyLogFilteringResult(unfiltered: List<Hovedytelse>, filtered: List<Hovedytelse>) {
+        if (unfiltered.size != filtered.size) {
+            log.info("Filtrerte bort ${unfiltered.size - filtered.size} hovedytelser som lå utenfor ønsket tidsrom.")
+        }
+    }
+
+    private fun Hovedytelse.isWithinPeriod(fromDate: LocalDate, toDate: LocalDate): Boolean {
         return when {
             ytelseDato != null && erUtbetalt -> ytelseDato in fromDate..toDate
             ytelseDato == null -> false
