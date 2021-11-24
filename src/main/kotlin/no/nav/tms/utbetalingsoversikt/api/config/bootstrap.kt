@@ -32,6 +32,8 @@ fun Application.mainModule(appContext: ApplicationContext = ApplicationContext()
         postLogoutRedirectUri = environment.postLogoutUrl
         secureCookie = true
         setAsDefault = true
+        tokenRefreshEnabled = true
+        tokenRefreshMarginPercentage = 70
     }
 
     install(ContentNegotiation) {
