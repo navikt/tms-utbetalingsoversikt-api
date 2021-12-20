@@ -83,4 +83,5 @@ internal class HovedytelseTransformerTest {
 
         trekk.sumByDouble { it.trekkBelop } `should be greater or equal to` skattOriginal + trekkOriginal
     }
+
 }
