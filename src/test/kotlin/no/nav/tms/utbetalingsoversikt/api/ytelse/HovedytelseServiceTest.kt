@@ -58,4 +58,5 @@ internal class HovedytelseServiceTest {
         coVerify(exactly = 1) { consumer.fetchUtbetalingsInfo(any(), any(), any(), any()) }
         verify(exactly = 2) { HovedytelseTransformer.toHovedYtelse(any()) }
     }
+
 }
