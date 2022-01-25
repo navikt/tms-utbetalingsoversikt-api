@@ -1,7 +1,7 @@
 package no.nav.tms.utbetalingsoversikt.api.ytelse
 
 import io.ktor.client.*
-import no.nav.tms.token.support.idporten.user.IdportenUser
+import no.nav.tms.token.support.idporten.sidecar.user.IdportenUser
 import no.nav.tms.utbetalingsoversikt.api.config.TokendingsTokenFetcher
 import no.nav.tms.utbetalingsoversikt.api.config.post
 import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.external.*
