@@ -26,6 +26,8 @@ spec:
     enabled: true
     postLogoutRedirectURIs:
       - "https://www.dev.nav.no"
+    sidecar:
+      enabled: true
   accessPolicy:
     outbound:
       rules:
