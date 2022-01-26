@@ -44,7 +44,7 @@ dependencies {
     implementation(DittNAV.Common.logging)
     implementation(DittNAV.Common.utils)
     implementation(Tms.KtorTokenSupport.tokendingsExchange)
-    implementation("com.github.navikt.tms-ktor-token-support:token-support-idporten-sidecar:2022.01.25-test-sidecar-2")
+    implementation(Tms.KtorTokenSupport.idportenSidecar)
     implementation(Logback.classic)
     implementation(Logstash.logbackEncoder)
     implementation(Prometheus.common)
