@@ -2,7 +2,7 @@ package no.nav.tms.utbetalingsoversikt.api.ytelse
 
 import io.mockk.*
 import kotlinx.coroutines.runBlocking
-import no.nav.tms.token.support.idporten.user.IdportenUser
+import no.nav.tms.token.support.idporten.sidecar.user.IdportenUser
 import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.external.RolleEkstern.UTBETALT_TIL
 import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.external.UtbetalingEkstern
 import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.internal.Hovedytelse

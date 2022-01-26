@@ -1,6 +1,6 @@
 package no.nav.tms.utbetalingsoversikt.api.utbetaling
 
-import no.nav.tms.token.support.idporten.user.IdportenUser
+import no.nav.tms.token.support.idporten.sidecar.user.IdportenUser
 import no.nav.tms.utbetalingsoversikt.api.ytelse.HovedytelseService
 import no.nav.tms.utbetalingsoversikt.api.ytelse.HovedytelseComparator
 import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.internal.Hovedytelse

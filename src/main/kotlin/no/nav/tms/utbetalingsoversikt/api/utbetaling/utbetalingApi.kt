@@ -6,8 +6,8 @@ import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
 import io.ktor.util.pipeline.*
-import no.nav.tms.token.support.idporten.user.IdportenUser
-import no.nav.tms.token.support.idporten.user.IdportenUserFactory
+import no.nav.tms.token.support.idporten.sidecar.user.IdportenUser
+import no.nav.tms.token.support.idporten.sidecar.user.IdportenUserFactory
 
 fun Route.utbetalingApi(utbetalingService: UtbetalingService) {
 
