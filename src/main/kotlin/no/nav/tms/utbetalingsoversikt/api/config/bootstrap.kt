@@ -9,6 +9,7 @@ import io.ktor.routing.*
 import io.ktor.serialization.*
 import io.ktor.util.*
 import io.prometheus.client.hotspot.DefaultExports
+import no.nav.tms.token.support.idporten.sidecar.LoginLevel.LEVEL_3
 import no.nav.tms.utbetalingsoversikt.api.health.healthApi
 import no.nav.tms.token.support.idporten.sidecar.installIdPortenAuth
 import no.nav.tms.utbetalingsoversikt.api.utbetaling.utbetalingApi
@@ -29,6 +30,7 @@ fun Application.mainModule(appContext: ApplicationContext = ApplicationContext()
 
     installIdPortenAuth {
         setAsDefault = true
+        loginLevel = LEVEL_3
     }
 
     install(ContentNegotiation) {

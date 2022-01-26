@@ -28,6 +28,7 @@ spec:
       - "https://www.nav.no"
     sidecar:
       enabled: true
+      level: Level3
   accessPolicy:
     outbound:
       rules:
