@@ -62,7 +62,7 @@ object TrekkTransformer {
 
     private fun addTilbakebetalingTextIfNecessary(belop: Double, tekst: String): String {
         return if (belop > 0) {
-            "Tilbakebetaling " + tekst.toLowerCase()
+            "Tilbakebetaling " + tekst.lowercase()
         } else {
             tekst
         }
