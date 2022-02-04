@@ -63,25 +63,25 @@ internal class HovedytelseTransformerTest {
 
         val antallOriginal = expected.ytelseListe
             .flatMap { it.ytelseskomponentListe ?: emptyList() }
-            .sumBy { it.satsantall ?: 0 }
-        underytelser.sumBy { it.antall ?: 0 } `should be less or equal to` antallOriginal
+            .sumOf { it.satsantall ?: 0 }
+        underytelser.sumOf { it.antall ?: 0 } `should be less or equal to` antallOriginal
 
         val belopOriginal = expected.ytelseListe
             .flatMap { it.ytelseskomponentListe ?: emptyList() }
-            .sumByDouble { it.satsbeloep ?: 0.0 }
-        underytelser.sumByDouble { it.belop ?: 0.0 } `should be less or equal to` belopOriginal
+            .sumOf { it.satsbeloep ?: 0.0 }
+        underytelser.sumOf { it.belop ?: 0.0 } `should be less or equal to` belopOriginal
     }
 
     fun validateTrekk(expected: UtbetalingEkstern, trekk: List<Trekk>) {
         val skattOriginal = expected.ytelseListe
             .flatMap { it.skattListe ?: emptyList() }
-            .sumByDouble { it.skattebeloep ?: 0.0 }
+            .sumOf { it.skattebeloep ?: 0.0 }
 
         val trekkOriginal = expected.ytelseListe
             .flatMap { it.trekkListe ?: emptyList() }
-            .sumByDouble { it.trekkbeloep ?: 0.0 }
+            .sumOf { it.trekkbeloep ?: 0.0 }
 
-        trekk.sumByDouble { it.trekkBelop } `should be greater or equal to` skattOriginal + trekkOriginal
+        trekk.sumOf { it.trekkBelop } `should be greater or equal to` skattOriginal + trekkOriginal
     }
 
 }

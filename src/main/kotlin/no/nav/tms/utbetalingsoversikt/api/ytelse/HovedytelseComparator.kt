@@ -24,6 +24,6 @@ object HovedytelseComparator {
     }
 
     private fun compareYtelsestype(ytelsestype1: String, ytelsestype2: String): Int {
-        return ytelsestype1.toLowerCase().compareTo(ytelsestype2.toLowerCase())
+        return ytelsestype1.lowercase().compareTo(ytelsestype2.lowercase())
     }
 }
