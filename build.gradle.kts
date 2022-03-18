@@ -14,7 +14,7 @@ plugins {
 }
 
 tasks.withType<KotlinCompile> {
-    kotlinOptions.jvmTarget = "13"
+    kotlinOptions.jvmTarget = "17"
 }
 
 repositories {
