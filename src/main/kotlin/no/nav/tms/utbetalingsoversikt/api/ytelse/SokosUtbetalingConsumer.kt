@@ -13,7 +13,7 @@ class SokosUtbetalingConsumer(
     private val tokendingsTokenFetcher: TokendingsTokenFetcher,
     baseUrl: URL,
 ) {
-    private val utbetalingsinformasjonInternUrl = URL("$baseUrl/utbetaldata/api/v1/hent-utbetalingsinformasjon/ekstern")
+    private val utbetalingsinformasjonInternUrl = URL("$baseUrl/hent-utbetalingsinformasjon/ekstern")
 
     suspend fun fetchUtbetalingsInfo(user: IdportenUser, fom: LocalDate, tom: LocalDate, rolle: RolleEkstern): List<UtbetalingEkstern> {
         val targetToken = tokendingsTokenFetcher.getSokosUtbetaldataToken(user.tokenString)
