@@ -10,8 +10,4 @@ data class YtelseskomponentEkstern(
     val satstype: String? = null,
     val satsantall: Double? = null,
     val ytelseskomponentbeloep: Double? = null,
-) {
-    init {
-        logger.info("Beløp: $satsbeloep, antall: $satsantall")
-    }
-}
+)
