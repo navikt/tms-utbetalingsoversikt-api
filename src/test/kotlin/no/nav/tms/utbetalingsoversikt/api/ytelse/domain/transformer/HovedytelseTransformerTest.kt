@@ -39,7 +39,7 @@ internal class HovedytelseTransformerTest {
         val original = expected.ytelseListe.map { it.rettighetshaver }.firstOrNull()
 
         toValidate.navn `should be equal to` original?.navn
-        toValidate.aktoerId `should be equal to` original?.aktoerId
+        toValidate.aktoerId `should be equal to` original?.ident
     }
 
     private fun validatePeriode(expected: UtbetalingEkstern, toValidate: Periode) {

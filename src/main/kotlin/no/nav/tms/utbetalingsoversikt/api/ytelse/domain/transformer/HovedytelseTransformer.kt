@@ -32,7 +32,7 @@ object HovedytelseTransformer {
     }
 
     private fun createRettighetshaver(aktoer: AktoerEkstern): Rettighetshaver {
-        return Rettighetshaver(aktoer.aktoerId, aktoer.navn)
+        return Rettighetshaver(aktoer.ident, aktoer.navn)
     }
 
     private fun isUtbetalt(utbetaling: UtbetalingEkstern): Boolean {

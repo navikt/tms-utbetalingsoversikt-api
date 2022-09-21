@@ -12,8 +12,8 @@ data class YtelseEkstern(
     val trekksum: Double,
     val ytelseskomponentersum: Double,
 
-    val skattListe: List<SkattEsktern>? = null,
-    val trekkListe: List<TrekkEsktern>? = null,
+    val skattListe: List<SkattEkstern>? = null,
+    val trekkListe: List<TrekkEkstern>? = null,
     val ytelseskomponentListe: List<YtelseskomponentEkstern>? = null,
 
     val bilagsnummer: String? = null,
