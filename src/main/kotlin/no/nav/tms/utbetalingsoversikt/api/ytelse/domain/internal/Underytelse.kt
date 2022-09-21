@@ -7,6 +7,6 @@ data class Underytelse (
     val beskrivelse:  String?,
     val satstype:  String?,
     val sats:  Double?,
-    val antall:  Int?,
+    val antall:  Double?,
     val belop:  Double?,
 )

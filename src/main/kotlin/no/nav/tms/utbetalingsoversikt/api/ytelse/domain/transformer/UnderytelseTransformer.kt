@@ -36,7 +36,7 @@ object UnderytelseTransformer {
             }
     }
 
-    private fun sumOfAntall(ytelse1: Underytelse, ytelse2: Underytelse): Int {
+    private fun sumOfAntall(ytelse1: Underytelse, ytelse2: Underytelse): Double {
         return ytelse1.nonNullAntallOrZero + ytelse2.nonNullAntallOrZero
     }
 
@@ -44,6 +44,6 @@ object UnderytelseTransformer {
         return ytelse1.nonNullBelopOrZero + ytelse2.nonNullBelopOrZero
     }
 
-    private val Underytelse.nonNullAntallOrZero get() = this.antall ?: 0
+    private val Underytelse.nonNullAntallOrZero get() = this.antall ?: 0.0
     private val Underytelse.nonNullBelopOrZero get() = this.belop ?: 0.0
 }

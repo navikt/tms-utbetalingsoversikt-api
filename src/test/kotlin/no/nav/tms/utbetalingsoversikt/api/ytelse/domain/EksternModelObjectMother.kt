@@ -65,7 +65,7 @@ object EksternModelObjectMother {
 
     fun giveMeTrekkListe(vararg beloep: Double) = beloep.map { giveMeTrekkEkstern(it) }
 
-    fun giveMeYtelsesKomponentEkstern(komponenttype: String = "type", satsBeloep: Double = 6000.0, komponentbeloep: Double = 7000.0, antall: Int = 1) = YtelseskomponentEkstern(
+    fun giveMeYtelsesKomponentEkstern(komponenttype: String = "type", satsBeloep: Double = 6000.0, komponentbeloep: Double = 7000.0, antall: Double = 1.0) = YtelseskomponentEkstern(
         ytelseskomponenttype = komponenttype,
         satsbeloep = satsBeloep,
         satstype = "type",

@@ -63,8 +63,8 @@ internal class HovedytelseTransformerTest {
 
         val antallOriginal = expected.ytelseListe
             .flatMap { it.ytelseskomponentListe ?: emptyList() }
-            .sumOf { it.satsantall ?: 0 }
-        underytelser.sumOf { it.antall ?: 0 } `should be less or equal to` antallOriginal
+            .sumOf { it.satsantall ?: 0.0 }
+        underytelser.sumOf { it.antall ?: 0.0 } `should be less or equal to` antallOriginal
 
         val belopOriginal = expected.ytelseListe
             .flatMap { it.ytelseskomponentListe ?: emptyList() }
