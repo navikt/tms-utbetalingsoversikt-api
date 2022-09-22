@@ -1,7 +1,7 @@
 package no.nav.tms.utbetalingsoversikt.api.ytelse.domain.transformer
 
-import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.external.SkattEsktern
-import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.external.TrekkEsktern
+import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.external.SkattEkstern
+import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.external.TrekkEkstern
 import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.external.YtelseEkstern
 import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.internal.Trekk
 
@@ -21,7 +21,7 @@ object TrekkTransformer {
             ?: emptyList()
     }
 
-    private fun toTrekk(skatt: SkattEsktern): Trekk {
+    private fun toTrekk(skatt: SkattEkstern): Trekk {
         val trekkBeloep = skatt.nonNullBeloepOrZero
 
         return Trekk(
@@ -36,7 +36,7 @@ object TrekkTransformer {
             ?: emptyList()
     }
 
-    private fun toTrekk(trekk: TrekkEsktern): Trekk {
+    private fun toTrekk(trekk: TrekkEkstern): Trekk {
         val trekkBeloep = trekk.nonNullBeloepOrZero
 
         val trekkType = if (trekk.trekktype != null) {
@@ -68,6 +68,6 @@ object TrekkTransformer {
         }
     }
 
-    private val TrekkEsktern.nonNullBeloepOrZero get() = this.trekkbeloep?: 0.0
-    private val SkattEsktern.nonNullBeloepOrZero get() = this.skattebeloep?: 0.0
+    private val TrekkEkstern.nonNullBeloepOrZero get() = this.trekkbeloep?: 0.0
+    private val SkattEkstern.nonNullBeloepOrZero get() = this.skattebeloep?: 0.0
 }

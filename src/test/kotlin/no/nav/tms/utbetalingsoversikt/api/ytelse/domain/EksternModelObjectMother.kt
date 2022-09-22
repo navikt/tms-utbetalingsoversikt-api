@@ -1,7 +1,7 @@
 package no.nav.tms.utbetalingsoversikt.api.ytelse.domain
 
 import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.external.*
-import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.external.AktoertypeEsktern.PERSON
+import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.external.AktoertypeEkstern.PERSON
 import java.time.LocalDate
 
 object EksternModelObjectMother {
@@ -37,7 +37,7 @@ object EksternModelObjectMother {
         refundertForOrg = giveMeAktoerEkstern(),
     )
 
-    fun giveMeBankkontoEkstern(kontonummer: String = "123456 12345") = BankkontoEsktern(
+    fun giveMeBankkontoEkstern(kontonummer: String = "123456 12345") = BankkontoEkstern(
         kontonummer = kontonummer,
         kontotype = "kontotype"
     )
@@ -49,15 +49,15 @@ object EksternModelObjectMother {
 
     fun giveMeAktoerEkstern() = AktoerEkstern(
         aktoertype = PERSON,
-        aktoerId = "12345678912",
+        identNew = "12345678912",
         navn = "Navn Navnesen"
     )
 
-    fun giveMeSkattEkstern(beloep: Double = -600.0) = SkattEsktern(beloep)
+    fun giveMeSkattEkstern(beloep: Double = -600.0) = SkattEkstern(beloep)
 
     private fun giveMeSkatteListe(vararg beloep: Double) = beloep.map { giveMeSkattEkstern(it) }
 
-    fun giveMeTrekkEkstern(beloep: Double = -700.0) = TrekkEsktern(
+    fun giveMeTrekkEkstern(beloep: Double = -700.0) = TrekkEkstern(
         trekktype = "trekk",
         trekkbeloep = beloep,
         kreditor = "kreditor"
@@ -65,7 +65,7 @@ object EksternModelObjectMother {
 
     fun giveMeTrekkListe(vararg beloep: Double) = beloep.map { giveMeTrekkEkstern(it) }
 
-    fun giveMeYtelsesKomponentEkstern(komponenttype: String = "type", satsBeloep: Double = 6000.0, komponentbeloep: Double = 7000.0, antall: Int = 1) = YtelseskomponentEkstern(
+    fun giveMeYtelsesKomponentEkstern(komponenttype: String = "type", satsBeloep: Double = 6000.0, komponentbeloep: Double = 7000.0, antall: Double = 1.0) = YtelseskomponentEkstern(
         ytelseskomponenttype = komponenttype,
         satsbeloep = satsBeloep,
         satstype = "type",

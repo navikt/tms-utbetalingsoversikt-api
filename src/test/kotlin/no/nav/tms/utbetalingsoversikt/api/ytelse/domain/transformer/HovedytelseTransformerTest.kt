@@ -39,7 +39,7 @@ internal class HovedytelseTransformerTest {
         val original = expected.ytelseListe.map { it.rettighetshaver }.firstOrNull()
 
         toValidate.navn `should be equal to` original?.navn
-        toValidate.aktoerId `should be equal to` original?.aktoerId
+        toValidate.aktoerId `should be equal to` original?.ident
     }
 
     private fun validatePeriode(expected: UtbetalingEkstern, toValidate: Periode) {
@@ -63,8 +63,8 @@ internal class HovedytelseTransformerTest {
 
         val antallOriginal = expected.ytelseListe
             .flatMap { it.ytelseskomponentListe ?: emptyList() }
-            .sumOf { it.satsantall ?: 0 }
-        underytelser.sumOf { it.antall ?: 0 } `should be less or equal to` antallOriginal
+            .sumOf { it.satsantall ?: 0.0 }
+        underytelser.sumOf { it.antall ?: 0.0 } `should be less or equal to` antallOriginal
 
         val belopOriginal = expected.ytelseListe
             .flatMap { it.ytelseskomponentListe ?: emptyList() }

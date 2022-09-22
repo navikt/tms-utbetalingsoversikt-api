@@ -12,7 +12,7 @@ data class UtbetalingEkstern(
     val utbetalingsdato: String? = null,
     val utbetalingNettobeloep: Double? = null,
     val utbetalingsmelding: String? = null,
-    val utbetaltTilKonto: BankkontoEsktern? = null,
+    val utbetaltTilKonto: BankkontoEkstern? = null,
     val ytelseListe: List<YtelseEkstern> = emptyList(),
 )
 
