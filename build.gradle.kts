@@ -19,52 +19,36 @@ tasks.withType<KotlinCompile> {
 
 repositories {
     mavenCentral()
-    maven("https://packages.confluent.io/maven")
     maven("https://jitpack.io")
     mavenLocal()
 }
 
 dependencies {
-    implementation(Jackson.dataTypeJsr310)
     implementation(Kotlinx.coroutines)
-    implementation(Kotlinx.htmlJvm)
-    implementation(Ktor.auth)
-    implementation(Ktor.authJwt)
-    implementation(Ktor.clientApache)
-    implementation(Ktor.clientJackson)
-    implementation(Ktor.clientJson)
-    implementation(Ktor.clientLogging)
-    implementation(Ktor.clientLoggingJvm)
-    implementation(Ktor.clientSerializationJvm)
-    implementation(Ktor.htmlBuilder)
-    implementation(Ktor.serialization)
-    implementation(Ktor.serverNetty)
-    implementation(DittNAV.Common.logging)
-    implementation(DittNAV.Common.utils)
-    implementation(Tms.KtorTokenSupport.tokendingsExchange)
-    implementation(Tms.KtorTokenSupport.idportenSidecar)
-    implementation(Logback.classic)
-    implementation(Logstash.logbackEncoder)
-    implementation(Prometheus.common)
-    implementation(Prometheus.hotspot)
-    implementation(Prometheus.logback)
-
+    implementation(Ktor2.Client.apache)
+    implementation(Ktor2.Client.contentNegotiation)
+    implementation(Ktor2.Serialization.kotlinX)
+    implementation(Ktor2.Server.auth)
+    implementation(Ktor2.Server.authJwt)
+    implementation(Ktor2.Server.contentNegotiation)
+    implementation(Ktor2.Server.cors)
+    implementation(Ktor2.Server.defaultHeaders)
+    implementation(Ktor2.Server.netty)
+    implementation(DittNAVCommonLib.utils)
+    implementation(TmsKtorTokenSupport201.tokendingsExchange)
+    implementation(TmsKtorTokenSupport201.idportenSidecar)
 
     testImplementation(Junit.api)
+    testImplementation(Junit.engine)
     testImplementation(Ktor.clientMock)
     testImplementation(Ktor.clientMockJvm)
     testImplementation(Kluent.kluent)
     testImplementation(Mockk.mockk)
     testImplementation(Jjwt.api)
-
-    testRuntimeOnly(Bouncycastle.bcprovJdk15on)
-    testRuntimeOnly(Jjwt.impl)
-    testRuntimeOnly(Jjwt.jackson)
-    testRuntimeOnly(Junit.engine)
 }
 
 application {
-    mainClassName = "io.ktor.server.netty.EngineMain"
+    mainClassName = "no.nav.tms.utbetalingsoversikt.api.config.AppKt"
 }
 
 tasks {
@@ -74,24 +58,6 @@ tasks {
             exceptionFormat = TestExceptionFormat.FULL
             events("passed", "skipped", "failed")
         }
-    }
-
-    register("runServer", JavaExec::class) {
-        println("Setting default environment variables for running with DittNAV docker-compose")
-
-        environment("CORS_ALLOWED_ORIGINS", "localhost:9002")
-
-        environment("LOGINSERVICE_IDPORTEN_DISCOVERY_URL", "http://localhost:9000/.well-known/openid-configuration")
-        environment("LOGINSERVICE_IDPORTEN_AUDIENCE", "stubOidcClient")
-        environment("OIDC_CLAIM_CONTAINING_THE_IDENTITY", "pid")
-
-        environment("NAIS_CLUSTER_NAME", "dev-sbs")
-        environment("NAIS_NAMESPACE", "personbruker")
-        environment("SENSU_HOST", "stub")
-        environment("SENSU_PORT", "")
-
-        main = application.mainClassName
-        classpath = sourceSets["main"].runtimeClasspath
     }
 }
 
