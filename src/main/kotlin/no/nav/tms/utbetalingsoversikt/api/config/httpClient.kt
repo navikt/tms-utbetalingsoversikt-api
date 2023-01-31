@@ -7,6 +7,7 @@ import io.ktor.client.plugins.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
 import io.ktor.http.*
+import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.net.URL
@@ -15,7 +16,7 @@ object HttpClientBuilder {
 
     fun build() = HttpClient(Apache) {
         install(ContentNegotiation) {
-            jsonConfig()
+            json(jsonConfig())
         }
         install(HttpTimeout)
     }
