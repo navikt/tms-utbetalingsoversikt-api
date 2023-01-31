@@ -15,7 +15,7 @@ fun Route.healthApi() {
     }
 
     get("/internal/isReady") {
-            call.respondText(text = "READY", contentType = ContentType.Text.Plain)
+        call.respondText(text = "READY", contentType = ContentType.Text.Plain)
     }
 
     get("/internal/selftest") {

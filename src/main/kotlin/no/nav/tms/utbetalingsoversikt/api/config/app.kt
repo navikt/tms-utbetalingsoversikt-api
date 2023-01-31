@@ -3,6 +3,7 @@ package no.nav.tms.utbetalingsoversikt.api.config
 import io.ktor.client.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.http.*
+import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.engine.*
@@ -52,7 +53,7 @@ fun Application.utbetalingApi(
     authConfig()
 
     install(ContentNegotiation) {
-        jsonConfig()
+        json(jsonConfig())
     }
 
     routing {
