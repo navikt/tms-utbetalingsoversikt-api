@@ -8,11 +8,9 @@ import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.Json
 import java.time.LocalDate
 
-fun jsonConfig(ignoreUnknownKeys: Boolean = false): Json {
-    return Json {
-        this.ignoreUnknownKeys = ignoreUnknownKeys
-        this.encodeDefaults = true
-    }
+fun jsonConfig() = Json {
+    this.ignoreUnknownKeys = true
+    this.encodeDefaults = true
 }
 
 class LocalDateSerializer: KSerializer<LocalDate> {
