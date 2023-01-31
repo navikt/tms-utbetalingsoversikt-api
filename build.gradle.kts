@@ -35,8 +35,8 @@ dependencies {
     implementation(Ktor2.Server.defaultHeaders)
     implementation(Ktor2.Server.netty)
     implementation(DittNAVCommonLib.utils)
-    implementation(TokenSupportTrial.tokendingsExchange)
-    implementation(TokenSupportTrial.idportenSidecar)
+    implementation(TmsKtorTokenSupport201.tokendingsExchange)
+    implementation(TmsKtorTokenSupport201.idportenSidecar)
 
     testImplementation(Junit.api)
     testImplementation(Junit.engine)

@@ -1,5 +1,5 @@
 import default.*;
 
-object TokenSupportTrial: TmsKtorTokenSupportDefaults {
-    override val version = "2023-01-31-test-contextpath"
+object TmsKtorTokenSupport201: TmsKtorTokenSupportDefaults {
+    override val version = "2.0.1"
 }
