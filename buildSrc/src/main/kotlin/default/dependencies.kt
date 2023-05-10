@@ -337,7 +337,7 @@ interface TestContainersDefaults: DependencyGroup {
 
 interface TmsKtorTokenSupportDefaults: DependencyGroup {
     override val groupId get() = "com.github.navikt.tms-ktor-token-support"
-    override val version get() = "2.1.1"
+    override val version get() = "2.1.3"
 
     val authenticationInstaller get() = dependency("token-support-authentication-installer")
     val azureExchange get() = dependency("token-support-azure-exchange")
