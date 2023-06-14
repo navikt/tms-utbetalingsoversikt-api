@@ -5,7 +5,9 @@ import no.nav.tms.token.support.idporten.sidecar.user.IdportenUser
 import no.nav.tms.utbetalingsoversikt.api.ytelse.HovedytelseService
 import no.nav.tms.utbetalingsoversikt.api.ytelse.HovedytelseComparator
 import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.internal.Hovedytelse
+import org.slf4j.LoggerFactory
 import java.time.LocalDate
+import kotlin.math.log
 
 class UtbetalingService(private val hovedytelseService: HovedytelseService) {
 
@@ -57,6 +59,7 @@ class UtbetalingService(private val hovedytelseService: HovedytelseService) {
             return date to hash
 
         } catch (e: Exception) {
+            LoggerFactory.getLogger(UtbetalingService::class.java).info("Feil!", e)
             throw IllegalArgumentException("Invalid ytelseId $id")
         }
     }
