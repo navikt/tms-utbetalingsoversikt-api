@@ -1,5 +1,6 @@
 package no.nav.tms.utbetalingsoversikt.api.ytelse.domain.transformer
 
+import io.ktor.util.*
 import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.external.AktoerEkstern
 import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.external.PeriodeEkstern
 import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.external.UtbetalingEkstern
@@ -9,12 +10,14 @@ import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.internal.Periode
 import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.internal.Rettighetshaver
 import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.internal.Underytelse
 import java.time.LocalDate
+import java.util.*
 
 object HovedytelseTransformer {
 
     fun toHovedYtelse(utbetaling: UtbetalingEkstern): List<Hovedytelse> {
         return utbetaling.ytelseListe.map { ytelseEkstern ->
             Hovedytelse(
+                id = createImplicitId(utbetaling, ytelseEkstern),
                 rettighetshaver = createRettighetshaver(ytelseEkstern.rettighetshaver),
                 ytelse = ytelseEkstern.ytelsestype?: "",
                 status = utbetaling.utbetalingsstatus,
@@ -29,6 +32,18 @@ object HovedytelseTransformer {
                 melding = utbetaling.utbetalingsmelding?: ""
             )
         }
+    }
+
+    private fun createImplicitId(utbetaling: UtbetalingEkstern, ytelse: YtelseEkstern): String {
+        val datePart = LocalDate.parse(utbetaling.posteringsdato)
+            .toEpochDay()
+
+        val contentPart = ytelse.hashCode()
+            .toString()
+
+        return "$datePart-$contentPart"
+            .toByteArray()
+            .encodeBase64()
     }
 
     private fun createRettighetshaver(aktoer: AktoerEkstern): Rettighetshaver {

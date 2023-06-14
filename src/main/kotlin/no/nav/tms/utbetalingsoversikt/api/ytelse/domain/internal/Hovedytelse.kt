@@ -7,6 +7,7 @@ import java.time.LocalDate
 
 @Serializable
 data class Hovedytelse(
+    val id: String,
     val ytelse: String,
     val status: String,
     @SerialName("ytelse_dato") @Serializable(with = LocalDateSerializer::class) val ytelseDato: LocalDate?,
