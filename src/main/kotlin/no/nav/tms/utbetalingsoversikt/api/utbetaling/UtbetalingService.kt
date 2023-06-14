@@ -2,6 +2,7 @@ package no.nav.tms.utbetalingsoversikt.api.utbetaling
 
 import io.ktor.util.*
 import no.nav.tms.token.support.idporten.sidecar.user.IdportenUser
+import no.nav.tms.utbetalingsoversikt.api.utbetaling.YtelseIdUtil.unmarshalId
 import no.nav.tms.utbetalingsoversikt.api.ytelse.HovedytelseService
 import no.nav.tms.utbetalingsoversikt.api.ytelse.HovedytelseComparator
 import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.internal.Hovedytelse
@@ -46,23 +47,5 @@ class UtbetalingService(private val hovedytelseService: HovedytelseService) {
         val rettighetshaver = hovedytelser.map { it.rettighetshaver }.firstOrNull()
 
         return UtbetalingResponse(rettighetshaver, utbetalte, kommende)
-    }
-
-    private fun unmarshalId(id: String?): Pair<LocalDate, Int> {
-        try {
-            val (datePart, hashPart) = id!!.decodeBase64String()
-                .also { LoggerFactory.getLogger(UtbetalingService::class.java).info("Decoded: $it") }
-                .split("-")
-
-            val date = datePart.toLong().let { LocalDate.ofEpochDay(it) }
-
-            val hash = hashPart.toInt()
-
-            return date to hash
-
-        } catch (e: Exception) {
-            LoggerFactory.getLogger(UtbetalingService::class.java).info("Feil!", e)
-            throw IllegalArgumentException("Invalid ytelseId $id")
-        }
     }
 }
