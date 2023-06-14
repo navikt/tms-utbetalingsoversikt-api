@@ -12,6 +12,8 @@ import kotlin.math.log
 
 class UtbetalingService(private val hovedytelseService: HovedytelseService) {
 
+    private val log = LoggerFactory.getLogger(UtbetalingService::class.java)
+
     suspend fun fetchUtbetalingForPeriod(user: IdportenUser, fromDateString: String?, toDateString: String?): UtbetalingResponse {
 
         val fromDate = InputDateService.getFromDate(fromDateString)
@@ -27,8 +29,10 @@ class UtbetalingService(private val hovedytelseService: HovedytelseService) {
     suspend fun fetchYtelse(user: IdportenUser, ytelseId: String?): Hovedytelse {
         val (date, hash) = unmarshalId(ytelseId)
 
+        log.info("Henter ytelse for dato: $date, hash: $hash")
+
         return hovedytelseService.getHovedytelserBetaltTilBruker(user, date, date)
-            .filter { it.isInPeriod(date, date) }
+            .also{ it.forEach { log.info("Id: ${it.id}, hash: ${it.hashCode()}") } }
             .filter { it.hashCode() == hash }
             .first()
     }
