@@ -19,15 +19,11 @@ object YtelseIdUtil {
         return "$datePart-$contentPart"
     }
 
-    fun unmarshalId(id: String?): Pair<LocalDate, Int> {
+    fun unmarshalDateFromId(id: String?): LocalDate {
         try {
-            val (datePart, hashPart) = id!!.split("-")
+            val datePart = id!!.split("-").first()
 
-            val date = datePart.toLong(16).let { LocalDate.ofEpochDay(it) }
-
-            val hash = Integer.parseUnsignedInt(hashPart,16)
-
-            return date to hash
+            return datePart.toLong(16).let { LocalDate.ofEpochDay(it) }
 
         } catch (e: Exception) {
             log.warn("Klarte ikke pakke ut info fra ytelseId $id")

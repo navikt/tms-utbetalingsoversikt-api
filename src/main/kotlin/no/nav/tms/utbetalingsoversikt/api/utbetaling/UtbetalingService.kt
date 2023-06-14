@@ -27,13 +27,13 @@ class UtbetalingService(private val hovedytelseService: HovedytelseService) {
     }
 
     suspend fun fetchYtelse(user: IdportenUser, ytelseId: String?): Hovedytelse {
-        val (date, hash) = unmarshalId(ytelseId)
+        val date = YtelseIdUtil.unmarshalDateFromId(ytelseId)
 
-        log.info("Henter ytelse for dato: $date, hash: $hash")
+        log.info("Henter ytelse for id: $ytelseId, dato: $date")
 
         return hovedytelseService.getHovedytelserBetaltTilBruker(user, date, date)
-            .also{ it.forEach { log.info("Id: ${it.id}, hash: ${it.hashCode()}") } }
-            .filter { it.hashCode() == hash }
+            .also{ it.forEach { log.info("Id: ${it.id}") } }
+            .filter { it.id == ytelseId }
             .first()
     }
 
