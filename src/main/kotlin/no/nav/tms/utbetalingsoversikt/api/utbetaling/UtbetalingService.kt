@@ -50,7 +50,9 @@ class UtbetalingService(private val hovedytelseService: HovedytelseService) {
 
     private fun unmarshalId(id: String?): Pair<LocalDate, Int> {
         try {
-            val (datePart, hashPart) = id!!.decodeBase64String().split("-")
+            val (datePart, hashPart) = id!!.decodeBase64String()
+                .also { LoggerFactory.getLogger(UtbetalingService::class.java).info("Decoded: $it") }
+                .split("-")
 
             val date = datePart.toLong().let { LocalDate.ofEpochDay(it) }
 
