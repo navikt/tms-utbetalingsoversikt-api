@@ -13,6 +13,8 @@ object YtelseIdUtil {
             .toEpochDay()
             .toString(radix = 16)
 
+        log.info("Creating id with datePart $datePart for $ytelse.")
+
         val contentPart = ytelse.hashCode()
             .let(Integer::toHexString)
 
