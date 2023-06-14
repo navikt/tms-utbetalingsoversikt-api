@@ -1,14 +1,11 @@
 package no.nav.tms.utbetalingsoversikt.api.utbetaling
 
-import io.ktor.util.*
 import no.nav.tms.token.support.idporten.sidecar.user.IdportenUser
-import no.nav.tms.utbetalingsoversikt.api.utbetaling.YtelseIdUtil.unmarshalId
 import no.nav.tms.utbetalingsoversikt.api.ytelse.HovedytelseService
 import no.nav.tms.utbetalingsoversikt.api.ytelse.HovedytelseComparator
 import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.internal.Hovedytelse
 import org.slf4j.LoggerFactory
 import java.time.LocalDate
-import kotlin.math.log
 
 class UtbetalingService(private val hovedytelseService: HovedytelseService) {
 
