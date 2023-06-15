@@ -19,22 +19,35 @@ object EksternModelObjectMother {
         ytelseListe = listOf(giveMeYtelseEkstern(), giveMeYtelseEkstern())
     )
 
-    fun giveMeYtelseEkstern() = YtelseEkstern(
-        ytelsestype = "ytelseType",
-        ytelsesperiode = giveMePeriode(),
-        ytelseNettobeloep = 5000.0,
-        rettighetshaver = giveMeAktoerEkstern(),
-        skattsum = -200.0,
-        trekksum = -300.0,
-        ytelseskomponentersum = 4500.0,
-        skattListe = giveMeSkatteListe(-50.0, -150.0),
-        trekkListe = giveMeTrekkListe(-180.0, -50.0, -70.0),
-        ytelseskomponentListe = listOf(
+    fun giveMeYtelseEkstern(
+        ytelsestype: String = "ytelseType",
+        ytelsesperiode: PeriodeEkstern = giveMePeriode(),
+        ytelseNettobeloep: Double = 5000.0,
+        rettighetshaver: AktoerEkstern = giveMeAktoerEkstern(),
+        skattsum: Double = -200.0,
+        trekksum: Double = -300.0,
+        ytelseskomponentersum: Double = 4500.0,
+        skattListe: List<SkattEkstern> = giveMeSkatteListe(-50.0, -150.0),
+        trekkListe: List<TrekkEkstern> = giveMeTrekkListe(-180.0, -50.0, -70.0),
+        ytelseskomponentListe: List<YtelseskomponentEkstern> = listOf(
             giveMeYtelsesKomponentEkstern("entype", 2000.0, 3000.0),
             giveMeYtelsesKomponentEkstern("annenType", 8000.0, 7000.0)
         ),
-        bilagsnummer = "bilagsnummer",
-        refundertForOrg = giveMeAktoerEkstern(),
+        bilagsnummer: String = "bilagsnummer",
+        refundertForOrg: AktoerEkstern = giveMeAktoerEkstern(),
+    ) = YtelseEkstern(
+        ytelsestype = ytelsestype,
+        ytelsesperiode = ytelsesperiode,
+        ytelseNettobeloep = ytelseNettobeloep,
+        rettighetshaver = rettighetshaver,
+        skattsum = skattsum,
+        trekksum = trekksum,
+        ytelseskomponentersum = ytelseskomponentersum,
+        skattListe = skattListe,
+        trekkListe = trekkListe,
+        ytelseskomponentListe = ytelseskomponentListe,
+        bilagsnummer = bilagsnummer,
+        refundertForOrg = refundertForOrg
     )
 
     fun giveMeBankkontoEkstern(kontonummer: String = "123456 12345") = BankkontoEkstern(
@@ -42,9 +55,12 @@ object EksternModelObjectMother {
         kontotype = "kontotype"
     )
 
-    fun giveMePeriode() = PeriodeEkstern(
-        fom = LocalDate.now().minusMonths(2).toString(),
-        tom = LocalDate.now().toString()
+    fun giveMePeriode(
+        fom: LocalDate = LocalDate.now().minusMonths(2),
+        tom: LocalDate = LocalDate.now()
+    ) = PeriodeEkstern(
+        fom = fom.toString(),
+        tom = tom.toString()
     )
 
     fun giveMeAktoerEkstern() = AktoerEkstern(
@@ -65,7 +81,12 @@ object EksternModelObjectMother {
 
     fun giveMeTrekkListe(vararg beloep: Double) = beloep.map { giveMeTrekkEkstern(it) }
 
-    fun giveMeYtelsesKomponentEkstern(komponenttype: String = "type", satsBeloep: Double = 6000.0, komponentbeloep: Double = 7000.0, antall: Double = 1.0) = YtelseskomponentEkstern(
+    fun giveMeYtelsesKomponentEkstern(
+        komponenttype: String = "type",
+        satsBeloep: Double = 6000.0,
+        komponentbeloep: Double = 7000.0,
+        antall: Double = 1.0
+    ) = YtelseskomponentEkstern(
         ytelseskomponenttype = komponenttype,
         satsbeloep = satsBeloep,
         satstype = "type",

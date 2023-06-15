@@ -18,7 +18,7 @@ object HovedytelseTransformer {
     fun toHovedYtelse(utbetaling: UtbetalingEkstern): List<Hovedytelse> {
         return utbetaling.ytelseListe.map { ytelseEkstern ->
             Hovedytelse(
-                id = YtelseIdUtil.calculateId(utbetaling, ytelseEkstern),
+                id = YtelseIdUtil.calculateId(utbetaling.posteringsdato, ytelseEkstern),
                 rettighetshaver = createRettighetshaver(ytelseEkstern.rettighetshaver),
                 ytelse = ytelseEkstern.ytelsestype?: "",
                 status = utbetaling.utbetalingsstatus,
