@@ -40,8 +40,6 @@ dependencies {
 
     testImplementation(Junit.api)
     testImplementation(Junit.engine)
-    testImplementation(Ktor.clientMock)
-    testImplementation(Ktor.clientMockJvm)
     testImplementation(Kluent.kluent)
     testImplementation(Mockk.mockk)
     testImplementation(Jjwt.api)
