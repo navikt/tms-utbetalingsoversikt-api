@@ -1,5 +1,7 @@
 package no.nav.tms.utbetalingsoversikt.api.ytelse.domain.transformer
 
+import io.ktor.util.*
+import no.nav.tms.utbetalingsoversikt.api.utbetaling.YtelseIdUtil
 import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.external.AktoerEkstern
 import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.external.PeriodeEkstern
 import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.external.UtbetalingEkstern
@@ -9,12 +11,14 @@ import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.internal.Periode
 import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.internal.Rettighetshaver
 import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.internal.Underytelse
 import java.time.LocalDate
+import java.util.*
 
 object HovedytelseTransformer {
 
     fun toHovedYtelse(utbetaling: UtbetalingEkstern): List<Hovedytelse> {
         return utbetaling.ytelseListe.map { ytelseEkstern ->
             Hovedytelse(
+                id = YtelseIdUtil.calculateId(utbetaling.posteringsdato, ytelseEkstern),
                 rettighetshaver = createRettighetshaver(ytelseEkstern.rettighetshaver),
                 ytelse = ytelseEkstern.ytelsestype?: "",
                 status = utbetaling.utbetalingsstatus,

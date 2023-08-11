@@ -19,10 +19,24 @@ fun Route.utbetalingApi(utbetalingService: UtbetalingService) {
             call.respond(HttpStatusCode.OK, utbetaling)
         }
     }
+
+    get("/utbetaling") {
+        val ytelseId = call.request.ytelseId
+
+        try {
+            utbetalingService.fetchYtelse(authenticatedUser, ytelseId).let { utbetaling ->
+                call.respond(HttpStatusCode.OK, utbetaling)
+            }
+        } catch (e: IllegalArgumentException) {
+            call.respond(status = HttpStatusCode.BadRequest, "Invalid ytelseId")
+        }
+    }
 }
 
 private val ApplicationRequest.fromDateParam: String? get() = queryParameters["fom"]
 private val ApplicationRequest.toDateParam: String? get() = queryParameters["tom"]
+
+private val ApplicationRequest.ytelseId: String? get() = queryParameters["ytelseId"]
 
 private val PipelineContext<Unit, ApplicationCall>.authenticatedUser: IdportenUser
     get() = IdportenUserFactory.createIdportenUser(call)
