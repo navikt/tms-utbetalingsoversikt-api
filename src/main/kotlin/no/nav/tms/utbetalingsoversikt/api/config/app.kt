@@ -11,6 +11,9 @@ import io.ktor.server.netty.*
 import io.ktor.server.plugins.cors.routing.*
 import io.ktor.server.plugins.defaultheaders.*
 import io.ktor.server.routing.*
+import nav.no.tms.common.metrics.installTmsMicrometerMetrics
+import no.nav.tms.token.support.idporten.sidecar.LevelOfAssurance
+import no.nav.tms.token.support.idporten.sidecar.LevelOfAssurance.SUBSTANTIAL
 import no.nav.tms.token.support.idporten.sidecar.LoginLevel.LEVEL_3
 import no.nav.tms.token.support.idporten.sidecar.installIdPortenAuth
 import no.nav.tms.token.support.tokendings.exchange.TokendingsServiceBuilder
@@ -56,6 +59,11 @@ fun Application.utbetalingApi(
         json(jsonConfig())
     }
 
+    installTmsMicrometerMetrics {
+        setupMetricsRoute = true
+        installMicrometerPlugin = true
+    }
+
     routing {
         route(environment.rootPath) {
             healthApi()
@@ -81,7 +89,7 @@ private fun setupUtbetalingService(httpClient: HttpClient, environment: Environm
 private fun idPortenAuth(workingRootPath: String): Application.() -> Unit = {
     installIdPortenAuth {
         setAsDefault = true
-        loginLevel = LEVEL_3
+        levelOfAssurance = SUBSTANTIAL
         inheritProjectRootPath = false
         rootPath = workingRootPath
     }

@@ -16,6 +16,9 @@ spec:
   readiness:
     path: /tms-utbetalingsoversikt-api/internal/isReady
     initialDelay: 10
+  prometheus:
+    enabled: true
+    path: /tms-utbetalingsoversikt-api/metrics
   replicas:
     min: 2
     max: 4
