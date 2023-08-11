@@ -19,8 +19,6 @@ object YtelseIdUtil {
 
         val contentPart = hashString(ytelse)
 
-        log.info("Created id with contentPart $contentPart with datePart $datePart for $ytelse.")
-
         return "$datePart-$contentPart"
     }
 
