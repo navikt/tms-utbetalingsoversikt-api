@@ -29,14 +29,24 @@ fun main() {
 
     val utbetalingService = setupUtbetalingService(httpClient, environment)
 
-    embeddedServer(Netty, port = environment.port) {
-        utbetalingApi(
-            httpClient = httpClient,
-            environment = environment,
-            utbetalingService = utbetalingService,
-            authConfig = idPortenAuth(environment.rootPath)
-        )
-    }.start(wait = true)
+    embeddedServer(
+        factory = Netty,
+        environment = applicationEngineEnvironment {
+            rootPath = "tms-utbetalingsoversikt-api"
+
+            module {
+                utbetalingApi(
+                    httpClient = httpClient,
+                    environment = environment,
+                    utbetalingService = utbetalingService,
+                    authConfig = idPortenAuth()
+                )
+            }
+            connector {
+                port = 8080
+            }
+        }
+    ).start(wait = true)
 }
 
 fun Application.utbetalingApi(
@@ -65,11 +75,9 @@ fun Application.utbetalingApi(
     }
 
     routing {
-        route(environment.rootPath) {
-            healthApi()
-            authenticate {
-                utbetalingApi(utbetalingService)
-            }
+        healthApi()
+        authenticate {
+            utbetalingApi(utbetalingService)
         }
     }
 
@@ -86,12 +94,10 @@ private fun setupUtbetalingService(httpClient: HttpClient, environment: Environm
     return UtbetalingService(hovedytelseService)
 }
 
-private fun idPortenAuth(workingRootPath: String): Application.() -> Unit = {
+private fun idPortenAuth(): Application.() -> Unit = {
     installIdPortenAuth {
         setAsDefault = true
         levelOfAssurance = SUBSTANTIAL
-        inheritProjectRootPath = false
-        rootPath = workingRootPath
     }
 }
 
