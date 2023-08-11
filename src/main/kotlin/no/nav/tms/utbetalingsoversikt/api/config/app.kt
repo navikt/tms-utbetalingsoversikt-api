@@ -11,6 +11,9 @@ import io.ktor.server.netty.*
 import io.ktor.server.plugins.cors.routing.*
 import io.ktor.server.plugins.defaultheaders.*
 import io.ktor.server.routing.*
+import nav.no.tms.common.metrics.installTmsMicrometerMetrics
+import no.nav.tms.token.support.idporten.sidecar.LevelOfAssurance
+import no.nav.tms.token.support.idporten.sidecar.LevelOfAssurance.SUBSTANTIAL
 import no.nav.tms.token.support.idporten.sidecar.LoginLevel.LEVEL_3
 import no.nav.tms.token.support.idporten.sidecar.installIdPortenAuth
 import no.nav.tms.token.support.tokendings.exchange.TokendingsServiceBuilder
@@ -26,14 +29,24 @@ fun main() {
 
     val utbetalingService = setupUtbetalingService(httpClient, environment)
 
-    embeddedServer(Netty, port = environment.port) {
-        utbetalingApi(
-            httpClient = httpClient,
-            environment = environment,
-            utbetalingService = utbetalingService,
-            authConfig = idPortenAuth(environment.rootPath)
-        )
-    }.start(wait = true)
+    embeddedServer(
+        factory = Netty,
+        environment = applicationEngineEnvironment {
+            rootPath = "tms-utbetalingsoversikt-api"
+
+            module {
+                utbetalingApi(
+                    httpClient = httpClient,
+                    environment = environment,
+                    utbetalingService = utbetalingService,
+                    authConfig = idPortenAuth()
+                )
+            }
+            connector {
+                port = 8080
+            }
+        }
+    ).start(wait = true)
 }
 
 fun Application.utbetalingApi(
@@ -56,12 +69,15 @@ fun Application.utbetalingApi(
         json(jsonConfig())
     }
 
+    installTmsMicrometerMetrics {
+        setupMetricsRoute = true
+        installMicrometerPlugin = true
+    }
+
     routing {
-        route(environment.rootPath) {
-            healthApi()
-            authenticate {
-                utbetalingApi(utbetalingService)
-            }
+        healthApi()
+        authenticate {
+            utbetalingApi(utbetalingService)
         }
     }
 
@@ -78,12 +94,10 @@ private fun setupUtbetalingService(httpClient: HttpClient, environment: Environm
     return UtbetalingService(hovedytelseService)
 }
 
-private fun idPortenAuth(workingRootPath: String): Application.() -> Unit = {
+private fun idPortenAuth(): Application.() -> Unit = {
     installIdPortenAuth {
         setAsDefault = true
-        loginLevel = LEVEL_3
-        inheritProjectRootPath = false
-        rootPath = workingRootPath
+        levelOfAssurance = SUBSTANTIAL
     }
 }
 

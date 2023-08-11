@@ -7,7 +7,6 @@ import no.nav.personbruker.dittnav.common.util.config.UrlEnvVar.getEnvVarAsURL
 import java.net.URL
 
 data class Environment(
-    val rootPath: String = "tms-utbetalingsoversikt-api",
     val corsAllowedOrigins: String = getEnvVar("CORS_ALLOWED_ORIGINS"),
     val port: Int = getEnvVarAsInt("PORT", default = 8080),
     val corsAllowedSchemes: List<String> = getEnvVarAsList("CORS_ALLOWED_SCHEMES"),
