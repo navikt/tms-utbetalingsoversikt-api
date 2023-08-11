@@ -1,15 +1,15 @@
 package no.nav.tms.utbetalingsoversikt.api.utbetaling
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import no.nav.tms.token.support.idporten.sidecar.user.IdportenUser
 import no.nav.tms.utbetalingsoversikt.api.ytelse.HovedytelseService
 import no.nav.tms.utbetalingsoversikt.api.ytelse.HovedytelseComparator
 import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.internal.Hovedytelse
-import org.slf4j.LoggerFactory
 import java.time.LocalDate
 
 class UtbetalingService(private val hovedytelseService: HovedytelseService) {
 
-    private val log = LoggerFactory.getLogger(UtbetalingService::class.java)
+    private val log = KotlinLogging.logger {}
 
     suspend fun fetchUtbetalingForPeriod(user: IdportenUser, fromDateString: String?, toDateString: String?): UtbetalingResponse {
 
@@ -26,10 +26,9 @@ class UtbetalingService(private val hovedytelseService: HovedytelseService) {
     suspend fun fetchYtelse(user: IdportenUser, ytelseId: String?): Hovedytelse {
         val date = YtelseIdUtil.unmarshalDateFromId(ytelseId)
 
-        log.info("Henter ytelse for id: $ytelseId, dato: $date")
+        log.info { "Henter ytelse for id: $ytelseId, dato: $date" }
 
         return hovedytelseService.getHovedytelserBetaltTilBruker(user, date, date)
-            .also{ it.forEach { log.info("Id: ${it.id}") } }
             .filter { it.id == ytelseId }
             .first()
     }

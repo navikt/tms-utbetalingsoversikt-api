@@ -25,6 +25,7 @@ repositories {
 
 dependencies {
     implementation(Kotlinx.coroutines)
+    implementation(KotlinLogging.logging)
     implementation(Ktor.Client.apache)
     implementation(Ktor.Client.contentNegotiation)
     implementation(Ktor.Serialization.kotlinX)

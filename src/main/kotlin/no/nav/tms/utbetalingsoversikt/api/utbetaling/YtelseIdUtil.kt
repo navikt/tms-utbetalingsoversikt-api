@@ -1,13 +1,13 @@
 package no.nav.tms.utbetalingsoversikt.api.utbetaling
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.external.YtelseEkstern
 import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.external.YtelseskomponentEkstern
-import org.slf4j.LoggerFactory
 import java.security.MessageDigest
 import java.time.LocalDate
 
 object YtelseIdUtil {
-    private val log = LoggerFactory.getLogger(YtelseIdUtil::class.java)
+    private val log = KotlinLogging.logger { }
 
     private val md5 = MessageDigest.getInstance("MD5")
 
@@ -63,7 +63,7 @@ object YtelseIdUtil {
             return datePart.toLong(16).let { LocalDate.ofEpochDay(it) }
 
         } catch (e: Exception) {
-            log.warn("Klarte ikke pakke ut info fra ytelseId $id")
+            log.warn { "Klarte ikke pakke ut info fra ytelseId $id" }
 
             throw IllegalArgumentException("Invalid ytelseId $id")
         }
