@@ -12,13 +12,13 @@ import io.ktor.server.plugins.cors.routing.*
 import io.ktor.server.plugins.defaultheaders.*
 import io.ktor.server.routing.*
 import nav.no.tms.common.metrics.installTmsMicrometerMetrics
-import no.nav.tms.token.support.idporten.sidecar.LevelOfAssurance
+import no.nav.personbruker.dittnav.common.util.config.StringEnvVar
 import no.nav.tms.token.support.idporten.sidecar.LevelOfAssurance.SUBSTANTIAL
-import no.nav.tms.token.support.idporten.sidecar.LoginLevel.LEVEL_3
 import no.nav.tms.token.support.idporten.sidecar.installIdPortenAuth
 import no.nav.tms.token.support.tokendings.exchange.TokendingsServiceBuilder
 import no.nav.tms.utbetalingsoversikt.api.utbetaling.UtbetalingService
 import no.nav.tms.utbetalingsoversikt.api.utbetaling.utbetalingApi
+import no.nav.tms.utbetalingsoversikt.api.v2.utbetalingRoutesV2
 import no.nav.tms.utbetalingsoversikt.api.ytelse.HovedytelseService
 import no.nav.tms.utbetalingsoversikt.api.ytelse.SokosUtbetalingConsumer
 
@@ -37,9 +37,11 @@ fun main() {
             module {
                 utbetalingApi(
                     httpClient = httpClient,
-                    environment = environment,
                     utbetalingService = utbetalingService,
-                    authConfig = idPortenAuth()
+                    authConfig = idPortenAuth(),
+                    corsAllowedOrigins = StringEnvVar.getEnvVar("CORS_ALLOWED_ORIGINS"),
+                    corsAllowedSchemes = StringEnvVar.getEnvVarAsList("CORS_ALLOWED_SCHEMES"),
+
                 )
             }
             connector {
@@ -51,14 +53,15 @@ fun main() {
 
 fun Application.utbetalingApi(
     httpClient: HttpClient,
-    environment: Environment,
     utbetalingService: UtbetalingService,
-    authConfig: Application.() -> Unit
+    authConfig: Application.() -> Unit,
+    corsAllowedOrigins: String,
+    corsAllowedSchemes: List<String>
 ) {
     install(DefaultHeaders)
 
     install(CORS) {
-        allowHost(environment.corsAllowedOrigins, environment.corsAllowedSchemes)
+        allowHost(corsAllowedOrigins, corsAllowedSchemes)
         allowCredentials = true
         allowHeader(HttpHeaders.ContentType)
     }
@@ -78,6 +81,7 @@ fun Application.utbetalingApi(
         healthApi()
         authenticate {
             utbetalingApi(utbetalingService)
+            utbetalingRoutesV2()
         }
     }
 
