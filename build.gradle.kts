@@ -36,7 +36,7 @@ dependencies {
     implementation(Ktor.Server.defaultHeaders)
     implementation(Ktor.Server.netty)
     implementation(DittNAVCommonLib.utils)
-    implementation(TmsCommonLib.commonLib)
+    implementation(TmsCommonLib6.commonLib)
     implementation(TmsKtorTokenSupport.tokendingsExchange)
     implementation(TmsKtorTokenSupport.idportenSidecar)
 
