@@ -1,6 +1,5 @@
 package no.nav.tms.utbetalingsoversikt.api.v2
 
-import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.external.*
 import org.junit.jupiter.api.Test
@@ -11,7 +10,7 @@ class SisteUtbetalingDetaljerTest {
     @Test
     fun `transformerer tom response`() {
         SisteUtbetalingDetaljer.fromSokosRepsonse(emptyList()).apply {
-            harUtbetalinger shouldBe false
+            harUtbetaling shouldBe false
             ytelser shouldBe emptyMap()
             sisteUtbetaling shouldBe 0
         }
@@ -28,7 +27,7 @@ class SisteUtbetalingDetaljerTest {
             )
         ).apply {
             dato shouldBe LocalDate.of(2023,8,24)
-            harUtbetalinger shouldBe true
+            harUtbetaling shouldBe true
             sisteUtbetaling shouldBe 999.5
             ytelser.size shouldBe 4
             //TODO: Finn ut av mapping

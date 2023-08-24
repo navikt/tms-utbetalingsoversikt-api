@@ -2,7 +2,9 @@ package no.nav.tms.utbetalingsoversikt.api.v2
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
+import io.ktor.client.plugins.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
@@ -25,6 +27,7 @@ import org.amshove.kluent.shouldBeBefore
 import org.amshove.kluent.shouldContain
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
+import java.io.File
 import java.net.URL
 import java.time.LocalDate
 
@@ -85,24 +88,52 @@ class UtbetalingRoutesV2Test {
         }
     }
 
-    @Disabled
     @Test
     fun `henter siste utbetalinger`() = testApplication {
         testApi(
             SokosUtbetalingConsumer(
-                client = createClient { jsonConfig() },
+                client = sokosHttpClient,
                 baseUrl = URL(testHost),
                 tokendingsService = tokendingsMockk,
                 sokosUtbetaldataClientId = "test:client:id"
             )
         )
-        withExternalServiceResponse("""[]""".trimIndent())
+        val responseJsonText = File("src/test/resources/siste_utbetaling_test.json").readText()
+        withExternalServiceResponse(responseJsonText)
         client.get("/utbetalinger/siste").assert {
             status shouldBe HttpStatusCode.OK
             objectMapper.readTree(bodyAsText()).apply {
                 this["harUtbetaling"].asBoolean() shouldBe true
-                this["sisteUtbetaling"].asInt() shouldBe 143889
-                this["ytelser"].toList().map { it.asText() } shouldContain listOf("APP", "DAG")
+                this["sisteUtbetaling"].asInt() shouldBe 8700
+                this["ytelser"].let { objectMapper.convertValue(it, Map::class.java) }.apply {
+                    this["Dagpenger"] shouldBe 3788
+                    this["Foreldrepenger"] shouldBe 2600.87
+                    this["Økonomisk sosialhjelp"] shouldBe 2311.13
+
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `returner tomt objekt hvis det ikke finnes noen utbetalinger de siste 3 månedene`() = testApplication {
+        testApi(
+            SokosUtbetalingConsumer(
+                client = sokosHttpClient,
+                baseUrl = URL(testHost),
+                tokendingsService = tokendingsMockk,
+                sokosUtbetaldataClientId = "test:client:id"
+            )
+        )
+
+        withExternalServiceResponse("[]")
+        client.get("/utbetalinger/siste").assert {
+            status shouldBe HttpStatusCode.OK
+            objectMapper.readTree(bodyAsText()).apply {
+                this["harUtbetaling"].asBoolean() shouldBe false
+                this["sisteUtbetaling"].asDouble() shouldBe 0.0
+                this["ytelser"].toList() shouldBe emptyList()
+                this["dato"].isNull shouldBe true
             }
         }
     }
@@ -114,8 +145,8 @@ class UtbetalingRoutesV2Test {
                     json(jsonConfig())
                 }
                 routing {
-                    route("something") {
-                        get {
+                    route("hent-utbetalingsinformasjon/ekstern") {
+                        post {
                             call.respondText(contentType = ContentType.Application.Json, text = body)
                         }
                     }
@@ -167,3 +198,11 @@ private fun ApplicationTestBuilder.testApi(sokosUtbetalingConsumer: SokosUtbetal
         )
     }
 }
+
+private val ApplicationTestBuilder.sokosHttpClient
+    get() = createClient {
+        install(io.ktor.client.plugins.contentnegotiation.ContentNegotiation) {
+            json(jsonConfig())
+        }
+        install(HttpTimeout)
+    }

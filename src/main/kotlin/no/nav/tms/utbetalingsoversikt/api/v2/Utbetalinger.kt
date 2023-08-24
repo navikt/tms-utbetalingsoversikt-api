@@ -35,7 +35,7 @@ data class SisteUtbetalingDetaljer(
     @Serializable(with = LocalDateSerializer::class) val dato: LocalDate?,
     val sisteUtbetaling: Double?,
     val ytelser: Map<String, Double>,
-    val harUtbetalinger: Boolean
+    val harUtbetaling: Boolean
 ) {
 
 
@@ -49,11 +49,11 @@ data class SisteUtbetalingDetaljer(
                         ytelser = sisteUtbetaling.ytelseListe.associate {
                             (it.ytelsestype ?: "ukjent") to it.ytelseNettobeloep
                         },
-                        harUtbetalinger = true
+                        harUtbetaling = true
                     )
                 }
 
-            } ?: SisteUtbetalingDetaljer(sisteUtbetaling = 0.0, ytelser = mapOf(), harUtbetalinger = false, dato = null)
+            } ?: SisteUtbetalingDetaljer(sisteUtbetaling = 0.0, ytelser = mapOf(), harUtbetaling = false, dato = null)
     }
 
 }
