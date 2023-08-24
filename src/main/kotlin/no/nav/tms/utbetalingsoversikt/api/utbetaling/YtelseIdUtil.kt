@@ -16,7 +16,6 @@ object YtelseIdUtil {
             .toEpochDay()
             .toString(radix = 16)
 
-
         val contentPart = hashString(ytelse)
 
         return "$datePart-$contentPart"
@@ -34,12 +33,6 @@ object YtelseIdUtil {
             .slice(0..7)
 
         return hashLowerHalf.joinToString(separator = "") { byte -> "%02x".format(byte) }
-    }
-
-    private fun YtelseEkstern.ytelseskomponentSum(): Double {
-        return ytelseskomponentListe
-            ?.sumOf { it.ytelseskomponentbeloep ?: 0.0 }
-            ?: 0.0
     }
 
     private fun mapBeskrivelseToBelop(komponenter: List<YtelseskomponentEkstern>?): Array<String> {

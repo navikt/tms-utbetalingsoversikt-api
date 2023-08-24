@@ -45,7 +45,7 @@ internal class HovedytelseServiceTest {
         val transformedData1 = listOf(mockk<Hovedytelse>(), mockk())
         val transformedData2 = listOf(mockk<Hovedytelse>(), mockk(), mockk())
 
-        coEvery { consumer.fetchUtbetalingsInfo(user, fom, tom, UTBETALT_TIL) } returns rawData
+        coEvery { consumer.fetchUtbetalingsInfo(user, fom, tom) } returns rawData
         every { HovedytelseTransformer.toHovedYtelse(eksternalUtbetaling1) } returns transformedData1
         every { HovedytelseTransformer.toHovedYtelse(eksternalUtbetaling2) } returns transformedData2
 
@@ -55,7 +55,7 @@ internal class HovedytelseServiceTest {
 
         result.size `should be equal to` 5
 
-        coVerify(exactly = 1) { consumer.fetchUtbetalingsInfo(any(), any(), any(), any()) }
+        coVerify(exactly = 1) { consumer.fetchUtbetalingsInfo(any(), any(), any()) }
         verify(exactly = 2) { HovedytelseTransformer.toHovedYtelse(any()) }
     }
 

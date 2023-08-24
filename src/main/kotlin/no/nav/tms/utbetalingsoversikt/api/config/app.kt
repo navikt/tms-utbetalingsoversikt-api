@@ -11,23 +11,33 @@ import io.ktor.server.netty.*
 import io.ktor.server.plugins.cors.routing.*
 import io.ktor.server.plugins.defaultheaders.*
 import io.ktor.server.routing.*
+import io.ktor.util.pipeline.*
 import nav.no.tms.common.metrics.installTmsMicrometerMetrics
 import no.nav.personbruker.dittnav.common.util.config.StringEnvVar
+import no.nav.personbruker.dittnav.common.util.config.UrlEnvVar
 import no.nav.tms.token.support.idporten.sidecar.LevelOfAssurance.SUBSTANTIAL
 import no.nav.tms.token.support.idporten.sidecar.installIdPortenAuth
+import no.nav.tms.token.support.idporten.sidecar.user.IdportenUser
+import no.nav.tms.token.support.idporten.sidecar.user.IdportenUserFactory
 import no.nav.tms.token.support.tokendings.exchange.TokendingsServiceBuilder
 import no.nav.tms.utbetalingsoversikt.api.utbetaling.UtbetalingService
 import no.nav.tms.utbetalingsoversikt.api.utbetaling.utbetalingApi
 import no.nav.tms.utbetalingsoversikt.api.v2.utbetalingRoutesV2
 import no.nav.tms.utbetalingsoversikt.api.ytelse.HovedytelseService
 import no.nav.tms.utbetalingsoversikt.api.ytelse.SokosUtbetalingConsumer
+import java.net.URL
 
 fun main() {
-    val environment = Environment()
-
+    
     val httpClient = HttpClientBuilder.build()
+    val tokendingsService = TokendingsServiceBuilder.buildTokendingsService()
+    val sokosUtbetalingConsumer = SokosUtbetalingConsumer(
+        client = httpClient,
+        sokosUtbetaldataClientId = StringEnvVar.getEnvVar("SOKOS_UTBETALING_TOKENX_CLIENT_ID"),
+        tokendingsService = tokendingsService,
+        baseUrl = UrlEnvVar.getEnvVarAsURL("SOKOS_UTBETALDATA_URL"),
 
-    val utbetalingService = setupUtbetalingService(httpClient, environment)
+        )
 
     embeddedServer(
         factory = Netty,
@@ -37,12 +47,12 @@ fun main() {
             module {
                 utbetalingApi(
                     httpClient = httpClient,
-                    utbetalingService = utbetalingService,
+                    sokosUtbetalingConsumer = sokosUtbetalingConsumer,
                     authConfig = idPortenAuth(),
                     corsAllowedOrigins = StringEnvVar.getEnvVar("CORS_ALLOWED_ORIGINS"),
                     corsAllowedSchemes = StringEnvVar.getEnvVarAsList("CORS_ALLOWED_SCHEMES"),
 
-                )
+                    )
             }
             connector {
                 port = 8080
@@ -53,7 +63,7 @@ fun main() {
 
 fun Application.utbetalingApi(
     httpClient: HttpClient,
-    utbetalingService: UtbetalingService,
+    sokosUtbetalingConsumer: SokosUtbetalingConsumer,
     authConfig: Application.() -> Unit,
     corsAllowedOrigins: String,
     corsAllowedSchemes: List<String>
@@ -80,22 +90,12 @@ fun Application.utbetalingApi(
     routing {
         healthApi()
         authenticate {
-            utbetalingApi(utbetalingService)
-            utbetalingRoutesV2()
+            utbetalingApi(UtbetalingService(HovedytelseService(sokosUtbetalingConsumer)))
+            utbetalingRoutesV2(sokosUtbetalingConsumer)
         }
     }
 
     configureShutdownHook(httpClient)
-}
-
-private fun setupUtbetalingService(httpClient: HttpClient, environment: Environment): UtbetalingService {
-
-    val tokendingsService = TokendingsServiceBuilder.buildTokendingsService()
-    val tokenFetcher = TokendingsTokenFetcher(tokendingsService, environment.sokosUtbetalingClientId)
-
-    val sokosUtbetalingConsumer = SokosUtbetalingConsumer(httpClient, tokenFetcher, environment.sokosUtbetalingUrl)
-    val hovedytelseService = HovedytelseService(sokosUtbetalingConsumer)
-    return UtbetalingService(hovedytelseService)
 }
 
 private fun idPortenAuth(): Application.() -> Unit = {
@@ -110,3 +110,6 @@ private fun Application.configureShutdownHook(httpClient: HttpClient) {
         httpClient.close()
     }
 }
+
+val PipelineContext<Unit, ApplicationCall>.authenticatedUser: IdportenUser
+    get() = IdportenUserFactory.createIdportenUser(call)

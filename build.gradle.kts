@@ -47,6 +47,7 @@ dependencies {
     testImplementation(Ktor.Test.serverTestHost)
     testImplementation(TmsKtorTokenSupport.idportenSidecarMock)
     testImplementation(Mockk.mockk)
+    testImplementation(Ktor.Serialization.jackson)
 
     //TODO: fjern kluent tester og bruk kotest
     testImplementation(Kluent.kluent)

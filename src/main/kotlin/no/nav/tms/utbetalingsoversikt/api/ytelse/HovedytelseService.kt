@@ -9,7 +9,7 @@ import java.time.LocalDate
 class HovedytelseService(private val consumer: SokosUtbetalingConsumer) {
 
     suspend fun getHovedytelserBetaltTilBruker(user: IdportenUser, fom: LocalDate, tom: LocalDate): List<Hovedytelse> {
-        return consumer.fetchUtbetalingsInfo(user, fom, tom, UTBETALT_TIL)
+        return consumer.fetchUtbetalingsInfo(user, fom, tom)
             .map(HovedytelseTransformer::toHovedYtelse)
             .flatten()
     }

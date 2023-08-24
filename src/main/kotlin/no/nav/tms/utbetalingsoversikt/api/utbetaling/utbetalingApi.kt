@@ -5,9 +5,8 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import io.ktor.util.pipeline.*
-import no.nav.tms.token.support.idporten.sidecar.user.IdportenUser
-import no.nav.tms.token.support.idporten.sidecar.user.IdportenUserFactory
+
+import no.nav.tms.utbetalingsoversikt.api.config.authenticatedUser
 
 fun Route.utbetalingApi(utbetalingService: UtbetalingService) {
 
@@ -33,10 +32,6 @@ fun Route.utbetalingApi(utbetalingService: UtbetalingService) {
     }
 }
 
+private val ApplicationRequest.ytelseId: String? get() = queryParameters["ytelseId"]
 private val ApplicationRequest.fromDateParam: String? get() = queryParameters["fom"]
 private val ApplicationRequest.toDateParam: String? get() = queryParameters["tom"]
-
-private val ApplicationRequest.ytelseId: String? get() = queryParameters["ytelseId"]
-
-private val PipelineContext<Unit, ApplicationCall>.authenticatedUser: IdportenUser
-    get() = IdportenUserFactory.createIdportenUser(call)
