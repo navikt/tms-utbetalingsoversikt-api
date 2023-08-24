@@ -31,12 +31,38 @@ data class UtbetalingsDetaljer(
 }
 
 @Serializable
-data class SisteUtbetalingDetaljer(val sisteUtbetaling: Int, val ytelse: List<String>) {
+data class SisteUtbetalingDetaljer(
+    @Serializable(with = LocalDateSerializer::class) val dato: LocalDate?,
+    val sisteUtbetaling: Double?,
+    val ytelser: Map<String, Double>,
+    val harUtbetalinger: Boolean
+) {
+
+
     companion object {
-        fun fromSokosRepsonse(it: List<UtbetalingEkstern>): SisteUtbetalingDetaljer {
-            return SisteUtbetalingDetaljer(sisteUtbetaling = 0, ytelse = listOf())
-        }
+        fun fromSokosRepsonse(sokosResponse: List<UtbetalingEkstern>): SisteUtbetalingDetaljer =
+            sokosResponse.takeIf { it.isNotEmpty() }?.let { eksterneUtbetalinger ->
+                eksterneUtbetalinger.maxBy { it.utbetalingsdato.toLocalDate() }.let { sisteUtbetaling ->
+                    SisteUtbetalingDetaljer(
+                        dato = sisteUtbetaling.utbetalingsdato.toLocalDate(),
+                        sisteUtbetaling = sisteUtbetaling.utbetalingNettobeloep,
+                        ytelser = sisteUtbetaling.ytelseListe.associate {
+                            (it.ytelsestype ?: "ukjent") to it.ytelseNettobeloep
+                        },
+                        harUtbetalinger = true
+                    )
+                }
+
+            } ?: SisteUtbetalingDetaljer(sisteUtbetaling = 0.0, ytelser = mapOf(), harUtbetalinger = false, dato = null)
     }
 
 }
 
+typealias Utbetalingsdato = String
+
+private fun Utbetalingsdato?.toLocalDate(): LocalDate = this
+    ?.let { LocalDate.parse(it) }
+    ?: throw UtbetalingSerializationException("Fant ikke utbetalingsdato")
+
+
+class UtbetalingSerializationException(message: String) : Exception(message)
