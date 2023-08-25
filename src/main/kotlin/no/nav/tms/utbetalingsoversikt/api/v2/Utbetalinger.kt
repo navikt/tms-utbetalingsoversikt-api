@@ -41,21 +41,30 @@ data class SisteUtbetalingDetaljer(
 
     companion object {
         fun fromSokosRepsonse(sokosResponse: List<UtbetalingEkstern>): SisteUtbetalingDetaljer =
-            sokosResponse.takeIf { it.isNotEmpty() }?.let { eksterneUtbetalinger ->
-                eksterneUtbetalinger.maxBy { it.utbetalingsdato.toLocalDate() }.let { sisteUtbetaling ->
-                    SisteUtbetalingDetaljer(
-                        dato = sisteUtbetaling.utbetalingsdato.toLocalDate(),
-                        sisteUtbetaling = sisteUtbetaling.utbetalingNettobeloep,
-                        ytelser = sisteUtbetaling.ytelseListe.associate {
-                            (it.ytelsestype ?: "ukjent") to it.ytelseNettobeloep
-                        },
-                        harUtbetaling = true
-                    )
+            sokosResponse
+                .takeIf { it.isNotEmpty() }
+                ?.let { eksterneUtbetalinger ->
+                    eksterneUtbetalinger
+                        .maxBy { it.utbetalingsdato.toLocalDate() }
+                        .let { sisteUtbetaling ->
+                            SisteUtbetalingDetaljer(
+                                dato = sisteUtbetaling.utbetalingsdato.toLocalDate(),
+                                sisteUtbetaling = sisteUtbetaling.utbetalingNettobeloep,
+                                ytelser = sisteUtbetaling.ytelseListe.associate {
+                                    (it.ytelsestype ?: "ukjent") to it.ytelseNettobeloep
+                                },
+                                harUtbetaling = true
+                            )
+                        }
+
                 }
-
-            } ?: SisteUtbetalingDetaljer(sisteUtbetaling = 0.0, ytelser = mapOf(), harUtbetaling = false, dato = null)
+                ?: SisteUtbetalingDetaljer(
+                    sisteUtbetaling = 0.0,
+                    ytelser = mapOf(),
+                    harUtbetaling = false,
+                    dato = null
+                )
     }
-
 }
 
 typealias Utbetalingsdato = String

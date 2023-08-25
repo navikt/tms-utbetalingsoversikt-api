@@ -29,8 +29,9 @@ fun Route.utbetalingRoutesV2(sokosUtbetalingConsumer: SokosUtbetalingConsumer) {
         get("/siste") {
             val sisteUtbetaling = sokosUtbetalingConsumer.fetchUtbetalingsInfo(
                 user = authenticatedUser,
-                fom = LocalDate.now(),
-                tom = LocalDate.now().minusMonths(3))
+                fom = LocalDate.now().minusMonths(3),
+                tom = LocalDate.now()
+            )
                 .let { SisteUtbetalingDetaljer.fromSokosRepsonse(it) }
 
             call.respond(HttpStatusCode.OK, sisteUtbetaling)
