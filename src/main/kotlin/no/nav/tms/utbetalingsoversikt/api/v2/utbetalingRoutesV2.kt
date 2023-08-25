@@ -17,13 +17,13 @@ fun Route.utbetalingRoutesV2(sokosUtbetalingConsumer: SokosUtbetalingConsumer) {
     route("utbetalinger") {
 
         get("/alle") {
-            /*      val utbetalinger = sokosUtbetalingConsumer.fetchUtbetalingsInfo(
-                      user = authenticatedUser,
-                      fom = call.fromDateParam.localDateOrDefault(LocalDate.now().minusMonths(3)),
-                      tom = call.toDateParam.localDateOrDefault()
-                  )
-                  call.respond(HttpStatusCode.OK, UtbetalingerContainer(emptyList(), emptyList()))*/
-            call.respond(HttpStatusCode.NotImplemented)
+            val utbetalinger = sokosUtbetalingConsumer.fetchUtbetalingsInfo(
+                user = authenticatedUser,
+                fom = call.fromDateParam.localDateOrDefault(LocalDate.now().minusMonths(3)),
+                tom = call.toDateParam.localDateOrDefault()
+            )
+
+            call.respond(HttpStatusCode.OK, UtbetalingerContainer.fromSokosResponse(utbetalinger))
         }
 
         get("/siste") {
@@ -32,9 +32,8 @@ fun Route.utbetalingRoutesV2(sokosUtbetalingConsumer: SokosUtbetalingConsumer) {
                 fom = LocalDate.now().minusMonths(3),
                 tom = LocalDate.now()
             )
-                .let { SisteUtbetalingDetaljer.fromSokosRepsonse(it) }
 
-            call.respond(HttpStatusCode.OK, sisteUtbetaling)
+            call.respond(HttpStatusCode.OK, SisteUtbetalingDetaljer.fromSokosRepsonse(sisteUtbetaling))
         }
     }
 }

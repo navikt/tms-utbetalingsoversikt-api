@@ -6,8 +6,6 @@ metadata:
   labels:
     team: min-side
 spec:
-  envFrom:
-    - secret: tms-utbetalingsoversikt-api-secrets
   image: {{version}}
   port: 8080
   liveness:
@@ -50,3 +48,18 @@ spec:
     requests:
       cpu: "50m"
       memory: 384Mi
+  env:
+    - name: CORS_ALLOWED_ORIGINS
+      value: "*.dev.nav.no"
+    - name: CORS_ALLOWED_SCHEMES
+      value: https
+    - name: ENABLE_DEBUG_API
+      value: "true"
+    - name: POST_LOGOUT_URL
+      value: https://www.intern.dev.nav.no/
+    - name: SOKOS_UTBETALDATA_URL
+      value: https://sokos-utbetaldata.dev-fss-pub.nais.io/utbetaldata/api/v2
+    - name: SOKOS_UTBETALING_TOKENX_CLIENT_ID
+      value: dev-fss:okonomi:sokos-utbetaldata
+
+

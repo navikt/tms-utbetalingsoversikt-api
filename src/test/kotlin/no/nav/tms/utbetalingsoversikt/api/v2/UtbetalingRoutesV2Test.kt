@@ -2,7 +2,6 @@ package no.nav.tms.utbetalingsoversikt.api.v2
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import io.ktor.client.plugins.*
 import io.ktor.client.request.*
@@ -24,8 +23,9 @@ import no.nav.tms.utbetalingsoversikt.api.config.utbetalingApi
 import no.nav.tms.utbetalingsoversikt.api.ytelse.SokosUtbetalingConsumer
 import org.amshove.kluent.shouldBeAfter
 import org.amshove.kluent.shouldBeBefore
-import org.amshove.kluent.shouldContain
-import org.junit.jupiter.api.Disabled
+import org.amshove.kluent.shouldBeOnOrAfter
+import org.amshove.kluent.shouldBeOnOrBefore
+import org.intellij.lang.annotations.Language
 import org.junit.jupiter.api.Test
 import java.io.File
 import java.net.URL
@@ -41,48 +41,67 @@ class UtbetalingRoutesV2Test {
         } returns "<dummytoken>"
     }
 
-    @Disabled
+
     @Test
     fun `henter alle utbetalinger i kronologisk rekkefølge`() = testApplication {
-        testApi()
+        testApi(
+            SokosUtbetalingConsumer(
+                client = sokosHttpClient,
+                baseUrl = URL(testHost),
+                tokendingsService = tokendingsMockk,
+                sokosUtbetaldataClientId = "test:client:id"
+            )
+        )
+
+        val tidligereUtbetalingerJson = File("src/test/resources/alle_utbetalinger_tidligere.json").readText()
+
+        withExternalServiceResponse(
+            """
+          ${tidligereUtbetalingerJson.substring(0, tidligereUtbetalingerJson.lastIndexOf("]"))},
+          ${nesteYtelseJson(1)},    
+          ${nesteYtelseJson(15)},    
+          ${nesteYtelseJson(20)}    
+           ]
+            
+        """.trimIndent()
+        )
+
+
         client.get("/utbetalinger/alle").assert {
             status shouldBe HttpStatusCode.OK
             val responseBody = objectMapper.readTree(bodyAsText())
-            responseBody["neste"].toList().size shouldBe 2
-            val tidligere = responseBody["tidligere"].toList()
-            tidligere.shouldBeInDescedingOrder()
-            tidligere.find { it["år"].asInt() == 2023 && it["måned"].asInt() == 8 }.apply {
-                require(this != null)
-                this["ytelser"].toList().apply {
-                    this.count { it["ytelse"].asText() == "AAP" } shouldBe 2
-                    this.count { it["ytelse"].asText() == "DAG" } shouldBe 1
-                }
-            }
 
+            val tidligere = responseBody["tidligere"].toList()
+            tidligere.size shouldBe 4
+            tidligere.shouldBeInDescedingYearMonthOrder()
             tidligere.find { it["år"].asInt() == 2023 && it["måned"].asInt() == 8 }.apply {
                 require(this != null)
-                this["ytelser"].toList().apply {
-                    this.count { it["ytelse"].asText() == "AAP" } shouldBe 2
-                    this.count { it["ytelse"].asText() == "DAG" } shouldBe 1
+                this["utbetalinger"].toList().apply {
+                    shouldBeInDescedingDateOrder()
+                    size shouldBe 5
+                    count { it["ytelse"].asText() == "Foreldrepenger" } shouldBe 2
+                    count { it["ytelse"].asText() == "Økonomisk sosialhjelp" } shouldBe 2
+                    count { it["ytelse"].asText() == "Dagpenger" } shouldBe 1
+                    count { it["dato"].asText() == "2023-08-24" } shouldBe 3
+                    count { it["dato"].asText() == "2023-08-02" } shouldBe 2
+
                 }
             }
 
             tidligere.find { it["år"].asInt() == 2023 && it["måned"].asInt() == 2 }.apply {
                 require(this != null)
-                this["ytelser"].toList().apply {
-                    this.count { it["ytelse"].asText() == "ANNNEN" } shouldBe 2
+                this["utbetalinger"].toList().apply {
+                    size shouldBe 2
+                    count { it["ytelse"].asText() == "Foreldrepenger" } shouldBe 1
+                    count { it["ytelse"].asText() == "Økonomisk sosialhjelp" } shouldBe 1
                 }
             }
 
-            tidligere.find { it["år"].asInt() == 2022 && it["måned"].asInt() == 8 }.apply {
-                require(this != null)
-                this["ytelser"].toList().apply {
-                    this.count { it["ytelse"].asText() == "ANNNEN" } shouldBe 2
-                }
-            }
+            tidligere.find { it["år"].asInt() == 2022 && it["måned"].asInt() == 8 }!!["utbetalinger"].toList().size shouldBe 2
+            tidligere.find { it["år"].asInt() == 2022 && it["måned"].asInt() == 1 }!!["utbetalinger"].toList().size shouldBe 3
 
             responseBody["neste"].toList().apply {
-                size shouldBe 3
+                size shouldBe 9
                 shouldBeInAscendingOrder()
             }
         }
@@ -158,18 +177,26 @@ class UtbetalingRoutesV2Test {
     }
 }
 
-private fun List<JsonNode>.shouldBeInDescedingOrder() {
+private fun List<JsonNode>.shouldBeInDescedingYearMonthOrder() {
     var sisteUtbetalinsgDato = LocalDate.now()
     map { LocalDate.of(it["år"].asInt(), it["måned"].asInt(), 1) }.forEach { utbetalingsdato ->
         utbetalingsdato shouldBeBefore sisteUtbetalinsgDato
         sisteUtbetalinsgDato = utbetalingsdato
     }
 }
+private fun List<JsonNode>.shouldBeInDescedingDateOrder() {
+    var sisteUtbetalinsgDato = LocalDate.now()
+    map { LocalDate.parse(it["dato"].asText()) }.forEach { utbetalingsdato ->
+        utbetalingsdato shouldBeOnOrBefore  sisteUtbetalinsgDato
+        sisteUtbetalinsgDato = utbetalingsdato
+    }
+}
+
 
 private fun List<JsonNode>.shouldBeInAscendingOrder() {
     var sisteUtbetalinsgDato = LocalDate.now()
-    map { LocalDate.of(it["år"].asInt(), it["måned"].asInt(), 1) }.forEach { utbetalingsdato ->
-        utbetalingsdato shouldBeAfter sisteUtbetalinsgDato
+    map { LocalDate.parse(it["dato"].asText()) }.forEach { utbetalingsdato ->
+        utbetalingsdato shouldBeOnOrAfter  sisteUtbetalinsgDato
         sisteUtbetalinsgDato = utbetalingsdato
     }
 }
@@ -206,3 +233,142 @@ private val ApplicationTestBuilder.sokosHttpClient
         }
         install(HttpTimeout)
     }
+
+
+@Language("JSON")
+private fun nesteYtelseJson(plusDays: Long = 5) = """
+      {
+        "posteringsdato": "${LocalDate.now().plusDays(plusDays)}",
+        "utbetaltTil": {
+          "aktoertype": "PERSON",
+          "ident": "123345567",
+          "navn": "string"
+        },
+        "utbetalingNettobeloep": 8700,
+        "utbetalingsmelding": "string",
+        "utbetalingsdato": null,
+        "forfallsdato": "${LocalDate.now().plusDays(plusDays)}",
+        "utbetaltTilKonto": {
+          "kontonummer": "888777666555444",
+          "kontotype": "Norsk bank"
+        },
+        "utbetalingsmetode": "Til konto",
+        "utbetalingsstatus": "something",
+        "ytelseListe": [
+          {
+            "ytelsestype": "Dagpenger",
+            "ytelsesperiode": {
+              "fom": "${LocalDate.now().plusDays(plusDays)}",
+              "tom": "${LocalDate.now().plusDays(plusDays)}"
+            },
+            "ytelseskomponentListe": [
+              {
+                "ytelseskomponenttype": "string",
+                "satsbeloep": 999,
+                "satstype": "string",
+                "satsantall": 2.5,
+                "ytelseskomponentbeloep": 42
+              }
+            ],
+            "ytelseskomponentersum": 111.22,
+            "trekkListe": [
+              {
+                "trekktype": "string",
+                "trekkbeloep": 100,
+                "kreditor": "string"
+              }
+            ],
+            "trekksum": 1000,
+            "skattListe": [
+              {
+                "skattebeloep": 99.9
+              }
+            ],
+            "skattsum": 1000.5,
+            "ytelseNettobeloep": 3788,
+            "bilagsnummer": "84172491",
+            "rettighetshaver": {
+              "aktoertype": "PERSON",
+              "ident": "1234567890g",
+              "navn": "Navn Navnesen"
+            }
+          },
+          {
+            "ytelsestype": "Foreldrepenger",
+            "ytelsesperiode": {
+              "fom": "${LocalDate.now().plusDays(plusDays)}",
+              "tom": "${LocalDate.now().plusDays(plusDays)}"
+            },
+            "ytelseskomponentListe": [
+              {
+                "ytelseskomponenttype": "string",
+                "satsbeloep": 999,
+                "satstype": "string",
+                "satsantall": 2.5,
+                "ytelseskomponentbeloep": 42
+              }
+            ],
+            "ytelseskomponentersum": 111.22,
+            "trekkListe": [
+              {
+                "trekktype": "string",
+                "trekkbeloep": 100,
+                "kreditor": "string"
+              }
+            ],
+            "trekksum": 1000,
+            "skattListe": [
+              {
+                "skattebeloep": 99.9
+              }
+            ],
+            "skattsum": 1000.5,
+            "ytelseNettobeloep": 2600.87,
+            "bilagsnummer": "84172491",
+            "rettighetshaver": {
+              "aktoertype": "PERSON",
+              "ident": "1234567890g",
+              "navn": "Navn Navnesen"
+            }
+          },
+          {
+            "ytelsestype": "Økonomisk sosialhjelp",
+            "ytelsesperiode": {
+              "fom": "${LocalDate.now().plusDays(plusDays)}",
+              "tom": "${LocalDate.now().plusDays(plusDays)}"
+            },
+            "ytelseskomponentListe": [
+              {
+                "ytelseskomponenttype": "string",
+                "satsbeloep": 999,
+                "satstype": "string",
+                "satsantall": 2.5,
+                "ytelseskomponentbeloep": 42
+              }
+            ],
+            "ytelseskomponentersum": 111.22,
+            "trekkListe": [
+              {
+                "trekktype": "string",
+                "trekkbeloep": 100,
+                "kreditor": "string"
+              }
+            ],
+            "trekksum": 1000,
+            "skattListe": [
+              {
+                "skattebeloep": 99.9
+              }
+            ],
+            "skattsum": 1000.5,
+            "ytelseNettobeloep": 2311.13,
+            "bilagsnummer": "84172491",
+            "rettighetshaver": {
+              "aktoertype": "PERSON",
+              "ident": "12345678909",
+              "navn": "Navn Navnesen"
+            }
+          }
+        ]
+      }
+""".trimIndent()
