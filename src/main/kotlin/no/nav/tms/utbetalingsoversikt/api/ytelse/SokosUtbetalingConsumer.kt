@@ -2,7 +2,7 @@ package no.nav.tms.utbetalingsoversikt.api.ytelse
 
 import io.ktor.client.*
 import no.nav.tms.token.support.idporten.sidecar.user.IdportenUser
-import no.nav.tms.utbetalingsoversikt.api.config.TokendingsTokenFetcher
+import no.nav.tms.token.support.tokendings.exchange.TokendingsService
 import no.nav.tms.utbetalingsoversikt.api.config.post
 import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.external.*
 import java.net.URL
@@ -10,16 +10,15 @@ import java.time.LocalDate
 
 class SokosUtbetalingConsumer(
     private val client: HttpClient,
-    private val tokendingsTokenFetcher: TokendingsTokenFetcher,
     baseUrl: URL,
+    private val sokosUtbetaldataClientId: String,
+    private val tokendingsService: TokendingsService,
 ) {
     private val utbetalingsinformasjonInternUrl = URL("$baseUrl/hent-utbetalingsinformasjon/ekstern")
 
-    suspend fun fetchUtbetalingsInfo(user: IdportenUser, fom: LocalDate, tom: LocalDate, rolle: RolleEkstern): List<UtbetalingEkstern> {
-        val targetToken = tokendingsTokenFetcher.getSokosUtbetaldataToken(user.tokenString)
-
-        val requestBody = createRequest(user.ident, fom, tom, rolle)
-
+    suspend fun fetchUtbetalingsInfo(user: IdportenUser, fom: LocalDate, tom: LocalDate): List<UtbetalingEkstern> {
+        val targetToken = tokendingsService.exchangeToken(user.tokenString, sokosUtbetaldataClientId)
+        val requestBody = createRequest(user.ident, fom, tom, RolleEkstern.UTBETALT_TIL)
         return client.post(utbetalingsinformasjonInternUrl, requestBody, targetToken)
     }
 

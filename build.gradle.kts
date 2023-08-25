@@ -18,9 +18,9 @@ tasks.withType<KotlinCompile> {
 }
 
 repositories {
-    mavenCentral()
-    maven("https://jitpack.io")
     mavenLocal()
+    maven("https://jitpack.io")
+    mavenCentral()
 }
 
 dependencies {
@@ -42,9 +42,16 @@ dependencies {
 
     testImplementation(Junit.api)
     testImplementation(Junit.engine)
-    testImplementation(Kluent.kluent)
+    testImplementation(Kotest.runnerJunit5)
+    testImplementation(Kotest.assertionsCore)
+    testImplementation(Ktor.Test.serverTestHost)
+    testImplementation(TmsKtorTokenSupport.idportenSidecarMock)
     testImplementation(Mockk.mockk)
-    testImplementation(Jjwt.api)
+    testImplementation(Ktor.Serialization.jackson)
+
+    //TODO: fjern kluent tester og bruk kotest
+    testImplementation(Kluent.kluent)
+
 }
 
 application {
