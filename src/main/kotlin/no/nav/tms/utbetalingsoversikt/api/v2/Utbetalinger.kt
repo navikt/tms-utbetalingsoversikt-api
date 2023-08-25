@@ -45,6 +45,7 @@ data class SisteUtbetalingDetaljer(
                 .takeIf { it.isNotEmpty() }
                 ?.let { eksterneUtbetalinger ->
                     eksterneUtbetalinger
+                        .filter { it.utbetalingsdato != null }
                         .maxBy { it.utbetalingsdato.toLocalDate() }
                         .let { sisteUtbetaling ->
                             SisteUtbetalingDetaljer(
@@ -69,9 +70,11 @@ data class SisteUtbetalingDetaljer(
 
 typealias Utbetalingsdato = String
 
-private fun Utbetalingsdato?.toLocalDate(): LocalDate = this
-    ?.let { LocalDate.parse(it) }
-    ?: throw UtbetalingSerializationException("Fant ikke utbetalingsdato")
+private fun Utbetalingsdato?.toLocalDate(): LocalDate = try {
+    LocalDate.parse(this)
+} catch (e: Exception) {
+    throw UtbetalingSerializationException("Fant ikke utbetalingsdato, ${e.message}")
+}
 
 
 class UtbetalingSerializationException(message: String) : Exception(message)
