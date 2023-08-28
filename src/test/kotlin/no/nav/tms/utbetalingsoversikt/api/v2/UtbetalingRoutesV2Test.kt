@@ -21,10 +21,7 @@ import no.nav.tms.token.support.tokendings.exchange.TokendingsService
 import no.nav.tms.utbetalingsoversikt.api.config.jsonConfig
 import no.nav.tms.utbetalingsoversikt.api.config.utbetalingApi
 import no.nav.tms.utbetalingsoversikt.api.ytelse.SokosUtbetalingConsumer
-import org.amshove.kluent.shouldBeAfter
 import org.amshove.kluent.shouldBeBefore
-import org.amshove.kluent.shouldBeOnOrAfter
-import org.amshove.kluent.shouldBeOnOrBefore
 import org.intellij.lang.annotations.Language
 import org.junit.jupiter.api.Test
 import java.io.File
@@ -77,7 +74,7 @@ class UtbetalingRoutesV2Test {
             tidligere.find { it["år"].asInt() == 2023 && it["måned"].asInt() == 8 }.apply {
                 require(this != null)
                 this["utbetalinger"].toList().apply {
-                    shouldBeInDescedingDateOrder()
+                    shouldBeInDescendingDateOrder()
                     size shouldBe 5
                     count { it["ytelse"].asText() == "Foreldrepenger" } shouldBe 2
                     count { it["ytelse"].asText() == "Økonomisk sosialhjelp" } shouldBe 2
@@ -102,7 +99,7 @@ class UtbetalingRoutesV2Test {
 
             responseBody["neste"].toList().apply {
                 size shouldBe 9
-                shouldBeInAscendingOrder()
+                shouldBeInAscendingDateOrder()
             }
         }
     }
@@ -181,22 +178,6 @@ private fun List<JsonNode>.shouldBeInDescedingYearMonthOrder() {
     var sisteUtbetalinsgDato = LocalDate.now()
     map { LocalDate.of(it["år"].asInt(), it["måned"].asInt(), 1) }.forEach { utbetalingsdato ->
         utbetalingsdato shouldBeBefore sisteUtbetalinsgDato
-        sisteUtbetalinsgDato = utbetalingsdato
-    }
-}
-private fun List<JsonNode>.shouldBeInDescedingDateOrder() {
-    var sisteUtbetalinsgDato = LocalDate.now()
-    map { LocalDate.parse(it["dato"].asText()) }.forEach { utbetalingsdato ->
-        utbetalingsdato shouldBeOnOrBefore  sisteUtbetalinsgDato
-        sisteUtbetalinsgDato = utbetalingsdato
-    }
-}
-
-
-private fun List<JsonNode>.shouldBeInAscendingOrder() {
-    var sisteUtbetalinsgDato = LocalDate.now()
-    map { LocalDate.parse(it["dato"].asText()) }.forEach { utbetalingsdato ->
-        utbetalingsdato shouldBeOnOrAfter  sisteUtbetalinsgDato
         sisteUtbetalinsgDato = utbetalingsdato
     }
 }
