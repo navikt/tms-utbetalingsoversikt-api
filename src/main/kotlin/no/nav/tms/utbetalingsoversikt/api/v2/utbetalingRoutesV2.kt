@@ -9,9 +9,6 @@ import no.nav.tms.utbetalingsoversikt.api.ytelse.SokosUtbetalingConsumer
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-
-//https://www.intern.dev.nav.no/tms-utbetalingsoversikt-api/utbetalinger?=&fom=20230524&tom=20230824
-
 fun Route.utbetalingRoutesV2(sokosUtbetalingConsumer: SokosUtbetalingConsumer) {
 
     route("utbetalinger") {
