@@ -2,7 +2,9 @@ package no.nav.tms.utbetalingsoversikt.api.v2
 
 import kotlinx.serialization.Serializable
 import no.nav.tms.utbetalingsoversikt.api.config.LocalDateSerializer
+import no.nav.tms.utbetalingsoversikt.api.utbetaling.YtelseIdUtil
 import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.external.UtbetalingEkstern
+import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.external.YtelseEkstern
 import java.time.LocalDate
 
 @Serializable
@@ -42,10 +44,11 @@ data class UtbetalingerPrMåned(val år: Int, val måned: Int, val utbetalinger:
                 }
                 ?: emptyList()
 
-        private fun UtbetalingEkstern.monthYearKey()  =
+        private fun UtbetalingEkstern.monthYearKey() =
             LocalDate.parse(this.utbetalingsdato)
-            .let { MonthYearKey(it.monthValue,it.year) }
-        private data class MonthYearKey(val month:Int, val year:Int)
+                .let { MonthYearKey(it.monthValue, it.year) }
+
+        private data class MonthYearKey(val month: Int, val year: Int)
     }
 }
 
@@ -57,24 +60,28 @@ data class UtbetalingForYtelse(
     val ytelse: String
 ) {
     companion object {
-        fun medGenerertId(beløp: Double, dato: LocalDate, ytelse: String) = UtbetalingForYtelse(
-            id = genererId(),
-            beløp = beløp,
+        fun medGenerertId(ytelse: YtelseEkstern, dato: LocalDate, posteringsdato: String) = UtbetalingForYtelse(
+            id = YtelseIdUtil.calculateId(posteringsdato, ytelse),
+            beløp = ytelse.ytelseNettobeloep,
             dato = dato,
-            ytelse = ytelse
+            ytelse = ytelse.ytelsestype ?: "Ukjent"
         )
 
-        private fun genererId() = ""
         fun fromSokosResponse(utbetalingEkstern: List<UtbetalingEkstern>?): List<UtbetalingForYtelse> =
             utbetalingEkstern
-                ?.map { LocalDate.parse(it.utbetalingsdato ?: it.posteringsdato) to it.ytelseListe }
                 ?.map {
-                    it.second.map { ytelse ->
+                    UtbetalingForYtelseMappingObject(
+                        LocalDate.parse(it.utbetalingsdato ?: it.posteringsdato),
+                        it.posteringsdato,
+                        it.ytelseListe
+                    )
+                }
+                ?.map { ytelseMappingObject ->
+                    ytelseMappingObject.ytelser.map { mappedYtelse ->
                         medGenerertId(
-                            beløp = ytelse.ytelseNettobeloep,
-                            dato = it.first,
-                            ytelse = ytelse.ytelsestype ?: "Ukjent"
-
+                            ytelse = mappedYtelse,
+                            dato = ytelseMappingObject.utbetalingsDato,
+                            posteringsdato = ytelseMappingObject.posteringsdato
                         )
                     }
                 }
@@ -129,5 +136,10 @@ private fun Utbetalingsdato?.toLocalDate(): LocalDate = try {
     throw UtbetalingSerializationException("Fant ikke utbetalingsdato, ${e.message}")
 }
 
+private class UtbetalingForYtelseMappingObject(
+    val utbetalingsDato: LocalDate,
+    val posteringsdato: String,
+    val ytelser: List<YtelseEkstern>
+)
 
 class UtbetalingSerializationException(message: String) : Exception(message)
