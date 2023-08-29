@@ -11,9 +11,11 @@ import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import io.ktor.server.plugins.contentnegotiation.*
+import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.testing.*
+import io.ktor.util.pipeline.*
 import io.mockk.coEvery
 import io.mockk.mockk
 import no.nav.tms.token.support.idporten.sidecar.mock.LevelOfAssurance.HIGH
@@ -24,7 +26,6 @@ import no.nav.tms.utbetalingsoversikt.api.config.utbetalingApi
 import no.nav.tms.utbetalingsoversikt.api.ytelse.SokosUtbetalingConsumer
 import org.amshove.kluent.shouldBeBefore
 import org.intellij.lang.annotations.Language
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.io.File
 import java.net.URL
@@ -42,7 +43,7 @@ class UtbetalingRoutesV2Test {
 
 
     @Test
-    fun `oppsumerer alle ytelser i gitt periode`() = testApplication {
+    fun `oppsumerer alle ytelser i periode`() = testApplication {
         testApi(
             SokosUtbetalingConsumer(
                 client = sokosHttpClient,
@@ -60,7 +61,7 @@ class UtbetalingRoutesV2Test {
                 expectedTrekk = 7659.0,
                 expectedUtbetalt = 92432.0 - 7659.0
             )
-        )
+        ) { true == true }
 
 
         client.get("/utbetalinger/alle").assert {
@@ -114,7 +115,7 @@ class UtbetalingRoutesV2Test {
            ]
             
         """.trimIndent()
-        )
+        ) { true == true }
 
 
         client.get("/utbetalinger/alle").assert {
@@ -158,6 +159,50 @@ class UtbetalingRoutesV2Test {
     }
 
     @Test
+    fun `henter utbetalinger for definert fom og tom`() = testApplication {
+        testApi(
+            SokosUtbetalingConsumer(
+                client = sokosHttpClient,
+                baseUrl = URL(testHost),
+                tokendingsService = tokendingsMockk,
+                sokosUtbetaldataClientId = "test:client:id"
+            )
+        )
+
+        val tidligereUtbetalingerJson = File("src/test/resources/alle_utbetalinger_tidligere.json").readText()
+
+        withExternalServiceResponse(
+            body = """
+          ${tidligereUtbetalingerJson.substring(0, tidligereUtbetalingerJson.lastIndexOf("]"))},
+          ${nesteYtelseJson(1)},    
+          ${nesteYtelseJson(15)},    
+          ${nesteYtelseJson(20)}    
+           ]
+            
+        """.trimIndent()
+        ){
+            val fomtom = objectMapper.readTree(call.receiveText())
+            fomtom["periode"]["fom"].asText() == "2023-05-29" && fomtom["periode"]["tom"].asText() == "2023-08-30"
+        }
+
+
+        client.get("/utbetalinger/alle?fom=20230529&tom=20230829").assert {
+            status shouldBe HttpStatusCode.OK
+            val responseBody = objectMapper.readTree(bodyAsText())
+
+            val tidligere = responseBody["tidligere"].toList()
+            tidligere.size shouldBe 4
+            tidligere.shouldBeInDescedingYearMonthOrder()
+
+            responseBody["neste"].toList().apply {
+                size shouldBe 9
+                shouldBeInAscendingDateOrder()
+            }
+        }
+
+    }
+
+    @Test
     fun `henter siste utbetalinger`() = testApplication {
         testApi(
             SokosUtbetalingConsumer(
@@ -168,7 +213,7 @@ class UtbetalingRoutesV2Test {
             )
         )
         val responseJsonText = File("src/test/resources/siste_utbetaling_test.json").readText()
-        withExternalServiceResponse(responseJsonText)
+        withExternalServiceResponse(responseJsonText) { true == true }
         client.get("/utbetalinger/siste").assert {
             status shouldBe HttpStatusCode.OK
             objectMapper.readTree(bodyAsText()).apply {
@@ -195,7 +240,7 @@ class UtbetalingRoutesV2Test {
             )
         )
 
-        withExternalServiceResponse("[]")
+        withExternalServiceResponse("[]") { true == true }
         client.get("/utbetalinger/siste").assert {
             status shouldBe HttpStatusCode.OK
             objectMapper.readTree(bodyAsText()).apply {
@@ -207,7 +252,7 @@ class UtbetalingRoutesV2Test {
         }
     }
 
-    private fun ApplicationTestBuilder.withExternalServiceResponse(body: String) {
+    private fun ApplicationTestBuilder.withExternalServiceResponse(body: String, replyIf: suspend PipelineContext<Unit,ApplicationCall>.() -> Boolean = { true }) {
         externalServices {
             hosts(testHost) {
                 install(ContentNegotiation) {
@@ -216,7 +261,10 @@ class UtbetalingRoutesV2Test {
                 routing {
                     route("hent-utbetalingsinformasjon/ekstern") {
                         post {
-                            call.respondText(contentType = ContentType.Application.Json, text = body)
+                            if (replyIf())
+                                call.respondText(contentType = ContentType.Application.Json, text = body)
+                            else
+                                call.respondText(contentType = ContentType.Application.Json, text = "[]")
                         }
                     }
 

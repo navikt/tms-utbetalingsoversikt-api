@@ -15,7 +15,7 @@ data class UtbetalingForYtelse(
     val ytelse: String
 ) {
     companion object {
-        fun medGenerertId(ytelse: YtelseEkstern, dato: LocalDate, posteringsdato: String) = UtbetalingForYtelse(
+        private fun medGenerertId(ytelse: YtelseEkstern, dato: LocalDate, posteringsdato: String) = UtbetalingForYtelse(
             id = YtelseIdUtil.calculateId(posteringsdato, ytelse),
             beløp = ytelse.ytelseNettobeloep,
             dato = dato,

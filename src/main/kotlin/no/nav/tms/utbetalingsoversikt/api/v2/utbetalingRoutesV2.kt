@@ -36,12 +36,13 @@ fun Route.utbetalingRoutesV2(sokosUtbetalingConsumer: SokosUtbetalingConsumer) {
 }
 
 
-private val formatter = DateTimeFormatter.ofPattern("YYYYMMdd")
+private val formatter = DateTimeFormatter.ofPattern("yyyyMMdd")
 private fun String?.localDateOrDefault(default: LocalDate = LocalDate.now()): LocalDate = this?.let {
     LocalDate.parse(
         this,
         formatter
     )
+    //fom=2023 05 29&tom=20230829
 } ?: default
 
 val ApplicationCall.fromDateParam: String? get() = request.queryParameters["fom"]
