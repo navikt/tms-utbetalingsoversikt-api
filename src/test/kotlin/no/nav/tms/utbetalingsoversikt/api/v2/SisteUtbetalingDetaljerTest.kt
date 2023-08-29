@@ -1,7 +1,6 @@
 package no.nav.tms.utbetalingsoversikt.api.v2
 
 import io.kotest.matchers.shouldBe
-import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.external.*
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 
@@ -22,8 +21,8 @@ class SisteUtbetalingDetaljerTest {
 
         SisteUtbetalingDetaljer.fromSokosRepsonse(
             listOf(
-                sokoResponse(dateStr = "2023-08-24", nettobeløp = 999.5),
-                sokoResponse(dateStr = "2023-08-13", nettobeløp = 8700.0)
+                sokoTestResponse(dateStr = "2023-08-24", nettobeløp = 999.5),
+                sokoTestResponse(dateStr = "2023-08-13", nettobeløp = 8700.0)
             )
         ).apply {
             dato shouldBe LocalDate.of(2023, 8, 24)
@@ -44,8 +43,8 @@ class SisteUtbetalingDetaljerTest {
 
         SisteUtbetalingDetaljer.fromSokosRepsonse(
             listOf(
-                sokoResponse(dateStr = "2023-08-24", nettobeløp = 999.5, utbetalt = false),
-                sokoResponse(dateStr = "2023-08-13", nettobeløp = 8700.0, utbetalt = true)
+                sokoTestResponse(dateStr = "2023-08-24", nettobeløp = 999.5, utbetalt = false),
+                sokoTestResponse(dateStr = "2023-08-13", nettobeløp = 8700.0, utbetalt = true)
             )
         ).apply {
             dato shouldBe LocalDate.of(2023, 8, 13)

@@ -11,7 +11,8 @@ internal fun eksternYtelse(
     fom: String,
     nettobeløp: Double,
     ytelsesType: String,
-    tom: String? = null
+    tom: String? = null,
+    trekkbeløp: Double = 200.0
 ) =
     YtelseEkstern(
         ytelsestype = ytelsesType,
@@ -21,8 +22,8 @@ internal fun eksternYtelse(
         ),
         ytelseNettobeloep = nettobeløp,
         rettighetshaver = aktoerEkstern,
-        skattsum = nettobeløp * 0.2,
-        trekksum = nettobeløp * 0.8,
+        skattsum = trekkbeløp,
+        trekksum = trekkbeløp,
         ytelseskomponentersum = 0.0,
         skattListe = listOf(),
         trekkListe = listOf(),
@@ -32,26 +33,28 @@ internal fun eksternYtelse(
     )
 
 
-internal fun sokoResponse(date: LocalDate, utbetalt: Boolean = true) = sokoResponse(
+internal fun sokoTestResponse(date: LocalDate, utbetalt: Boolean = true) = sokoTestResponse(
     dateStr = date.toString(),
     utbetalt = utbetalt
 )
 
-internal fun sokoResponse(
+
+val eksternTestAktør = AktoerEkstern(
+    aktoertype = AktoertypeEkstern.PERSON,
+    identOld = "88776611",
+    identNew = null,
+    navn = "Navn Navnesen",
+)
+
+internal fun sokoTestResponse(
     dateStr: String = "2023-08-24",
     nettobeløp: Double = 999.5,
-    utbetalt: Boolean = true
+    utbetalt: Boolean = true,
+    ytelsesListe: List<YtelseEkstern>? = null
 ): UtbetalingEkstern {
-    val eksternAktør = AktoerEkstern(
-        aktoertype = AktoertypeEkstern.PERSON,
-        identOld = "88776611",
-        identNew = null,
-        navn = "Navn Navnesen",
-    )
-
 
     return UtbetalingEkstern(
-        utbetaltTil = eksternAktør,
+        utbetaltTil = eksternTestAktør,
         utbetalingsmetode = "Bankkontooverføring",
         utbetalingsstatus = "dummyverdi",
         posteringsdato = dateStr,
@@ -60,11 +63,11 @@ internal fun sokoResponse(
         utbetalingNettobeloep = nettobeløp,
         utbetalingsmelding = "En eller annen melding",
         utbetaltTilKonto = BankkontoEkstern(kontonummer = "9988776655443322", kontotype = "norsk bankkonto"),
-        ytelseListe = listOf(
-            eksternYtelse(eksternAktør, dateStr, (nettobeløp / 4), "AAP"),
-            eksternYtelse(eksternAktør, dateStr, (nettobeløp / 4), "DAG"),
-            eksternYtelse(eksternAktør, dateStr, (nettobeløp / 4), "FORELDRE"),
-            eksternYtelse(eksternAktør, dateStr, (nettobeløp / 4), "SOMETHING"),
+        ytelseListe = ytelsesListe ?: listOf(
+            eksternYtelse(eksternTestAktør, dateStr, (nettobeløp / 4), "AAP"),
+            eksternYtelse(eksternTestAktør, dateStr, (nettobeløp / 4), "DAG"),
+            eksternYtelse(eksternTestAktør, dateStr, (nettobeløp / 4), "FORELDRE"),
+            eksternYtelse(eksternTestAktør, dateStr, (nettobeløp / 4), "SOMETHING"),
 
             )
     )

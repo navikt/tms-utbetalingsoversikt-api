@@ -8,51 +8,6 @@ import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.external.YtelseEkstern
 import java.time.LocalDate
 
 @Serializable
-data class UtbetalingerContainer(val neste: List<UtbetalingForYtelse>, val tidligere: List<UtbetalingerPrMåned>) {
-    companion object {
-        fun fromSokosResponse(utbetalingEksternList: List<UtbetalingEkstern>) =
-            utbetalingEksternList
-                .groupBy { LocalDate.parse(it.utbetalingsdato ?: it.posteringsdato).isBefore(LocalDate.now()) }
-                .let { grouped ->
-                    UtbetalingerContainer(
-                        neste = UtbetalingForYtelse.fromSokosResponse(grouped[after]).sortedBy { it.dato },
-                        tidligere = UtbetalingerPrMåned.fromSokosRepsponse(grouped[before])
-                    )
-                }
-
-        private const val after = false
-        private const val before = true
-    }
-}
-
-@Serializable
-data class UtbetalingerPrMåned(val år: Int, val måned: Int, val utbetalinger: List<UtbetalingForYtelse>) {
-    companion object {
-        fun fromSokosRepsponse(sokosUtbetalinger: List<UtbetalingEkstern>?): List<UtbetalingerPrMåned> =
-            sokosUtbetalinger
-                ?.groupBy {
-                    it.monthYearKey()
-                }
-                ?.map {
-                    UtbetalingerPrMåned(
-                        år = it.key.year,
-                        måned = it.key.month,
-                        utbetalinger = UtbetalingForYtelse
-                            .fromSokosResponse(it.value)
-                            .sortedByDescending { utbetaling -> utbetaling.dato }
-                    )
-                }
-                ?: emptyList()
-
-        private fun UtbetalingEkstern.monthYearKey() =
-            LocalDate.parse(this.utbetalingsdato)
-                .let { MonthYearKey(it.monthValue, it.year) }
-
-        private data class MonthYearKey(val month: Int, val year: Int)
-    }
-}
-
-@Serializable
 data class UtbetalingForYtelse(
     val id: String,
     val beløp: Double,
@@ -89,7 +44,6 @@ data class UtbetalingForYtelse(
                 ?: emptyList()
     }
 }
-
 @Serializable
 data class SisteUtbetalingDetaljer(
     @Serializable(with = LocalDateSerializer::class) val dato: LocalDate?,
@@ -97,8 +51,6 @@ data class SisteUtbetalingDetaljer(
     val ytelser: Map<String, Double>,
     val harUtbetaling: Boolean
 ) {
-
-
     companion object {
         fun fromSokosRepsonse(sokosResponse: List<UtbetalingEkstern>): SisteUtbetalingDetaljer =
             sokosResponse

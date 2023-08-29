@@ -2,6 +2,7 @@ package no.nav.tms.utbetalingsoversikt.api.v2
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import io.kotest.assertions.withClue
 import io.kotest.matchers.shouldBe
 import io.ktor.client.plugins.*
 import io.ktor.client.request.*
@@ -40,7 +41,6 @@ class UtbetalingRoutesV2Test {
     }
 
 
-    @Disabled
     @Test
     fun `oppsumerer alle ytelser i gitt periode`() = testApplication {
         testApi(
@@ -54,12 +54,11 @@ class UtbetalingRoutesV2Test {
 
         withExternalServiceResponse(
             5.tidligereYtelser(
-                expectedKontantstøtte = 26000.0,
+                expectedKontantstøtte = 2600.12,
                 expectedForeldrepenger = 79467.0,
                 expectedØkonomiskSosialhjelp = 10365.0,
-                expectedTotalBrutto = 116312.0,
                 expectedTrekk = 7659.0,
-                expectedUtbetalt = 116312.0 - 7659.0
+                expectedUtbetalt = 92432.0 - 7659.0
             )
         )
 
@@ -67,14 +66,29 @@ class UtbetalingRoutesV2Test {
         client.get("/utbetalinger/alle").assert {
             status shouldBe HttpStatusCode.OK
             val responseBody = objectMapper.readTree(bodyAsText())
-            responseBody["ytelser"].toList().apply {
-                find { it["ytelse"].asText() == "Foreldrepenger" }!!["beløp"].asDouble() shouldBe 79467.0
-                find { it["ytelse"].asText() == "Økonomisk sosialhjelp" }!!["beløp"].asDouble() shouldBe 10365.0
-                find { it["ytelse"].asText() == "Kontantstøtte" }!!["beløp"].asDouble() shouldBe 26000.0
+            responseBody["utbetalingerIPeriode"]["ytelser"].toList().apply {
+                withClue("Foreldrepenger") {
+                    find { it["ytelse"].asText() == "Foreldrepenger" }!!["beløp"].asDouble() shouldBe (79467.0 * 5)
+                }
+                withClue("Økonomisk Sosialhjelp") {
+                    find { it["ytelse"].asText() == "Økonomisk Sosialhjelp" }!!["beløp"].asDouble() shouldBe (10365.0 * 5)
+
+                }
+                withClue("Kontantstøtte") {
+                    find { it["ytelse"].asText() == "Kontantstøtte" }!!["beløp"].asDouble() shouldBe (2600.12.toBigDecimal() * 5.0.toBigDecimal()).toDouble()
+                }
             }
-            responseBody["trekk"].asDouble() shouldBe 7659.0
-            responseBody["brutto"].asDouble() shouldBe 116312.0
-            responseBody["netto"].asDouble() shouldBe (116312.0 - 7659.0)
+            val expectedTotalBrutto = (79467.0 + 10365.0 + 2600.12) * 5
+            withClue("trekk") {
+                responseBody["utbetalingerIPeriode"]["trekk"].asDouble() shouldBe 7659.0
+            }
+            withClue("brutto") {
+                responseBody["utbetalingerIPeriode"]["brutto"].asDouble() shouldBe expectedTotalBrutto
+            }
+
+            withClue("netto") {
+                responseBody["utbetalingerIPeriode"]["netto"].asDouble() shouldBe expectedTotalBrutto - 7659.0
+            }
         }
     }
 
@@ -217,7 +231,6 @@ private fun Int.tidligereYtelser(
     expectedKontantstøtte: Double,
     expectedForeldrepenger: Double,
     expectedØkonomiskSosialhjelp: Double,
-    expectedTotalBrutto: Double,
     expectedTrekk: Double,
     expectedUtbetalt: Double
 ): String {

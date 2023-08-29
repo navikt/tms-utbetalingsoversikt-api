@@ -21,15 +21,15 @@ class UtbetalingerContainerTest {
         val threeMonthsBefore = now.minusMonths(3)
         val fourMonthsBefore = now.minusMonths(4)
         val sokoResponse = listOf(
-            sokoResponse(date = now, false),
-            sokoResponse(date = now.plusDays(6), false),
-            sokoResponse(date = now, true),
-            sokoResponse(date = now.firstInMonth()),
-            sokoResponse(date = now.minus10or1stInMonth()),
-            sokoResponse(date = threeMonthsBefore),
-            sokoResponse(date = fourMonthsBefore),
-            sokoResponse(date = now.minusYears(2)),
-            sokoResponse(date = now.minusYears(2)),
+            sokoTestResponse(date = now, false),
+            sokoTestResponse(date = now.plusDays(6), false),
+            sokoTestResponse(date = now, true),
+            sokoTestResponse(date = now.firstInMonth()),
+            sokoTestResponse(date = now.minus10or1stInMonth()),
+            sokoTestResponse(date = threeMonthsBefore),
+            sokoTestResponse(date = fourMonthsBefore),
+            sokoTestResponse(date = now.minusYears(2)),
+            sokoTestResponse(date = now.minusYears(2)),
         )
 
         UtbetalingerContainer.fromSokosResponse(sokoResponse).apply {
