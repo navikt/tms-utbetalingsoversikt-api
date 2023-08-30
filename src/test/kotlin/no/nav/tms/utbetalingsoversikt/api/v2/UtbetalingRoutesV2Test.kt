@@ -109,13 +109,13 @@ class UtbetalingRoutesV2Test {
         withExternalServiceResponse(
             """
           ${tidligereUtbetalingerJson.substring(0, tidligereUtbetalingerJson.lastIndexOf("]"))},
-          ${nesteYtelseJson(1)},    
-          ${nesteYtelseJson(15)},    
+          ${nesteYtelseJson(15)},   
+          ${nesteYtelseJson(1)},     
           ${nesteYtelseJson(20)}    
            ]
             
         """.trimIndent()
-        ) { true  }
+        ) { true }
 
 
         client.get("/utbetalinger/alle").assert {

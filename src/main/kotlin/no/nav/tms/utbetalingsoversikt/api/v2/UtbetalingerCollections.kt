@@ -23,11 +23,15 @@ data class UtbetalingerContainer(
     companion object {
         fun fromSokosResponse(utbetalingEksternList: List<UtbetalingEkstern>) =
             utbetalingEksternList
-                .groupBy { LocalDate.parse(it.utbetalingsdato ?: it.forfallsdato).isBefore(LocalDate.now()) }
+                .groupBy {
+                    LocalDate.parse(it.utbetalingsdato ?: it.forfallsdato)
+                        .isBefore(LocalDate.now())
+                }
                 .let { grouped ->
                     UtbetalingerContainer(
                         neste = UtbetalingForYtelse.fromSokosResponse(grouped[false]).sortedBy { it.dato },
-                        tidligere = TidligereUtbetalingerPrMåned.fromSokosRepsponse(grouped[true]),
+                        tidligere = TidligereUtbetalingerPrMåned.fromSokosRepsponse(grouped[true])
+                            .sortedWith(compareByDescending<TidligereUtbetalingerPrMåned> { it.år }.thenByDescending { it.måned }),
                         utbetalingerIPeriode = UtbetalingerIPeriode.fromSokosResponse(grouped[true])
 
                     )
@@ -40,22 +44,19 @@ data class TidligereUtbetalingerPrMåned(val år: Int, val måned: Int, val utbe
     companion object {
         fun fromSokosRepsponse(sokosUtbetalinger: List<UtbetalingEkstern>?): List<TidligereUtbetalingerPrMåned> =
             sokosUtbetalinger
-                ?.groupBy {
-                    it.monthYearKey()
-                }
+                ?.groupBy { it.monthYearKey() }
                 ?.filter { it.key != null }
                 ?.map {
                     TidligereUtbetalingerPrMåned(
                         år = it.key!!.year,
                         måned = it.key!!.month,
-                        utbetalinger = UtbetalingForYtelse
-                            .fromSokosResponse(it.value)
+                        utbetalinger = UtbetalingForYtelse.fromSokosResponse(it.value)
                             .sortedByDescending { utbetaling -> utbetaling.dato }
                     )
                 }
                 ?: emptyList()
 
-        private fun UtbetalingEkstern.monthYearKey() : MonthYearKey? =
+        private fun UtbetalingEkstern.monthYearKey(): MonthYearKey? =
             try {
                 LocalDate.parse(this.utbetalingsdato)
                     .let { MonthYearKey(it.monthValue, it.year) }
@@ -63,7 +64,6 @@ data class TidligereUtbetalingerPrMåned(val år: Int, val måned: Int, val utbe
                 log.error { "Feil i sortering; utbetalingsdato er null, forfallsdato er $forfallsdato" }
                 null
             }
-
 
         private data class MonthYearKey(val month: Int, val year: Int)
     }
@@ -87,14 +87,14 @@ data class UtbetalingerIPeriode(
             val allYtelser = utbetalinger
                 .map { it.ytelseListe }
                 .flatten()
-            val ytelserWithBeløp =
-                allYtelser
-                    .groupBy { it.ytelsestype ?: "ukjent" }
-                    .map { m ->
-                        Ytelse(
-                            m.key,
-                            m.value.sumOf { it.ytelseNettobeloep.toBigDecimal() + it.trekksum.toBigDecimal() })
-                    }
+
+            val ytelserWithBeløp = allYtelser
+                .groupBy { it.ytelsestype ?: "ukjent" }
+                .map { ytelserMap ->
+                    Ytelse(
+                        ytelserMap.key,
+                        ytelserMap.value.sumOf { it.ytelseNettobeloep.toBigDecimal() + it.trekksum.toBigDecimal() })
+                }
 
             return UtbetalingerIPeriode(
                 harUtbetalinger = true,
