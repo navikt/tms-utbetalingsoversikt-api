@@ -26,7 +26,7 @@ data class UtbetalingForYtelse(
             utbetalingEkstern
                 ?.map {
                     UtbetalingForYtelseMappingObject(
-                        LocalDate.parse(it.utbetalingsdato ?: it.posteringsdato),
+                        LocalDate.parse(it.utbetalingsdato ?: it.forfallsdato),
                         it.posteringsdato,
                         it.ytelseListe
                     )

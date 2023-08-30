@@ -115,7 +115,7 @@ class UtbetalingRoutesV2Test {
            ]
             
         """.trimIndent()
-        ) { true == true }
+        ) { true  }
 
 
         client.get("/utbetalinger/alle").assert {
@@ -346,7 +346,7 @@ private val ApplicationTestBuilder.sokosHttpClient
 @Language("JSON")
 private fun nesteYtelseJson(plusDays: Long = 5) = """
       {
-        "posteringsdato": "${LocalDate.now().plusDays(plusDays)}",
+        "posteringsdato": "${LocalDate.now().minusDays(plusDays)}",
         "utbetaltTil": {
           "aktoertype": "PERSON",
           "ident": "123345567",
