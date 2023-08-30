@@ -56,7 +56,7 @@ data class UtbetalingerPrMåned(val år: Int, val måned: Int, val utbetalinger:
                 ?: emptyList()
 
         private fun UtbetalingEkstern.monthYearKey() =
-            LocalDate.parse(this.utbetalingsdato)
+            LocalDate.parse(this.utbetalingsdato?:this.posteringsdato)
                 .let { MonthYearKey(it.monthValue, it.year) }
 
         private data class MonthYearKey(val month: Int, val year: Int)

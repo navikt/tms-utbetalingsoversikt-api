@@ -8,7 +8,7 @@ parameter : Ingen
 
 ```json
 {
-  "__dato_format__": "YYYYMMdd",
+  "__dato_format__": "yyyyMMdd",
   "dato": "string",
   "harUtbetaling": "boolean",
   "sisteUtbetaling": "number",
@@ -23,8 +23,8 @@ parameter : Ingen
 ##    /utbetalinger/alle
 Utbetalinger over en gitt periode, defaulter til siste tre månedr\
 parameter:
-* fom: fra dato på format YYYYMMdd (optional)
-* tom: fra dato på format YYYYMMdd (optional)
+* fom: fra dato på format yyyyMMdd (optional)
+* tom: fra dato på format yyyyMMdd (optional)
 
 ```json
 {
