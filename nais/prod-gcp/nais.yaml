@@ -49,3 +49,14 @@ spec:
     requests:
       cpu: "50m"
       memory: 384Mi
+  env:
+    - name: CORS_ALLOWED_ORIGINS
+      value: '*.nav.no'
+    - name: CORS_ALLOWED_SCHEMES
+      value: https
+    - name: POST_LOGOUT_URL
+      value: https://www.nav.no
+    - name: SOKOS_UTBETALDATA_URL
+      value: https://sokos-utbetaldata.prod-fss-pub.nais.io/utbetaldata/api/v2
+    - name: SOKOS_UTBETALING_TOKENX_CLIENT_ID
+      value: prod-fss:okonomi:sokos-utbetaldata

@@ -9,21 +9,18 @@ import no.nav.tms.utbetalingsoversikt.api.ytelse.SokosUtbetalingConsumer
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-
-//https://www.intern.dev.nav.no/tms-utbetalingsoversikt-api/utbetalinger?=&fom=20230524&tom=20230824
-
 fun Route.utbetalingRoutesV2(sokosUtbetalingConsumer: SokosUtbetalingConsumer) {
 
     route("utbetalinger") {
 
         get("/alle") {
-            /*      val utbetalinger = sokosUtbetalingConsumer.fetchUtbetalingsInfo(
-                      user = authenticatedUser,
-                      fom = call.fromDateParam.localDateOrDefault(LocalDate.now().minusMonths(3)),
-                      tom = call.toDateParam.localDateOrDefault()
-                  )
-                  call.respond(HttpStatusCode.OK, UtbetalingerContainer(emptyList(), emptyList()))*/
-            call.respond(HttpStatusCode.NotImplemented)
+            val utbetalinger = sokosUtbetalingConsumer.fetchUtbetalingsInfo(
+                user = authenticatedUser,
+                fom = call.fromDateParam.localDateOrDefault(LocalDate.now().minusMonths(3)),
+                tom = call.toDateParam.localDateOrDefault()
+            )
+
+            call.respond(HttpStatusCode.OK, UtbetalingerContainer.fromSokosResponse(utbetalinger))
         }
 
         get("/siste") {
@@ -32,20 +29,20 @@ fun Route.utbetalingRoutesV2(sokosUtbetalingConsumer: SokosUtbetalingConsumer) {
                 fom = LocalDate.now().minusMonths(3),
                 tom = LocalDate.now()
             )
-                .let { SisteUtbetalingDetaljer.fromSokosRepsonse(it) }
 
-            call.respond(HttpStatusCode.OK, sisteUtbetaling)
+            call.respond(HttpStatusCode.OK, SisteUtbetalingDetaljer.fromSokosRepsonse(sisteUtbetaling))
         }
     }
 }
 
 
-private val formatter = DateTimeFormatter.ofPattern("YYYYMMdd")
+private val formatter = DateTimeFormatter.ofPattern("yyyyMMdd")
 private fun String?.localDateOrDefault(default: LocalDate = LocalDate.now()): LocalDate = this?.let {
     LocalDate.parse(
         this,
         formatter
     )
+    //fom=2023 05 29&tom=20230829
 } ?: default
 
 val ApplicationCall.fromDateParam: String? get() = request.queryParameters["fom"]
