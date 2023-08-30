@@ -61,7 +61,7 @@ class UtbetalingRoutesV2Test {
                 expectedTrekk = 7659.0,
                 expectedUtbetalt = 92432.0 - 7659.0
             )
-        ) { true == true }
+        ) { true }
 
 
         client.get("/utbetalinger/alle").assert {
@@ -180,7 +180,7 @@ class UtbetalingRoutesV2Test {
            ]
             
         """.trimIndent()
-        ){
+        ) {
             val fomtom = objectMapper.readTree(call.receiveText())
             fomtom["periode"]["fom"].asText() == "2023-05-29" && fomtom["periode"]["tom"].asText() == "2023-08-30"
         }
@@ -252,7 +252,10 @@ class UtbetalingRoutesV2Test {
         }
     }
 
-    private fun ApplicationTestBuilder.withExternalServiceResponse(body: String, replyIf: suspend PipelineContext<Unit,ApplicationCall>.() -> Boolean = { true }) {
+    private fun ApplicationTestBuilder.withExternalServiceResponse(
+        body: String,
+        replyIf: suspend PipelineContext<Unit, ApplicationCall>.() -> Boolean = { true }
+    ) {
         externalServices {
             hosts(testHost) {
                 install(ContentNegotiation) {
