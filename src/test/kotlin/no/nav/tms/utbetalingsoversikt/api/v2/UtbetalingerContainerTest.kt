@@ -53,7 +53,7 @@ class UtbetalingerContainerTest {
 }
 
 private fun LocalDate.minus10or1stInMonth(): LocalDate = let {
-    if (it.dayOfMonth - 10 <= 1) {
+    if (it.dayOfMonth - 10 >= 1) {
         LocalDate.now().minusDays(10)
     } else it.firstInMonth()
 }

@@ -24,8 +24,9 @@ data class UtbetalingerContainer(
         fun fromSokosResponse(utbetalingEksternList: List<UtbetalingEkstern>) =
             utbetalingEksternList
                 .groupBy {
-                    LocalDate.parse(it.utbetalingsdato ?: it.forfallsdato)
-                        .isBefore(LocalDate.now())
+                    val compareDate = LocalDate.parse(it.utbetalingsdato ?: it.forfallsdato)
+                    val now = LocalDate.now()
+                    compareDate.isBefore(now) || (compareDate.isEqual(now) && it.utbetalingsdato != null)
                 }
                 .let { grouped ->
                     UtbetalingerContainer(
@@ -127,7 +128,7 @@ class BigDecimalSerializer : KSerializer<BigDecimal> {
     )
 
     override fun serialize(encoder: Encoder, value: BigDecimal) {
-        encoder.encodeString(value.setScale(2, RoundingMode.HALF_UP).stripTrailingZeros().toPlainString())
+        encoder.encodeDouble(value.setScale(2, RoundingMode.HALF_UP).stripTrailingZeros().toDouble())
     }
 
 }
