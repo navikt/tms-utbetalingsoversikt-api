@@ -1,13 +1,14 @@
 name: Deploy revision
-permissions:
-  contents: write
-  packages: write
+
 on:
   repository_dispatch:
     types: deploy-revision
 
 env:
   COMMIT_SHA: ${{ github.event.client_payload.commit }}
+
+permissions:
+  packages: write
 
 jobs:
   setup:

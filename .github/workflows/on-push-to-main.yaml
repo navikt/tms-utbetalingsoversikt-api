@@ -1,7 +1,5 @@
 name: Bygg og publiser docker-image for main
-permissions:
-  contents: write
-  packages: write
+
 on:
   push:
     branches:
@@ -9,7 +7,10 @@ on:
       - main
     paths-ignore:
       - .github/workflows/**
-      - apiV2.md
+
+permissions:
+  contents: write
+  packages: write
 
 jobs:
   build:
