@@ -1,5 +1,4 @@
 name: Deploy branch
-
 permissions:
   contents: write
   packages: write

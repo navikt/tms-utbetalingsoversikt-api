@@ -1,5 +1,7 @@
 name: Deploy revision
-
+permissions:
+  contents: write
+  packages: write
 on:
   repository_dispatch:
     types: deploy-revision
