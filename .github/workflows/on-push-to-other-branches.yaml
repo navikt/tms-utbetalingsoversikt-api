@@ -1,5 +1,6 @@
 name: Bygg branch
-
+permissions:
+  packages: write
 on:
   push:
     branches-ignore:

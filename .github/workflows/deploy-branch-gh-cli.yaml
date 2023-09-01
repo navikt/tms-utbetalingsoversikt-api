@@ -1,5 +1,7 @@
 name: Deploy branch
 
+permissions:
+  packages: write
 on:
   workflow_dispatch:
     inputs:
