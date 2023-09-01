@@ -44,6 +44,7 @@ data class UtbetalingForYtelse(
                 ?: emptyList()
     }
 }
+
 @Serializable
 data class SisteUtbetalingDetaljer(
     @Serializable(with = LocalDateSerializer::class) val dato: LocalDate?,
