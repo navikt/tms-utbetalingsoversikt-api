@@ -5,6 +5,7 @@ import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import no.nav.tms.utbetalingsoversikt.api.config.authenticatedUser
+import no.nav.tms.utbetalingsoversikt.api.utbetaling.YtelseIdUtil
 import no.nav.tms.utbetalingsoversikt.api.ytelse.SokosUtbetalingConsumer
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -32,6 +33,18 @@ fun Route.utbetalingRoutesV2(sokosUtbetalingConsumer: SokosUtbetalingConsumer) {
 
             call.respond(HttpStatusCode.OK, SisteUtbetalingDetaljer.fromSokosRepsonse(sisteUtbetaling))
         }
+
+        get("/{ytelseId}") {
+            val date = YtelseIdUtil.unmarshalDateFromId(call.parameters["ytelseId"])
+            val ytelseDetaljer = sokosUtbetalingConsumer.fetchUtbetalingsInfo(
+                user = authenticatedUser,
+                fom = date,
+                tom = date
+            ).let {
+                YtelseUtbetalingDetaljer.fromSokosReponse(it)
+            }
+            call.respond(HttpStatusCode.OK,ytelseDetaljer)
+        }
     }
 }
 
@@ -42,8 +55,36 @@ private fun String?.localDateOrDefault(default: LocalDate = LocalDate.now()): Lo
         this,
         formatter
     )
-    //fom=2023 05 29&tom=20230829
 } ?: default
 
 val ApplicationCall.fromDateParam: String? get() = request.queryParameters["fom"]
 val ApplicationCall.toDateParam: String? get() = request.queryParameters["tom"]
+
+/*{
+  "ytelse": "Navn på ytelse",
+  "erUtbetalt": "true/false",
+  "ytelse_periode": {
+    "fom": "dato",
+    "tom": "dato"
+  },
+  "ytelse_dato": "utbetaltdato/forfallsdato ",
+  "kontonummer": "xxxxxx9876",
+  "underytelser": [
+    {
+      "beskrivelse": "Grunnbeløp",
+      "sats": 100,
+      "antall": "int eller 0",
+      "__beløp_desc__": "samlet beløp(sats*antall)",
+      "beløp": 300
+    }
+  ],
+  "trekk": [
+    {
+      "type":"Skatt",
+      "beløp": 100
+    }
+  ],
+  "melding": "",
+  "netto_utbetalt": "",
+  "brutto_utbetalt": ""
+}*/

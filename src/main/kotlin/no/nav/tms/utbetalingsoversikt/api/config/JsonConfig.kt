@@ -6,12 +6,15 @@ import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.Json
+import java.math.BigDecimal
+import java.math.RoundingMode
 import java.time.LocalDate
 
 fun jsonConfig() = Json {
     this.ignoreUnknownKeys = true
     this.encodeDefaults = true
 }
+
 
 class LocalDateSerializer: KSerializer<LocalDate> {
     override fun deserialize(decoder: Decoder): LocalDate {
@@ -25,6 +28,22 @@ class LocalDateSerializer: KSerializer<LocalDate> {
 
     override fun serialize(encoder: Encoder, value: LocalDate) {
         encoder.encodeString(value.toString())
+    }
+
+}
+
+class BigDecimalSerializer : KSerializer<BigDecimal> {
+    override fun deserialize(decoder: Decoder): BigDecimal {
+        return decoder.decodeString().toBigDecimal()
+    }
+
+    override val descriptor = PrimitiveSerialDescriptor(
+        serialName = "no.nav.tms.utbetalingsoversikt.api.v2",
+        kind = PrimitiveKind.FLOAT
+    )
+
+    override fun serialize(encoder: Encoder, value: BigDecimal) {
+        encoder.encodeDouble(value.setScale(2, RoundingMode.HALF_UP).stripTrailingZeros().toDouble())
     }
 
 }

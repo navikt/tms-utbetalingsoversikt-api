@@ -1,6 +1,6 @@
 package no.nav.tms.utbetalingsoversikt.api.v2
 
-import com.fasterxml.jackson.databind.JsonNode
+
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.kotest.assertions.withClue
 import io.kotest.matchers.shouldBe
@@ -17,15 +17,16 @@ import io.ktor.server.routing.*
 import io.ktor.server.testing.*
 import io.ktor.util.pipeline.*
 import io.mockk.coEvery
+import io.mockk.every
 import io.mockk.mockk
+import io.mockk.mockkObject
 import no.nav.tms.token.support.idporten.sidecar.mock.LevelOfAssurance.HIGH
 import no.nav.tms.token.support.idporten.sidecar.mock.installIdPortenAuthMock
 import no.nav.tms.token.support.tokendings.exchange.TokendingsService
 import no.nav.tms.utbetalingsoversikt.api.config.jsonConfig
 import no.nav.tms.utbetalingsoversikt.api.config.utbetalingApi
+import no.nav.tms.utbetalingsoversikt.api.utbetaling.YtelseIdUtil
 import no.nav.tms.utbetalingsoversikt.api.ytelse.SokosUtbetalingConsumer
-import org.amshove.kluent.shouldBeBefore
-import org.intellij.lang.annotations.Language
 import org.junit.jupiter.api.Test
 import java.io.File
 import java.net.URL
@@ -213,7 +214,7 @@ class UtbetalingRoutesV2Test {
             )
         )
         val responseJsonText = File("src/test/resources/siste_utbetaling_test.json").readText()
-        withExternalServiceResponse(responseJsonText) { true == true }
+        withExternalServiceResponse(responseJsonText) { true }
         client.get("/utbetalinger/siste").assert {
             status shouldBe HttpStatusCode.OK
             objectMapper.readTree(bodyAsText()).apply {
@@ -252,6 +253,66 @@ class UtbetalingRoutesV2Test {
         }
     }
 
+
+    @Test
+    fun `returnerer detaljertinfo om utbetaling for spesifikk utbetaling av en ytelse`() = testApplication {
+        testApi(
+            SokosUtbetalingConsumer(
+                client = sokosHttpClient,
+                baseUrl = URL(testHost),
+                tokendingsService = tokendingsMockk,
+                sokosUtbetaldataClientId = "test:client:id"
+            )
+        )
+        val responseJsonText = File("src/test/resources/utbetaling_detalj_test.json").readText()
+        withExternalServiceResponse(responseJsonText) { true }
+        mockkObject(YtelseIdUtil)
+        every { YtelseIdUtil.unmarshalDateFromId("ydaj31") } returns LocalDate.now()
+
+        client.get("/utbetalinger/ydaj31").assert {
+            status shouldBe HttpStatusCode.OK
+            val json = jacksonObjectMapper().readTree(bodyAsText())
+            json["ytelse"].asText() shouldBe "Arbeidsavklaringspenger"
+            json["erUtbetalt"].asBoolean() shouldBe true
+            json["ytelsePeriode"].apply {
+                this["fom"].asText() shouldBe "2023-08-01"
+                this["tom"].asText() shouldBe "2023-08-14"
+            }
+            json["ytelseDato"].asText() shouldBe "2023-08-15"
+            json["kontonummer"].asText() shouldBe "xxxxxx9876"
+            json["underytelse"].toList().apply {
+                size shouldBe 2
+                this[0].apply {
+                    this["beskrivelse"].asText() shouldBe "Grunnbeløp"
+                    this["sats"].asDouble() shouldBe 500.25
+                    this["antall"].asInt() shouldBe 3
+                    this["beløp"].asDouble() shouldBe 1500.75 //sats*antall
+                }
+                this[1].apply {
+                    this["beskrivelse"].asText() shouldBe "Annet beløp"
+                    this["sats"].asDouble() shouldBe 300.25
+                    this["antall"].asInt() shouldBe 4
+                    this["beløp"].asDouble() shouldBe 1201.00 //sats*antall
+                }
+            }
+            json["trekk"].toList().apply {
+                size shouldBe 2
+                this.find { it["type"].asText() == "Skatt" }.let { trekk ->
+                    require(trekk != null)
+                    trekk["beløp"].asDouble() shouldBe 238.74
+                }
+                this.find { it["type"].asText() == "Annet trekk" }.let { trekk ->
+                    require(trekk != null)
+                    trekk["beløp"].asDouble() shouldBe 203.66
+                }
+            }
+
+            json["melding"].asText() shouldBe "En eller annen melding"
+            json["bruttoUtbetalt"].asDouble() shouldBe 2701.75
+            json["nettoUtbetalt"].asDouble() shouldBe 2259.35
+        }
+    }
+
     private fun ApplicationTestBuilder.withExternalServiceResponse(
         body: String,
         replyIf: suspend PipelineContext<Unit, ApplicationCall>.() -> Boolean = { true }
@@ -277,42 +338,6 @@ class UtbetalingRoutesV2Test {
         }
     }
 }
-
-private fun Int.tidligereYtelser(
-    expectedKontantstøtte: Double,
-    expectedForeldrepenger: Double,
-    expectedØkonomiskSosialhjelp: Double,
-    expectedTrekk: Double,
-    expectedUtbetalt: Double
-): String {
-    val ytelse = mutableListOf<String>()
-    val trekkPrThing = (expectedTrekk / this) / 3
-    for (i in 1..this) {
-        ytelse.add(
-            tidligereYtelseJson(
-                minusDays = this.toLong() * 8,
-                nettoUtbetalt = expectedUtbetalt,
-                økonomiskSosialhjelp = NettoOgTrekk(expectedØkonomiskSosialhjelp - trekkPrThing, trekkPrThing),
-                foreldrePenger = NettoOgTrekk(expectedForeldrepenger - trekkPrThing, trekkPrThing),
-                kontantstøtte = NettoOgTrekk(expectedKontantstøtte - trekkPrThing, trekkPrThing),
-            )
-        )
-    }
-    return ytelse.joinToString(prefix = "[", postfix = "]", separator = ",")
-}
-
-private fun List<JsonNode>.shouldBeInDescedingYearMonthOrder() {
-    var sisteUtbetalinsgDato = LocalDate.now()
-    map { LocalDate.of(it["år"].asInt(), it["måned"].asInt(), 1) }.forEach { utbetalingsdato ->
-        utbetalingsdato shouldBeBefore sisteUtbetalinsgDato
-        sisteUtbetalinsgDato = utbetalingsdato
-    }
-}
-
-private suspend fun HttpResponse.assert(function: suspend HttpResponse.() -> Unit) {
-    function()
-}
-
 
 private fun ApplicationTestBuilder.testApi(sokosUtbetalingConsumer: SokosUtbetalingConsumer = mockk()) {
     val httpClient = createClient { jsonConfig() }
@@ -341,298 +366,3 @@ private val ApplicationTestBuilder.sokosHttpClient
         }
         install(HttpTimeout)
     }
-
-
-@Language("JSON")
-private fun nesteYtelseJson(plusDays: Long = 5) = """
-      {
-        "posteringsdato": "${LocalDate.now().minusDays(plusDays)}",
-        "utbetaltTil": {
-          "aktoertype": "PERSON",
-          "ident": "123345567",
-          "navn": "string"
-        },
-        "utbetalingNettobeloep": 8700,
-        "utbetalingsmelding": "string",
-        "utbetalingsdato": null,
-        "forfallsdato": "${LocalDate.now().plusDays(plusDays)}",
-        "utbetaltTilKonto": {
-          "kontonummer": "888777666555444",
-          "kontotype": "Norsk bank"
-        },
-        "utbetalingsmetode": "Til konto",
-        "utbetalingsstatus": "something",
-        "ytelseListe": [
-          {
-            "ytelsestype": "Dagpenger",
-            "ytelsesperiode": {
-              "fom": "${LocalDate.now().plusDays(plusDays)}",
-              "tom": "${LocalDate.now().plusDays(plusDays)}"
-            },
-            "ytelseskomponentListe": [
-              {
-                "ytelseskomponenttype": "string",
-                "satsbeloep": 999,
-                "satstype": "string",
-                "satsantall": 2.5,
-                "ytelseskomponentbeloep": 42
-              }
-            ],
-            "ytelseskomponentersum": 111.22,
-            "trekkListe": [
-              {
-                "trekktype": "string",
-                "trekkbeloep": 100,
-                "kreditor": "string"
-              }
-            ],
-            "trekksum": 1000,
-            "skattListe": [
-              {
-                "skattebeloep": 99.9
-              }
-            ],
-            "skattsum": 1000.5,
-            "ytelseNettobeloep": 3788,
-            "bilagsnummer": "84172491",
-            "rettighetshaver": {
-              "aktoertype": "PERSON",
-              "ident": "1234567890g",
-              "navn": "Navn Navnesen"
-            }
-          },
-          {
-            "ytelsestype": "Foreldrepenger",
-            "ytelsesperiode": {
-              "fom": "${LocalDate.now().plusDays(plusDays)}",
-              "tom": "${LocalDate.now().plusDays(plusDays)}"
-            },
-            "ytelseskomponentListe": [
-              {
-                "ytelseskomponenttype": "string",
-                "satsbeloep": 999,
-                "satstype": "string",
-                "satsantall": 2.5,
-                "ytelseskomponentbeloep": 42
-              }
-            ],
-            "ytelseskomponentersum": 111.22,
-            "trekkListe": [
-              {
-                "trekktype": "string",
-                "trekkbeloep": 100,
-                "kreditor": "string"
-              }
-            ],
-            "trekksum": 1000,
-            "skattListe": [
-              {
-                "skattebeloep": 99.9
-              }
-            ],
-            "skattsum": 1000.5,
-            "ytelseNettobeloep": 2600.87,
-            "bilagsnummer": "84172491",
-            "rettighetshaver": {
-              "aktoertype": "PERSON",
-              "ident": "1234567890g",
-              "navn": "Navn Navnesen"
-            }
-          },
-          {
-            "ytelsestype": "Økonomisk sosialhjelp",
-            "ytelsesperiode": {
-              "fom": "${LocalDate.now().plusDays(plusDays)}",
-              "tom": "${LocalDate.now().plusDays(plusDays)}"
-            },
-            "ytelseskomponentListe": [
-              {
-                "ytelseskomponenttype": "string",
-                "satsbeloep": 999,
-                "satstype": "string",
-                "satsantall": 2.5,
-                "ytelseskomponentbeloep": 42
-              }
-            ],
-            "ytelseskomponentersum": 111.22,
-            "trekkListe": [
-              {
-                "trekktype": "string",
-                "trekkbeloep": 100,
-                "kreditor": "string"
-              }
-            ],
-            "trekksum": 1000,
-            "skattListe": [
-              {
-                "skattebeloep": 99.9
-              }
-            ],
-            "skattsum": 1000.5,
-            "ytelseNettobeloep": 2311.13,
-            "bilagsnummer": "84172491",
-            "rettighetshaver": {
-              "aktoertype": "PERSON",
-              "ident": "12345678909",
-              "navn": "Navn Navnesen"
-            }
-          }
-        ]
-      }
-""".trimIndent()
-
-@Language("JSON")
-private fun tidligereYtelseJson(
-    minusDays: Long,
-    nettoUtbetalt: Double,
-    økonomiskSosialhjelp: NettoOgTrekk,
-    foreldrePenger: NettoOgTrekk,
-    kontantstøtte: NettoOgTrekk,
-    utbetalingsmetode: String = "Til konto",
-    kontonummer: String = "1234567890",
-) =
-    """
-      {
-        "posteringsdato": "${LocalDate.now().minusDays(minusDays)}",
-        "utbetaltTil": {
-          "aktoertype": "PERSON",
-          "ident": "123345567",
-          "navn": "string"
-        },
-        "utbetalingNettobeloep": $nettoUtbetalt,
-        "utbetalingsmelding": "string",
-        "utbetalingsdato": "${LocalDate.now().minusDays(minusDays)}",
-        "forfallsdato": "${LocalDate.now().minusDays(minusDays)}",
-        "utbetaltTilKonto": {
-          "kontonummer": "$kontonummer",
-          "kontotype": "Norsk bank"
-        },
-        "utbetalingsmetode": "$utbetalingsmetode",
-        "utbetalingsstatus": "something",
-        "ytelseListe": [
-          {
-            "ytelsestype": "Foreldrepenger",
-            "ytelsesperiode": {
-              "fom": "${LocalDate.now().minusDays(minusDays)}",
-              "tom": "${LocalDate.now().minusDays(minusDays)}"
-            },
-            "ytelseskomponentListe": [
-              {
-                "ytelseskomponenttype": "string",
-                "satsbeloep": 999,
-                "satstype": "string",
-                "satsantall": 2.5,
-                "ytelseskomponentbeloep": 42
-              }
-            ],
-            "ytelseskomponentersum": 111.22,
-            "trekkListe": [
-              {
-                "trekktype": "string",
-                "trekkbeloep": 100,
-                "kreditor": "string"
-              }
-            ],
-            "trekksum": ${foreldrePenger.alleTrekk},
-            "skattListe": [
-              {
-                "skattebeloep": 99.9
-              }
-            ],
-            "skattsum": 1000.5,
-            "ytelseNettobeloep": ${foreldrePenger.nettobeløp},
-            "bilagsnummer": "84172491",
-            "rettighetshaver": {
-              "aktoertype": "PERSON",
-              "ident": "1234567890g",
-              "navn": "Navn Navnesen"
-            }
-          },
-          {
-            "ytelsestype": "Økonomisk Sosialhjelp",
-            "ytelsesperiode": {
-              "fom": "${LocalDate.now().minusDays(minusDays)}",
-              "tom": "${LocalDate.now().minusDays(minusDays)}"
-            },
-            "ytelseskomponentListe": [
-              {
-                "ytelseskomponenttype": "string",
-                "satsbeloep": 999,
-                "satstype": "string",
-                "satsantall": 2.5,
-                "ytelseskomponentbeloep": 42
-              }
-            ],
-            "ytelseskomponentersum": 111.22,
-            "trekkListe": [
-              {
-                "trekktype": "string",
-                "trekkbeloep": 100,
-                "kreditor": "string"
-              }
-            ],
-            "trekksum": ${økonomiskSosialhjelp.alleTrekk},
-            "skattListe": [
-              {
-                "skattebeloep": 99.9
-              }
-            ],
-            "skattsum": 1000.5,
-            "ytelseNettobeloep": ${økonomiskSosialhjelp.nettobeløp},
-            "bilagsnummer": "84172491",
-            "rettighetshaver": {
-              "aktoertype": "PERSON",
-              "ident": "1234567890g",
-              "navn": "Navn Navnesen"
-            }
-          },
-          {
-                      "ytelsestype": "Kontantstøtte",
-                      "ytelsesperiode": {
-                        "fom": "${LocalDate.now().minusDays(minusDays)}",
-                        "tom": "${LocalDate.now().minusDays(minusDays)}"
-                      },
-                      "ytelseskomponentListe": [
-                        {
-                          "ytelseskomponenttype": "string",
-                          "satsbeloep": 999,
-                          "satstype": "string",
-                          "satsantall": 2.5,
-                          "ytelseskomponentbeloep": 42
-                        }
-                      ],
-                      "ytelseskomponentersum": 111.22,
-                      "trekkListe": [
-                        {
-                          "trekktype": "string",
-                          "trekkbeloep": 100,
-                          "kreditor": "string"
-                        }
-                      ],
-                      "trekksum": ${kontantstøtte.alleTrekk},
-                      "skattListe": [
-                        {
-                          "skattebeloep": 99.9
-                        }
-                      ],
-                      "skattsum": 1000.5,
-                      "ytelseNettobeloep": ${kontantstøtte.nettobeløp},
-                      "bilagsnummer": "84172491",
-                      "rettighetshaver": {
-                        "aktoertype": "PERSON",
-                        "ident": "1234567890g",
-                        "navn": "Navn Navnesen"
-                      }
-                    }
-        ]
-      }
-""".trimIndent()
-
-private typealias NettoOgTrekk = Pair<Double, Double>
-
-private val NettoOgTrekk.nettobeløp
-    get() = first
-private val NettoOgTrekk.alleTrekk
-    get() = second
-
-private fun NettoOgTrekk.dividedBy(divideBy: Int) = NettoOgTrekk(nettobeløp / divideBy, alleTrekk / divideBy)
