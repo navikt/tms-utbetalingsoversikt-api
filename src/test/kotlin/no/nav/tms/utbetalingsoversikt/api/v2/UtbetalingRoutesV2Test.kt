@@ -1,6 +1,6 @@
 package no.nav.tms.utbetalingsoversikt.api.v2
 
-import com.fasterxml.jackson.databind.JsonNode
+
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.kotest.assertions.withClue
 import io.kotest.matchers.shouldBe
@@ -16,23 +16,14 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.testing.*
 import io.ktor.util.pipeline.*
-import io.mockk.InternalPlatformDsl.toStr
 import io.mockk.coEvery
 import io.mockk.mockk
-import net.bytebuddy.asm.Advice.Local
 import no.nav.tms.token.support.idporten.sidecar.mock.LevelOfAssurance.HIGH
 import no.nav.tms.token.support.idporten.sidecar.mock.installIdPortenAuthMock
 import no.nav.tms.token.support.tokendings.exchange.TokendingsService
 import no.nav.tms.utbetalingsoversikt.api.config.jsonConfig
 import no.nav.tms.utbetalingsoversikt.api.config.utbetalingApi
-import no.nav.tms.utbetalingsoversikt.api.utbetaling.YtelseIdUtil
 import no.nav.tms.utbetalingsoversikt.api.ytelse.SokosUtbetalingConsumer
-import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.external.AktoerEkstern
-import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.external.AktoertypeEkstern
-import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.external.PeriodeEkstern
-import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.external.YtelseEkstern
-import org.amshove.kluent.shouldBeBefore
-import org.intellij.lang.annotations.Language
 import org.junit.jupiter.api.Test
 import java.io.File
 import java.net.URL
@@ -261,7 +252,7 @@ class UtbetalingRoutesV2Test {
 
 
     @Test
-    fun `returnerer detlajertinfo om utbeatling for en spesifikk utbetaling av en ytelse`() = testApplication {
+    fun `returnerer detaljertinfo om utbeatling for en spesifikk utbetaling av en ytelse`() = testApplication {
         testApi(
             SokosUtbetalingConsumer(
                 client = sokosHttpClient,
@@ -271,94 +262,48 @@ class UtbetalingRoutesV2Test {
             )
         )
 
-        val fom = LocalDate.now().minusDays(3)
-        val tom = LocalDate.now()
+        //fake et eller annet for YtelseUtil her
+        client.get("/utbetalinger/ydaj31").assert {
+            status shouldBe HttpStatusCode.OK
+            val json = jacksonObjectMapper().readTree(bodyAsText())
+            json["ytelse"].asText() shouldBe "Arbeidsavklaringspenger"
+            json["erUtbetalt"].asText() shouldBe true
+            json["ytelsePeriode"].apply {
+                this["fom"] shouldBe "2023.08.01" //sjekk format
+                this["fom"] shouldBe "2023.08.14" //sjekk format
+            }
+            json["ytelseDato"].asText() shouldBe "2023.08.15"
+            json["kontonummer"].asText() shouldBe "xxxxxx9876"
+            json["underytelse"].toList().apply {
+                size shouldBe 2
+                this[0].apply {
+                    this["beskrivelse"].asText() shouldBe "Grunnbeløp"
+                    this["sats"].asDouble() shouldBe 500.25
+                    this["antall"].asInt() shouldBe 3
+                    this["beløp"].asDouble() shouldBe 1500.75 //sats*antall
+                }
+                json[1].apply {
+                    this["beskrivelse"].asText() shouldBe "Annet beløp"
+                    this["sats"].asDouble() shouldBe 300.25
+                    this["antall"].asInt() shouldBe 4
+                    this["beløp"].asDouble() shouldBe 1201.00 //sats*antall
+                }
+            }
+            json["trekk"].toList().apply {
+                this[0].apply {
+                    this["type"].asText() shouldBe "Skatt"
+                    this["beløp"].asDouble() shouldBe 238.74
+                }
+                this[0].apply {
+                    this["type"].asText() shouldBe "Annet trekk"
+                    this["beløp"].asDouble() shouldBe 203.66
+                }
+            }
 
-        //Hovedytelser mapping (mulig det holder med dummyverdier)
-        val utbetalingstatus = "utbetaling.utbetalingsstatus" //! utbetalngsdato != null OBS skal gå ann å få detlajer for begge
-        val utbetalTil = "utbetaling.utbetaltTil.navn"
-        val kontonummer = "KontonummerTransformer.determineKontonummerVerdi(utbetaling)"
-        val melding = "utbetaling.utbetalingsmelding"
-        // !! ytelseskomponentListe kan være null
-
-
-        val eksternYtelse = YtelseEkstern(
-                ytelsestype = "Arbeidsavklaringspenger",
-                ytelsesperiode = PeriodeEkstern(fom.toStr(),tom.toStr()),
-                ytelseNettobeloep = 300.0,
-                rettighetshaver = AktoerEkstern(AktoertypeEkstern.PERSON, identNew = "identOid"),
-                skattsum = 50.0,
-                trekksum = 100.0,
-                ytelseskomponentersum = 0.0,
-                skattListe = listOf(),
-                trekkListe = listOf(),
-                ytelseskomponentListe = listOf(),
-                bilagsnummer = null,
-                refundertForOrg = null,
-            )
-
-
-        /*
-        *
-        *             Hovedytelse(
-                id = YtelseIdUtil.calculateId(utbetaling.posteringsdato, ytelseEkstern),
-                rettighetshaver = createRettighetshaver(ytelseEkstern.rettighetshaver),
-                ytelse = ytelseEkstern.ytelsestype?: "",
-                status = utbetaling.utbetalingsstatus,
-                ytelseDato = determineYtelseDato(utbetaling),
-                forfallDato = determineYtelseDato(utbetaling),
-                utbetaltTil = utbetaling.utbetaltTil.navn,
-                ytelsePeriode = createPeriode(ytelseEkstern.ytelsesperiode),
-                kontonummer = KontonummerTransformer.determineKontonummerVerdi(utbetaling),
-                underytelser = createUnderYtelser(ytelseEkstern),
-                trekk = TrekkTransformer.createTrekkList(ytelseEkstern),
-                erUtbetalt = isUtbetalt(utbetaling),
-                melding = utbetaling.utbetalingsmelding?: ""
-            )
-        *
-        *
-        *
-        * */
-
-        client.get("/utbetalinger/")
-        /*
-        * {
-  "ytelse": "Navn på ytelse",
-  "erUtbetalt": "true/false",
-  "ytelse_periode": {
-    "fom": "dato",
-    "tom": "dato"
-  },
-  "ytelse_dato": "utbetaltdato/forfallsdato ",
-  "kontonummer": "xxxxxx9876",
-  "underytelser": [
-    {
-      "beskrivelse": "Grunnbeløp",
-      "sats": 100,
-      "antall": "int eller 0",
-      "__beløp_desc__": "samlet beløp(sats*antall)",
-      "beløp": 300
-    }
-  ],
-  "trekk": [
-    {
-      "type":"Skatt",
-      "beløp": 100
-    }
-  ],
-  "melding": "",
-  "netto_utbetalt": "",
-  "brutto_utbetalt": ""
-}
-        *
-        *
-        *
-        *
-        *
-        *
-        * */
-
-
+            json["melding"].asText() shouldBe "En eller annen melding"
+            json["bruttoUtbetalt"].asDouble() shouldBe 2701.75
+            json["nettoUtbetalt"].asDouble() shouldBe 2259.35
+        }
     }
 
     private fun ApplicationTestBuilder.withExternalServiceResponse(

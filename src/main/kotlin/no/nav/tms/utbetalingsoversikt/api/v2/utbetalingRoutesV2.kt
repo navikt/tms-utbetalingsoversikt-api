@@ -5,6 +5,7 @@ import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import no.nav.tms.utbetalingsoversikt.api.config.authenticatedUser
+import no.nav.tms.utbetalingsoversikt.api.utbetaling.YtelseIdUtil
 import no.nav.tms.utbetalingsoversikt.api.ytelse.SokosUtbetalingConsumer
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -33,7 +34,18 @@ fun Route.utbetalingRoutesV2(sokosUtbetalingConsumer: SokosUtbetalingConsumer) {
             call.respond(HttpStatusCode.OK, SisteUtbetalingDetaljer.fromSokosRepsonse(sisteUtbetaling))
         }
 
-        get("utbetalinger/{ytelseId}") {
+        get("/{ytelseId}") {
+            val date = YtelseIdUtil.unmarshalDateFromId(call.parameters["ytelseId"])
+            val ytelseDetaljer = sokosUtbetalingConsumer.fetchUtbetalingsInfo(
+                user = authenticatedUser,
+                fom = date,
+                tom = date
+            ).let {
+                YtelseUtbetalingDetaljer.fromSokosReponse(it)
+            }
+/*            hovedytelseService.getHovedytelserBetaltTilBruker(user, date, date)
+                .filter { it.id == ytelseId }
+                .first()*/
             call.respond(HttpStatusCode.NotImplemented)
         }
     }
