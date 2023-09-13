@@ -1,0 +1,72 @@
+[
+  {
+    "posteringsdato": "2023-08-24",
+    "utbetaltTil": {
+      "aktoertype": "PERSON",
+      "ident": "123345567",
+      "navn": "string"
+    },
+    "utbetalingNettobeloep": 8700,
+    "utbetalingsmelding": "En eller annen melding",
+    "utbetalingsdato": "2023-08-15",
+    "forfallsdato": "2023-08-24",
+    "utbetaltTilKonto": {
+      "kontonummer": "1111222233339876",
+      "kontotype": "Norsk bank"
+    },
+    "utbetalingsmetode": "Til konto",
+    "utbetalingsstatus": "something",
+    "ytelseListe": [
+      {
+        "ytelsestype": "Arbeidsavklaringspenger",
+        "ytelsesperiode": {
+          "fom": "2023-08-01",
+          "tom": "2023-08-14"
+        },
+        "ytelseskomponentListe": [
+          {
+            "ytelseskomponenttype": "Grunnbeløp",
+            "satsbeloep": 500.25,
+            "satstype": "string",
+            "satsantall": 3,
+            "ytelseskomponentbeloep": 42
+          },
+          {
+            "ytelseskomponenttype": "Annet beløp",
+            "satsbeloep": 300.25,
+            "satstype": "string",
+            "satsantall": 4,
+            "ytelseskomponentbeloep": 42
+          }
+        ],
+        "ytelseskomponentersum": 1201.00,
+        "trekkListe": [
+          {
+            "trekktype": "Skatt",
+            "trekkbeloep": 238.74,
+            "kreditor": "string"
+          },
+          {
+            "trekktype": "Annet trekk",
+            "trekkbeloep": 203.66,
+            "kreditor": "string"
+          }
+        ],
+        "trekksum": 1000,
+        "skattListe": [
+          {
+            "skattebeloep": 99.9
+          }
+        ],
+        "skattsum": 1000.5,
+        "ytelseNettobeloep": 3788,
+        "bilagsnummer": "84172491",
+        "rettighetshaver": {
+          "aktoertype": "PERSON",
+          "ident": "1234567890g",
+          "navn": "Navn Navnesen"
+        }
+      }
+    ]
+  }
+]

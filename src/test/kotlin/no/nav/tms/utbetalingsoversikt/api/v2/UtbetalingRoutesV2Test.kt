@@ -17,12 +17,15 @@ import io.ktor.server.routing.*
 import io.ktor.server.testing.*
 import io.ktor.util.pipeline.*
 import io.mockk.coEvery
+import io.mockk.every
 import io.mockk.mockk
+import io.mockk.mockkObject
 import no.nav.tms.token.support.idporten.sidecar.mock.LevelOfAssurance.HIGH
 import no.nav.tms.token.support.idporten.sidecar.mock.installIdPortenAuthMock
 import no.nav.tms.token.support.tokendings.exchange.TokendingsService
 import no.nav.tms.utbetalingsoversikt.api.config.jsonConfig
 import no.nav.tms.utbetalingsoversikt.api.config.utbetalingApi
+import no.nav.tms.utbetalingsoversikt.api.utbetaling.YtelseIdUtil
 import no.nav.tms.utbetalingsoversikt.api.ytelse.SokosUtbetalingConsumer
 import org.junit.jupiter.api.Test
 import java.io.File
@@ -211,7 +214,7 @@ class UtbetalingRoutesV2Test {
             )
         )
         val responseJsonText = File("src/test/resources/siste_utbetaling_test.json").readText()
-        withExternalServiceResponse(responseJsonText) { true == true }
+        withExternalServiceResponse(responseJsonText) { true }
         client.get("/utbetalinger/siste").assert {
             status shouldBe HttpStatusCode.OK
             objectMapper.readTree(bodyAsText()).apply {
@@ -252,7 +255,7 @@ class UtbetalingRoutesV2Test {
 
 
     @Test
-    fun `returnerer detaljertinfo om utbeatling for en spesifikk utbetaling av en ytelse`() = testApplication {
+    fun `returnerer detaljertinfo om utbetaling for spesifikk utbetaling av en ytelse`() = testApplication {
         testApi(
             SokosUtbetalingConsumer(
                 client = sokosHttpClient,
@@ -261,18 +264,21 @@ class UtbetalingRoutesV2Test {
                 sokosUtbetaldataClientId = "test:client:id"
             )
         )
+        val responseJsonText = File("src/test/resources/utbetaling_detalj_test.json").readText()
+        withExternalServiceResponse(responseJsonText) { true }
+        mockkObject(YtelseIdUtil)
+        every { YtelseIdUtil.unmarshalDateFromId("ydaj31") } returns LocalDate.now()
 
-        //fake et eller annet for YtelseUtil her
         client.get("/utbetalinger/ydaj31").assert {
             status shouldBe HttpStatusCode.OK
             val json = jacksonObjectMapper().readTree(bodyAsText())
             json["ytelse"].asText() shouldBe "Arbeidsavklaringspenger"
-            json["erUtbetalt"].asText() shouldBe true
+            json["erUtbetalt"].asBoolean() shouldBe true
             json["ytelsePeriode"].apply {
-                this["fom"] shouldBe "2023.08.01" //sjekk format
-                this["fom"] shouldBe "2023.08.14" //sjekk format
+                this["fom"].asText() shouldBe "2023-08-01"
+                this["tom"].asText() shouldBe "2023-08-14"
             }
-            json["ytelseDato"].asText() shouldBe "2023.08.15"
+            json["ytelseDato"].asText() shouldBe "2023-08-15"
             json["kontonummer"].asText() shouldBe "xxxxxx9876"
             json["underytelse"].toList().apply {
                 size shouldBe 2
@@ -282,7 +288,7 @@ class UtbetalingRoutesV2Test {
                     this["antall"].asInt() shouldBe 3
                     this["beløp"].asDouble() shouldBe 1500.75 //sats*antall
                 }
-                json[1].apply {
+                this[1].apply {
                     this["beskrivelse"].asText() shouldBe "Annet beløp"
                     this["sats"].asDouble() shouldBe 300.25
                     this["antall"].asInt() shouldBe 4
@@ -290,13 +296,14 @@ class UtbetalingRoutesV2Test {
                 }
             }
             json["trekk"].toList().apply {
-                this[0].apply {
-                    this["type"].asText() shouldBe "Skatt"
-                    this["beløp"].asDouble() shouldBe 238.74
+                size shouldBe 2
+                this.find { it["type"].asText() == "Skatt" }.let { trekk ->
+                    require(trekk != null)
+                    trekk["beløp"].asDouble() shouldBe 238.74
                 }
-                this[0].apply {
-                    this["type"].asText() shouldBe "Annet trekk"
-                    this["beløp"].asDouble() shouldBe 203.66
+                this.find { it["type"].asText() == "Annet trekk" }.let { trekk ->
+                    require(trekk != null)
+                    trekk["beløp"].asDouble() shouldBe 203.66
                 }
             }
 

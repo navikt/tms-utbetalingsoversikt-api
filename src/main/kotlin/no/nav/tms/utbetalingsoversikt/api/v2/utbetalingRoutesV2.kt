@@ -43,10 +43,7 @@ fun Route.utbetalingRoutesV2(sokosUtbetalingConsumer: SokosUtbetalingConsumer) {
             ).let {
                 YtelseUtbetalingDetaljer.fromSokosReponse(it)
             }
-/*            hovedytelseService.getHovedytelserBetaltTilBruker(user, date, date)
-                .filter { it.id == ytelseId }
-                .first()*/
-            call.respond(HttpStatusCode.NotImplemented)
+            call.respond(HttpStatusCode.OK,ytelseDetaljer)
         }
     }
 }
