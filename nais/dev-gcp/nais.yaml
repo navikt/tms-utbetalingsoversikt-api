@@ -39,7 +39,6 @@ spec:
       external:
         - host: sokos-utbetaldata.dev-fss-pub.nais.io
   ingresses:
-    - "https://tms-utbetalingsoversikt-api.dev.nav.no/tms-utbetalingsoversikt-api"
     - "https://www.intern.dev.nav.no/tms-utbetalingsoversikt-api"
   resources:
     limits:
