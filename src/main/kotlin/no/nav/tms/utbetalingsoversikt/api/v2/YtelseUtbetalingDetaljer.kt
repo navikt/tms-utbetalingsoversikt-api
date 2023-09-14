@@ -5,6 +5,7 @@ package no.nav.tms.utbetalingsoversikt.api.v2
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import no.nav.tms.utbetalingsoversikt.api.config.BigDecimalSerializer
+import no.nav.tms.utbetalingsoversikt.api.config.KontonummerSerializer
 import no.nav.tms.utbetalingsoversikt.api.config.LocalDateSerializer
 import no.nav.tms.utbetalingsoversikt.api.utbetaling.YtelseIdUtil
 import no.nav.tms.utbetalingsoversikt.api.utbetaling.UtbetalingNotFoundException
@@ -13,8 +14,9 @@ import java.math.BigDecimal
 import java.time.LocalDate
 
 @Serializable
-class YtelseUtbetalingDetaljer(
-    var kontonummer: String?,
+class YtelseUtbetalingDetaljer private constructor(
+    @Serializable(with = KontonummerSerializer::class)
+    val kontonummer: String?,
     val ytelse: String,
     val erUtbetalt: Boolean,
     val ytelsePeriode: FomTom,
@@ -28,10 +30,6 @@ class YtelseUtbetalingDetaljer(
 
     @Serializable(with = BigDecimalSerializer::class)
     val nettoUtbetalt = underytelse.sumOf { it.beløp } - trekk.sumOf { it.beløp }
-
-    init {
-        kontonummer = kontonummer?.let { "xxxxxx" + it.substring(it.length - 4) } ?: "----"
-    }
 
     companion object {
         fun fromSokosReponse(ekstern: List<UtbetalingEkstern>, ytelseId: String) =

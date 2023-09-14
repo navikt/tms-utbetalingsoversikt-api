@@ -16,7 +16,7 @@ fun jsonConfig() = Json {
 }
 
 
-class LocalDateSerializer: KSerializer<LocalDate> {
+class LocalDateSerializer : KSerializer<LocalDate> {
     override fun deserialize(decoder: Decoder): LocalDate {
         return LocalDate.parse(decoder.decodeString())
     }
@@ -47,3 +47,19 @@ class BigDecimalSerializer : KSerializer<BigDecimal> {
     }
 
 }
+
+class KontonummerSerializer : KSerializer<String?> {
+    override fun deserialize(decoder: Decoder): String = decoder.decodeString()
+
+    override val descriptor = PrimitiveSerialDescriptor(
+        serialName = "no.nav.tms.utbetalingsoversikt.api.v2",
+        kind = PrimitiveKind.STRING
+    )
+    override fun serialize(encoder: Encoder, value: String?) {
+        encoder.encodeString(value?.let { "xxxxxx" + it.substring(it.length - 4) } ?: "----")
+    }
+
+
+}
+
+
