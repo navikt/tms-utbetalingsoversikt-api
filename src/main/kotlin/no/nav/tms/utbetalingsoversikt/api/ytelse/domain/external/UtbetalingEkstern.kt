@@ -15,8 +15,8 @@ data class UtbetalingEkstern(
     val utbetaltTilKonto: BankkontoEkstern? = null,
     val ytelseListe: List<YtelseEkstern> = emptyList(),
 ) {
-    fun harKontonummer() =
-        utbetaltTilKonto != null && utbetaltTilKonto.kontonummer.isNotBlank()
+    fun harKontonummer() = utbetaltTilKonto != null && utbetaltTilKonto.kontonummer.isNotBlank()
+    val erUtbetalt = utbetalingsdato != null
 }
 
 

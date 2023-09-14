@@ -5,7 +5,9 @@ import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import no.nav.tms.utbetalingsoversikt.api.config.authenticatedUser
+import no.nav.tms.utbetalingsoversikt.api.utbetaling.IllegalYtelseIdException
 import no.nav.tms.utbetalingsoversikt.api.utbetaling.YtelseIdUtil
+import no.nav.tms.utbetalingsoversikt.api.utbetaling.UtbetalingNotFoundException
 import no.nav.tms.utbetalingsoversikt.api.ytelse.SokosUtbetalingConsumer
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -35,15 +37,19 @@ fun Route.utbetalingRoutesV2(sokosUtbetalingConsumer: SokosUtbetalingConsumer) {
         }
 
         get("/{ytelseId}") {
-            val date = YtelseIdUtil.unmarshalDateFromId(call.parameters["ytelseId"])
+
+            val ytelseId = call.parameters["ytelseId"]?: throw IllegalYtelseIdException("Ytelseid kan ikke være null")
+            val date = YtelseIdUtil.unmarshalDateFromId(ytelseId)
             val ytelseDetaljer = sokosUtbetalingConsumer.fetchUtbetalingsInfo(
                 user = authenticatedUser,
                 fom = date,
                 tom = date
             ).let {
-                YtelseUtbetalingDetaljer.fromSokosReponse(it)
+                if (it.isEmpty())
+                    throw UtbetalingNotFoundException(ytelseId,"Utbetalingsapi returnerer tom liste")
+                YtelseUtbetalingDetaljer.fromSokosReponse(it, ytelseId)
             }
-            call.respond(HttpStatusCode.OK,ytelseDetaljer)
+            call.respond(HttpStatusCode.OK, ytelseDetaljer)
         }
     }
 }
@@ -59,32 +65,3 @@ private fun String?.localDateOrDefault(default: LocalDate = LocalDate.now()): Lo
 
 val ApplicationCall.fromDateParam: String? get() = request.queryParameters["fom"]
 val ApplicationCall.toDateParam: String? get() = request.queryParameters["tom"]
-
-/*{
-  "ytelse": "Navn på ytelse",
-  "erUtbetalt": "true/false",
-  "ytelse_periode": {
-    "fom": "dato",
-    "tom": "dato"
-  },
-  "ytelse_dato": "utbetaltdato/forfallsdato ",
-  "kontonummer": "xxxxxx9876",
-  "underytelser": [
-    {
-      "beskrivelse": "Grunnbeløp",
-      "sats": 100,
-      "antall": "int eller 0",
-      "__beløp_desc__": "samlet beløp(sats*antall)",
-      "beløp": 300
-    }
-  ],
-  "trekk": [
-    {
-      "type":"Skatt",
-      "beløp": 100
-    }
-  ],
-  "melding": "",
-  "netto_utbetalt": "",
-  "brutto_utbetalt": ""
-}*/

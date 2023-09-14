@@ -27,6 +27,7 @@ import no.nav.tms.utbetalingsoversikt.api.config.jsonConfig
 import no.nav.tms.utbetalingsoversikt.api.config.utbetalingApi
 import no.nav.tms.utbetalingsoversikt.api.utbetaling.YtelseIdUtil
 import no.nav.tms.utbetalingsoversikt.api.ytelse.SokosUtbetalingConsumer
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import java.io.File
 import java.net.URL
@@ -41,7 +42,7 @@ class UtbetalingRoutesV2Test {
             it.exchangeToken(any(), any())
         } returns "<dummytoken>"
     }
-
+    private val spesifikkUtbetalingRespons =  File("src/test/resources/utbetaling_detalj_test.json").readText()
 
     @Test
     fun `oppsumerer alle ytelser i periode`() = testApplication {
@@ -241,7 +242,7 @@ class UtbetalingRoutesV2Test {
             )
         )
 
-        withExternalServiceResponse("[]") { true == true }
+        withExternalServiceResponse("[]") { true }
         client.get("/utbetalinger/siste").assert {
             status shouldBe HttpStatusCode.OK
             objectMapper.readTree(bodyAsText()).apply {
@@ -253,7 +254,6 @@ class UtbetalingRoutesV2Test {
         }
     }
 
-
     @Test
     fun `returnerer detaljertinfo om utbetaling for spesifikk utbetaling av en ytelse`() = testApplication {
         testApi(
@@ -264,10 +264,10 @@ class UtbetalingRoutesV2Test {
                 sokosUtbetaldataClientId = "test:client:id"
             )
         )
-        val responseJsonText = File("src/test/resources/utbetaling_detalj_test.json").readText()
-        withExternalServiceResponse(responseJsonText) { true }
+        withExternalServiceResponse(spesifikkUtbetalingRespons) { true }
         mockkObject(YtelseIdUtil)
         every { YtelseIdUtil.unmarshalDateFromId("ydaj31") } returns LocalDate.now()
+        every { YtelseIdUtil.calculateId("2023-08-24", any()) } returns "ydaj31"
 
         client.get("/utbetalinger/ydaj31").assert {
             status shouldBe HttpStatusCode.OK
@@ -313,6 +313,60 @@ class UtbetalingRoutesV2Test {
         }
     }
 
+    @Test
+    fun `bad request for ytelseid med ugyldig format`() = testApplication {
+        testApi(
+            SokosUtbetalingConsumer(
+                client = sokosHttpClient,
+                baseUrl = URL(testHost),
+                tokendingsService = tokendingsMockk,
+                sokosUtbetaldataClientId = "test:client:id"
+            )
+        )
+        client.get("/utbetalinger/ydaj35").status shouldBe HttpStatusCode.BadRequest
+
+    }
+
+    @Test
+    fun `Not found for ytelseid med datoer uten utbetaling`() = testApplication {
+        testApi(
+            SokosUtbetalingConsumer(
+                client = sokosHttpClient,
+                baseUrl = URL(testHost),
+                tokendingsService = tokendingsMockk,
+                sokosUtbetaldataClientId = "test:client:id"
+            )
+        )
+
+        mockkObject(YtelseIdUtil)
+        every { YtelseIdUtil.unmarshalDateFromId("ydaj31") } returns LocalDate.now()
+
+        withExternalServiceResponse("[]") { true }
+        client.get("/utbetalinger/ydaj31").status shouldBe HttpStatusCode.NotFound
+
+    }
+
+    @Test
+    fun `Not found for ytelseid som ikke finnes i liste over utbetalinger`() = testApplication {
+        testApi(
+            SokosUtbetalingConsumer(
+                client = sokosHttpClient,
+                baseUrl = URL(testHost),
+                tokendingsService = tokendingsMockk,
+                sokosUtbetaldataClientId = "test:client:id"
+            )
+        )
+
+        withExternalServiceResponse(spesifikkUtbetalingRespons) { true }
+        every { YtelseIdUtil.unmarshalDateFromId("ydaj31") } returns LocalDate.now()
+        every { YtelseIdUtil.calculateId("2023-08-24", any()) } returns "notthis"
+
+        client.get("/utbetalinger/ydaj31").status shouldBe HttpStatusCode.NotFound
+
+    }
+
+
+
     private fun ApplicationTestBuilder.withExternalServiceResponse(
         body: String,
         replyIf: suspend PipelineContext<Unit, ApplicationCall>.() -> Boolean = { true }
@@ -335,6 +389,14 @@ class UtbetalingRoutesV2Test {
                 }
 
             }
+        }
+    }
+
+    companion object {
+        @JvmStatic
+        @BeforeAll
+        fun mockYtelseUtil(): Unit {
+            mockkObject(YtelseIdUtil)
         }
     }
 }
