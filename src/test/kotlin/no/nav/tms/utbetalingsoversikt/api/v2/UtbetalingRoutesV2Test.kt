@@ -279,24 +279,24 @@ class UtbetalingRoutesV2Test {
                 this["tom"].asText() shouldBe "2023-08-14"
             }
             json["ytelseDato"].asText() shouldBe "2023-08-15"
-            json["kontonummer"].asText() shouldBe "xxxxxx9876"
+            json["kontonummer"].asText() shouldBe "xxxxxx39876"
             json["underytelse"].toList().apply {
                 size shouldBe 2
                 this[0].apply {
                     this["beskrivelse"].asText() shouldBe "Grunnbeløp"
                     this["sats"].asDouble() shouldBe 500.25
                     this["antall"].asInt() shouldBe 3
-                    this["beløp"].asDouble() shouldBe 1500.75 //sats*antall
+                    this["beløp"].asDouble() shouldBe 1500.75
                 }
                 this[1].apply {
                     this["beskrivelse"].asText() shouldBe "Annet beløp"
-                    this["sats"].asDouble() shouldBe 300.25
-                    this["antall"].asInt() shouldBe 4
-                    this["beløp"].asDouble() shouldBe 1201.00 //sats*antall
+                    this["sats"].asDouble() shouldBe 400
+                    this["antall"].asInt() shouldBe 0
+                    this["beløp"].asDouble() shouldBe 400
                 }
             }
             json["trekk"].toList().apply {
-                size shouldBe 2
+                size shouldBe 3
                 this.find { it["type"].asText() == "Skatt" }.let { trekk ->
                     require(trekk != null)
                     trekk["beløp"].asDouble() shouldBe 238.74
@@ -305,10 +305,14 @@ class UtbetalingRoutesV2Test {
                     require(trekk != null)
                     trekk["beløp"].asDouble() shouldBe 203.66
                 }
+                this.find { it["type"].asText() == "Skattetrekk" }.let { trekk ->
+                    require(trekk != null)
+                    trekk["beløp"].asDouble() shouldBe -99.9
+                }
             }
 
             json["melding"].asText() shouldBe "En eller annen melding"
-            json["bruttoUtbetalt"].asDouble() shouldBe 2701.75
+            json["bruttoUtbetalt"].asDouble() shouldBe 1900.75
             json["nettoUtbetalt"].asDouble() shouldBe 2259.35
         }
     }

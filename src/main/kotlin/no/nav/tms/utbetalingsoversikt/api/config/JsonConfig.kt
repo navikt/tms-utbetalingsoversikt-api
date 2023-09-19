@@ -56,7 +56,7 @@ class KontonummerSerializer : KSerializer<String?> {
         kind = PrimitiveKind.STRING
     )
     override fun serialize(encoder: Encoder, value: String?) {
-        encoder.encodeString(value?.let { "xxxxxx" + it.substring(it.length - 4) } ?: "----")
+        encoder.encodeString(value?.let { "xxxxxx${it.substring(it.length - 5)}" } ?: "----")
     }
 
 

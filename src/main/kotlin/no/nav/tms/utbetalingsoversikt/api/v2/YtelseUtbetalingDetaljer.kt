@@ -10,6 +10,8 @@ import no.nav.tms.utbetalingsoversikt.api.config.LocalDateSerializer
 import no.nav.tms.utbetalingsoversikt.api.utbetaling.YtelseIdUtil
 import no.nav.tms.utbetalingsoversikt.api.utbetaling.UtbetalingNotFoundException
 import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.external.UtbetalingEkstern
+import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.external.YtelseEkstern
+import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.transformer.TrekkTransformer
 import java.math.BigDecimal
 import java.time.LocalDate
 
@@ -38,10 +40,9 @@ class YtelseUtbetalingDetaljer private constructor(
                     .firstOrNull { ytelseEkstern ->
                         YtelseIdUtil.calculateId(utbetalingEkstern.posteringsdato, ytelseEkstern) == ytelseId
                     } ?: throw UtbetalingNotFoundException(
-                    ytelseId,
-                    "Ikke funnet i ytelsesliste med posteringsdato ${utbetalingEkstern.posteringsdato}"
-                )
-
+                        ytelseId,
+                        "Ikke funnet i ytelsesliste med posteringsdato ${utbetalingEkstern.posteringsdato}"
+                    )
                 YtelseUtbetalingDetaljer(
                     kontonummer = utbetalingEkstern.utbetaltTilKonto?.kontonummer,
                     ytelse = ytelseEkstern.ytelsestype ?: "Ukjent",
@@ -55,32 +56,54 @@ class YtelseUtbetalingDetaljer private constructor(
                         UnderytelseDetaljer(
                             beskrivelse = it.ytelseskomponenttype ?: "Ukjent",
                             sats = it.satsbeloep?.toBigDecimal() ?: BigDecimal(0),
-                            antall = it.satsantall?.toInt() ?: 0
+                            antall = it.satsantall?.toBigDecimal() ?: BigDecimal(0),
+                            beløp = it.ytelseskomponentbeloep?.toBigDecimal() ?: BigDecimal(0)
                         )
                     } ?: emptyList(),
-                    trekk = ytelseEkstern.trekkListe?.map {
-                        Trekk(type = it.trekktype ?: "Ukjent", beløp = it.trekkbeloep?.toBigDecimal() ?: BigDecimal(0))
-                    } ?: emptyList(),
+                    trekk = skatteTrekk(ytelseEkstern) + ytterligeTrekk(ytelseEkstern),
                     melding = utbetalingEkstern.utbetalingsmelding ?: ""
                 )
             }
+
+        private fun skatteTrekk(ytelseEkstern: YtelseEkstern) =
+            ytelseEkstern.skattListe
+                ?.map { it.skattebeloep ?: 0.0 }
+                ?.map {
+                    Trekk(
+                        type = if (it > 0.0) "Tilbakebetaling skattetrekk" else "Skattetrekk",
+                        beløp = it.toBigDecimal()
+                    )
+                }
+                ?: emptyList()
+
+        private fun ytterligeTrekk(ytelseEkstern: YtelseEkstern) =
+            ytelseEkstern.trekkListe?.map {
+                Trekk(
+                    type = it.trekktype ?: "Ukjent",
+                    beløp = it.trekkbeloep?.toBigDecimal() ?: BigDecimal(0)
+                )
+            } ?: emptyList()
     }
 
 
 }
 
 @Serializable
-class FomTom(val fom: LocalDate, val tom: LocalDate)
+class FomTom(
+    val fom: LocalDate,
+    val tom: LocalDate
+)
 
 @Serializable
 class UnderytelseDetaljer(
     val beskrivelse: String,
     @Serializable(with = BigDecimalSerializer::class) val sats: BigDecimal,
-    val antall: Int
-) {
-    @Serializable(with = BigDecimalSerializer::class)
-    val beløp: BigDecimal = sats * BigDecimal(antall)
-}
+    @Serializable(with = BigDecimalSerializer::class) val antall: BigDecimal,
+    @Serializable(with = BigDecimalSerializer::class) val beløp: BigDecimal
+)
 
 @Serializable
-class Trekk(val type: String, @Serializable(with = BigDecimalSerializer::class) val beløp: BigDecimal)
+class Trekk(
+    val type: String,
+    @Serializable(with = BigDecimalSerializer::class) val beløp: BigDecimal
+)
