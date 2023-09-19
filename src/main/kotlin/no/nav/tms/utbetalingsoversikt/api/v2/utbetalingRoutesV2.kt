@@ -40,15 +40,17 @@ fun Route.utbetalingRoutesV2(sokosUtbetalingConsumer: SokosUtbetalingConsumer) {
 
             val ytelseId = call.parameters["ytelseId"]?: throw IllegalYtelseIdException("Ytelseid kan ikke være null")
             val date = YtelseIdUtil.unmarshalDateFromId(ytelseId)
+
             val ytelseDetaljer = sokosUtbetalingConsumer.fetchUtbetalingsInfo(
                 user = authenticatedUser,
                 fom = date,
                 tom = date
-            ).let {
-                if (it.isEmpty())
-                    throw UtbetalingNotFoundException(ytelseId,"Utbetalingsapi returnerer tom liste")
+            ).takeIf {
+                it.isNotEmpty()
+            }?.let {
                 YtelseUtbetalingDetaljer.fromSokosReponse(it, ytelseId)
-            }
+            }?: throw UtbetalingNotFoundException(ytelseId,"Utbetalingsapi returnerer tom liste")
+
             call.respond(HttpStatusCode.OK, ytelseDetaljer)
         }
     }

@@ -43,6 +43,7 @@ class UtbetalingRoutesV2Test {
         } returns "<dummytoken>"
     }
     private val spesifikkUtbetalingRespons =  File("src/test/resources/utbetaling_detalj_test.json").readText()
+    private val utbetaltTilRespons =  File("src/test/resources/utbetaling_detalj_utbetalttil_test.json").readText()
 
     @Test
     fun `oppsumerer alle ytelser i periode`() = testApplication {
@@ -279,37 +280,42 @@ class UtbetalingRoutesV2Test {
                 this["tom"].asText() shouldBe "2023-08-14"
             }
             json["ytelseDato"].asText() shouldBe "2023-08-15"
-            json["kontonummer"].asText() shouldBe "xxxxxx9876"
+            json["kontonummer"].asText() shouldBe "xxxxxx39876"
+            json["utbetaltTil"].asText() shouldBe "xxxxxx39876"
             json["underytelse"].toList().apply {
                 size shouldBe 2
                 this[0].apply {
                     this["beskrivelse"].asText() shouldBe "Grunnbeløp"
                     this["sats"].asDouble() shouldBe 500.25
-                    this["antall"].asInt() shouldBe 3
-                    this["beløp"].asDouble() shouldBe 1500.75 //sats*antall
+                    this["antall"].asDouble() shouldBe 3
+                    this["beløp"].asDouble() shouldBe 1500.75
                 }
                 this[1].apply {
                     this["beskrivelse"].asText() shouldBe "Annet beløp"
-                    this["sats"].asDouble() shouldBe 300.25
-                    this["antall"].asInt() shouldBe 4
-                    this["beløp"].asDouble() shouldBe 1201.00 //sats*antall
+                    this["sats"].asDouble() shouldBe 0.0
+                    this["antall"].asDouble() shouldBe 0.0
+                    this["beløp"].asDouble() shouldBe 400
                 }
             }
             json["trekk"].toList().apply {
-                size shouldBe 2
+                size shouldBe 3
                 this.find { it["type"].asText() == "Skatt" }.let { trekk ->
                     require(trekk != null)
-                    trekk["beløp"].asDouble() shouldBe 238.74
+                    trekk["beløp"].asDouble() shouldBe -300.25
                 }
                 this.find { it["type"].asText() == "Annet trekk" }.let { trekk ->
                     require(trekk != null)
-                    trekk["beløp"].asDouble() shouldBe 203.66
+                    trekk["beløp"].asDouble() shouldBe -600.50
+                }
+                this.find { it["type"].asText() == "Skattetrekk" }.let { trekk ->
+                    require(trekk != null)
+                    trekk["beløp"].asDouble() shouldBe -99.9
                 }
             }
 
             json["melding"].asText() shouldBe "En eller annen melding"
-            json["bruttoUtbetalt"].asDouble() shouldBe 2701.75
-            json["nettoUtbetalt"].asDouble() shouldBe 2259.35
+            json["bruttoUtbetalt"].asDouble() shouldBe 1900.75
+            json["nettoUtbetalt"].asDouble() shouldBe 900.1
         }
     }
 
@@ -362,10 +368,32 @@ class UtbetalingRoutesV2Test {
         every { YtelseIdUtil.calculateId("2023-08-24", any()) } returns "notthis"
 
         client.get("/utbetalinger/ydaj31").status shouldBe HttpStatusCode.NotFound
-
     }
 
+    @Test
+    fun `Parses utbetaltTil riktig basert på kontonummer eller metode`() = testApplication {
+        testApi(
+            SokosUtbetalingConsumer(
+                client = sokosHttpClient,
+                baseUrl = URL(testHost),
+                tokendingsService = tokendingsMockk,
+                sokosUtbetaldataClientId = "test:client:id"
+            )
+        )
+        withExternalServiceResponse(utbetaltTilRespons) { true }
+        mockkObject(YtelseIdUtil)
+        every { YtelseIdUtil.unmarshalDateFromId("testId") } returns LocalDate.now()
+        every { YtelseIdUtil.calculateId("2023-08-24", any()) } returns "testId"
 
+        client.get("/utbetalinger/testId").assert {
+            status shouldBe HttpStatusCode.OK
+            val json = jacksonObjectMapper().readTree(bodyAsText())
+            json["ytelse"].asText() shouldBe "Andre penger"
+            json["utbetaltTil"].asText() shouldBe "Annen metode"
+            json["kontonummer"].asText() shouldBe "Annen metode"
+            json["nettoUtbetalt"].asDouble() shouldBe 700
+        }
+    }
 
     private fun ApplicationTestBuilder.withExternalServiceResponse(
         body: String,

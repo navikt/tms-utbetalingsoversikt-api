@@ -112,7 +112,10 @@ parameter:
     "tom": "dato"
   },
   "ytelseDato": "utbetaltdato/forfallsdato ",
-  "kontonummer": "xxxxxx9876",
+  "__kontonummer_desc__": "Samme verdi som 'utbetaltTil'. Deprekeres.",
+  "kontonummer": "xxxxxx98765",
+  "__utbetaltTil_desc__":  "Utbetalt til vil enten være et maskert kontonummer, eller annen utbetalingsmetode.",
+  "utbetaltTil": "xxxxxx98765",
   "underytelser": [
     {
       "beskrivelse": "Grunnbeløp",
