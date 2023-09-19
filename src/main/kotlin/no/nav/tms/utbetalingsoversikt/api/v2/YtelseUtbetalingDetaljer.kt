@@ -25,13 +25,12 @@ class YtelseUtbetalingDetaljer private constructor(
     val ytelseDato: LocalDate,
     val underytelse: List<UnderytelseDetaljer>,
     val trekk: List<Trekk>,
-    val melding: String
+    val melding: String,
+    @Serializable(with = BigDecimalSerializer::class)
+    val bruttoUtbetalt: BigDecimal,
+    @Serializable(with = BigDecimalSerializer::class)
+    val nettoUtbetalt: BigDecimal,
 ) {
-    @Serializable(with = BigDecimalSerializer::class)
-    val bruttoUtbetalt = underytelse.sumOf { it.beløp }
-
-    @Serializable(with = BigDecimalSerializer::class)
-    val nettoUtbetalt = underytelse.sumOf { it.beløp } - trekk.sumOf { it.beløp }
 
     companion object {
         fun fromSokosReponse(ekstern: List<UtbetalingEkstern>, ytelseId: String) =
@@ -61,7 +60,9 @@ class YtelseUtbetalingDetaljer private constructor(
                         )
                     } ?: emptyList(),
                     trekk = skatteTrekk(ytelseEkstern) + ytterligeTrekk(ytelseEkstern),
-                    melding = utbetalingEkstern.utbetalingsmelding ?: ""
+                    melding = utbetalingEkstern.utbetalingsmelding ?: "",
+                    bruttoUtbetalt = ytelseEkstern.ytelseskomponentersum.toBigDecimal(),
+                    nettoUtbetalt = ytelseEkstern.ytelseNettobeloep.toBigDecimal()
                 )
             }
 

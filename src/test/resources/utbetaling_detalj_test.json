@@ -6,7 +6,7 @@
       "ident": "123345567",
       "navn": "string"
     },
-    "utbetalingNettobeloep": 8700,
+    "utbetalingNettobeloep": 900.1,
     "utbetalingsmelding": "En eller annen melding",
     "utbetalingsdato": "2023-08-15",
     "forfallsdato": "2023-08-24",
@@ -33,7 +33,6 @@
           },
           {
             "ytelseskomponenttype": "Annet beløp",
-            "satsbeloep": 400,
             "satstype": "string",
             "ytelseskomponentbeloep": 400
           }
@@ -58,7 +57,7 @@
           }
         ],
         "skattsum": -99.9,
-        "ytelseNettobeloep": 3788,
+        "ytelseNettobeloep": 900.1,
         "bilagsnummer": "84172491",
         "rettighetshaver": {
           "aktoertype": "PERSON",

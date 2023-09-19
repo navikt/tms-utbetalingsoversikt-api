@@ -285,13 +285,13 @@ class UtbetalingRoutesV2Test {
                 this[0].apply {
                     this["beskrivelse"].asText() shouldBe "Grunnbeløp"
                     this["sats"].asDouble() shouldBe 500.25
-                    this["antall"].asInt() shouldBe 3
+                    this["antall"].asDouble() shouldBe 3
                     this["beløp"].asDouble() shouldBe 1500.75
                 }
                 this[1].apply {
                     this["beskrivelse"].asText() shouldBe "Annet beløp"
-                    this["sats"].asDouble() shouldBe 400
-                    this["antall"].asInt() shouldBe 0
+                    this["sats"].asDouble() shouldBe 0.0
+                    this["antall"].asDouble() shouldBe 0.0
                     this["beløp"].asDouble() shouldBe 400
                 }
             }
@@ -299,11 +299,11 @@ class UtbetalingRoutesV2Test {
                 size shouldBe 3
                 this.find { it["type"].asText() == "Skatt" }.let { trekk ->
                     require(trekk != null)
-                    trekk["beløp"].asDouble() shouldBe 238.74
+                    trekk["beløp"].asDouble() shouldBe -300.25
                 }
                 this.find { it["type"].asText() == "Annet trekk" }.let { trekk ->
                     require(trekk != null)
-                    trekk["beløp"].asDouble() shouldBe 203.66
+                    trekk["beløp"].asDouble() shouldBe -600.50
                 }
                 this.find { it["type"].asText() == "Skattetrekk" }.let { trekk ->
                     require(trekk != null)
@@ -313,7 +313,7 @@ class UtbetalingRoutesV2Test {
 
             json["melding"].asText() shouldBe "En eller annen melding"
             json["bruttoUtbetalt"].asDouble() shouldBe 1900.75
-            json["nettoUtbetalt"].asDouble() shouldBe 2259.35
+            json["nettoUtbetalt"].asDouble() shouldBe 900.1
         }
     }
 
