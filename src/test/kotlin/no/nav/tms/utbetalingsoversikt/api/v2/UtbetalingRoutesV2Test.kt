@@ -43,6 +43,7 @@ class UtbetalingRoutesV2Test {
         } returns "<dummytoken>"
     }
     private val spesifikkUtbetalingRespons =  File("src/test/resources/utbetaling_detalj_test.json").readText()
+    private val utbetaltTilRespons =  File("src/test/resources/utbetaling_detalj_utbetalttil_test.json").readText()
 
     @Test
     fun `oppsumerer alle ytelser i periode`() = testApplication {
@@ -280,6 +281,7 @@ class UtbetalingRoutesV2Test {
             }
             json["ytelseDato"].asText() shouldBe "2023-08-15"
             json["kontonummer"].asText() shouldBe "xxxxxx39876"
+            json["utbetaltTil"].asText() shouldBe "xxxxxx39876"
             json["underytelse"].toList().apply {
                 size shouldBe 2
                 this[0].apply {
@@ -366,10 +368,32 @@ class UtbetalingRoutesV2Test {
         every { YtelseIdUtil.calculateId("2023-08-24", any()) } returns "notthis"
 
         client.get("/utbetalinger/ydaj31").status shouldBe HttpStatusCode.NotFound
-
     }
 
+    @Test
+    fun `Parses utbetaltTil riktig basert på kontonummer eller metode`() = testApplication {
+        testApi(
+            SokosUtbetalingConsumer(
+                client = sokosHttpClient,
+                baseUrl = URL(testHost),
+                tokendingsService = tokendingsMockk,
+                sokosUtbetaldataClientId = "test:client:id"
+            )
+        )
+        withExternalServiceResponse(utbetaltTilRespons) { true }
+        mockkObject(YtelseIdUtil)
+        every { YtelseIdUtil.unmarshalDateFromId("testId") } returns LocalDate.now()
+        every { YtelseIdUtil.calculateId("2023-08-24", any()) } returns "testId"
 
+        client.get("/utbetalinger/testId").assert {
+            status shouldBe HttpStatusCode.OK
+            val json = jacksonObjectMapper().readTree(bodyAsText())
+            json["ytelse"].asText() shouldBe "Andre penger"
+            json["utbetaltTil"].asText() shouldBe "Annen metode"
+            json["kontonummer"].asText() shouldBe "Annen metode"
+            json["nettoUtbetalt"].asDouble() shouldBe 700
+        }
+    }
 
     private fun ApplicationTestBuilder.withExternalServiceResponse(
         body: String,

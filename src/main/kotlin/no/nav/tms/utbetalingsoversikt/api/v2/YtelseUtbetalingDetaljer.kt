@@ -7,18 +7,18 @@ import kotlinx.serialization.UseSerializers
 import no.nav.tms.utbetalingsoversikt.api.config.BigDecimalSerializer
 import no.nav.tms.utbetalingsoversikt.api.config.KontonummerSerializer
 import no.nav.tms.utbetalingsoversikt.api.config.LocalDateSerializer
+import no.nav.tms.utbetalingsoversikt.api.config.UtbetalingSerializer
 import no.nav.tms.utbetalingsoversikt.api.utbetaling.YtelseIdUtil
 import no.nav.tms.utbetalingsoversikt.api.utbetaling.UtbetalingNotFoundException
 import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.external.UtbetalingEkstern
 import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.external.YtelseEkstern
-import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.transformer.TrekkTransformer
 import java.math.BigDecimal
 import java.time.LocalDate
 
 @Serializable
 class YtelseUtbetalingDetaljer private constructor(
-    @Serializable(with = KontonummerSerializer::class)
-    val kontonummer: String?,
+    @Serializable(with = UtbetalingSerializer::class)
+    val utbetaltTil: Utbetaling,
     val ytelse: String,
     val erUtbetalt: Boolean,
     val ytelsePeriode: FomTom,
@@ -31,6 +31,9 @@ class YtelseUtbetalingDetaljer private constructor(
     @Serializable(with = BigDecimalSerializer::class)
     val nettoUtbetalt: BigDecimal,
 ) {
+    @Serializable(with = UtbetalingSerializer::class)
+    @Deprecated("Replace with utbetaltTil")
+    val kontonummer: Utbetaling = utbetaltTil
 
     companion object {
         fun fromSokosReponse(ekstern: List<UtbetalingEkstern>, ytelseId: String) =
@@ -43,7 +46,11 @@ class YtelseUtbetalingDetaljer private constructor(
                         "Ikke funnet i ytelsesliste med posteringsdato ${utbetalingEkstern.posteringsdato}"
                     )
                 YtelseUtbetalingDetaljer(
-                    kontonummer = utbetalingEkstern.utbetaltTilKonto?.kontonummer,
+                    utbetaltTil = Utbetaling(
+                        betaltTilKonto = utbetalingEkstern.utbetaltTilKonto?.kontonummer.isNullOrBlank().not(),
+                        kontonummer = utbetalingEkstern.utbetaltTilKonto?.kontonummer,
+                        metode = utbetalingEkstern.utbetalingsmetode
+                    ),
                     ytelse = ytelseEkstern.ytelsestype ?: "Ukjent",
                     erUtbetalt = utbetalingEkstern.utbetalingsdato != null,
                     ytelsePeriode = FomTom(
@@ -85,8 +92,6 @@ class YtelseUtbetalingDetaljer private constructor(
                 )
             } ?: emptyList()
     }
-
-
 }
 
 @Serializable
@@ -107,4 +112,10 @@ class UnderytelseDetaljer(
 class Trekk(
     val type: String,
     @Serializable(with = BigDecimalSerializer::class) val beløp: BigDecimal
+)
+
+class Utbetaling(
+    val betaltTilKonto: Boolean,
+    val metode: String?,
+    val kontonummer: String?
 )

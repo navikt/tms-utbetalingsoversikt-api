@@ -1,0 +1,48 @@
+[
+  {
+    "posteringsdato": "2023-08-24",
+    "utbetaltTil": {
+      "aktoertype": "PERSON",
+      "ident": "123345567",
+      "navn": "string"
+    },
+    "utbetalingNettobeloep": 700,
+    "utbetalingsmelding": "En eller annen melding",
+    "utbetalingsdato": "2023-08-15",
+    "forfallsdato": "2023-08-24",
+    "utbetaltTilKonto": {
+      "kontonummer": "",
+      "kontotype": "Mangler"
+    },
+    "utbetalingsmetode": "Annen metode",
+    "utbetalingsstatus": "something",
+    "ytelseListe": [
+      {
+        "ytelsestype": "Andre penger",
+        "ytelsesperiode": {
+          "fom": "2023-08-01",
+          "tom": "2023-08-14"
+        },
+        "ytelseskomponentListe": [
+          {
+            "ytelseskomponenttype": "Annet beløp",
+            "satstype": "string",
+            "ytelseskomponentbeloep": 700
+          }
+        ],
+        "ytelseskomponentersum": 700,
+        "trekkListe": [],
+        "trekksum": 0,
+        "skattListe": [],
+        "skattsum": 0,
+        "ytelseNettobeloep": 700,
+        "bilagsnummer": "33333",
+        "rettighetshaver": {
+          "aktoertype": "PERSON",
+          "ident": "1234567890g",
+          "navn": "Navn Navnesen"
+        }
+      }
+    ]
+  }
+]
