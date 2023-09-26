@@ -119,6 +119,8 @@ parameter:
   "underytelser": [
     {
       "beskrivelse": "Grunnbeløp",
+      "__satstype_desc__": "string eller null",
+      "satstype": "Something",
       "sats": 100,
       "antall": 3,
       "__beløp_desc__": "samlet beløp(sats*antall)",
