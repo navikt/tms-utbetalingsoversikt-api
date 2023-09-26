@@ -1,15 +1,13 @@
+@file:UseSerializers(BigDecimalSerializer::class)
+
 package no.nav.tms.utbetalingsoversikt.api.v2
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.descriptors.PrimitiveKind
-import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
-import kotlinx.serialization.encoding.Decoder
-import kotlinx.serialization.encoding.Encoder
+import kotlinx.serialization.UseSerializers
+import no.nav.tms.utbetalingsoversikt.api.config.BigDecimalSerializer
 import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.external.UtbetalingEkstern
 import java.math.BigDecimal
-import java.math.RoundingMode
 import java.time.LocalDate
 
 val log = KotlinLogging.logger { }
@@ -73,9 +71,9 @@ data class TidligereUtbetalingerPrMåned(val år: Int, val måned: Int, val utbe
 @Serializable
 data class UtbetalingerIPeriode(
     val harUtbetalinger: Boolean,
-    @Serializable(with = BigDecimalSerializer::class) val brutto: BigDecimal,
-    @Serializable(with = BigDecimalSerializer::class) val netto: BigDecimal,
-    @Serializable(with = BigDecimalSerializer::class) val trekk: BigDecimal,
+    val brutto: BigDecimal,
+    val netto: BigDecimal,
+    val trekk: BigDecimal,
     val ytelser: List<Ytelse>
 ) {
 
@@ -113,22 +111,6 @@ data class UtbetalingerIPeriode(
     @Serializable
     data class Ytelse(
         val ytelse: String,
-        @Serializable(with = BigDecimalSerializer::class) val beløp: BigDecimal
+        val beløp: BigDecimal
     )
-}
-
-class BigDecimalSerializer : KSerializer<BigDecimal> {
-    override fun deserialize(decoder: Decoder): BigDecimal {
-        return decoder.decodeString().toBigDecimal()
-    }
-
-    override val descriptor = PrimitiveSerialDescriptor(
-        serialName = "no.nav.tms.utbetalingsoversikt.api.v2",
-        kind = PrimitiveKind.FLOAT
-    )
-
-    override fun serialize(encoder: Encoder, value: BigDecimal) {
-        encoder.encodeDouble(value.setScale(2, RoundingMode.HALF_UP).stripTrailingZeros().toDouble())
-    }
-
 }

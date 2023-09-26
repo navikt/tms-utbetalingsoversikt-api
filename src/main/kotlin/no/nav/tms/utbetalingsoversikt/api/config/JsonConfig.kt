@@ -6,6 +6,9 @@ import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.Json
+import no.nav.tms.utbetalingsoversikt.api.v2.Utbetaling
+import java.math.BigDecimal
+import java.math.RoundingMode
 import java.time.LocalDate
 
 fun jsonConfig() = Json {
@@ -13,7 +16,8 @@ fun jsonConfig() = Json {
     this.encodeDefaults = true
 }
 
-class LocalDateSerializer: KSerializer<LocalDate> {
+
+class LocalDateSerializer : KSerializer<LocalDate> {
     override fun deserialize(decoder: Decoder): LocalDate {
         return LocalDate.parse(decoder.decodeString())
     }
@@ -28,3 +32,54 @@ class LocalDateSerializer: KSerializer<LocalDate> {
     }
 
 }
+
+class BigDecimalSerializer : KSerializer<BigDecimal> {
+    override fun deserialize(decoder: Decoder): BigDecimal {
+        return decoder.decodeString().toBigDecimal()
+    }
+
+    override val descriptor = PrimitiveSerialDescriptor(
+        serialName = "no.nav.tms.utbetalingsoversikt.api.v2",
+        kind = PrimitiveKind.FLOAT
+    )
+
+    override fun serialize(encoder: Encoder, value: BigDecimal) {
+        encoder.encodeDouble(value.setScale(2, RoundingMode.HALF_UP).stripTrailingZeros().toDouble())
+    }
+
+}
+
+class KontonummerSerializer : KSerializer<String?> {
+    override fun deserialize(decoder: Decoder): String = decoder.decodeString()
+
+    override val descriptor = PrimitiveSerialDescriptor(
+        serialName = "no.nav.tms.utbetalingsoversikt.api.v2",
+        kind = PrimitiveKind.STRING
+    )
+    override fun serialize(encoder: Encoder, value: String?) {
+        encoder.encodeString(value?.let { "xxxxxx${it.substring(it.length - 5)}" } ?: "----")
+    }
+}
+
+class UtbetalingSerializer : KSerializer<Utbetaling> {
+    override fun deserialize(decoder: Decoder): Utbetaling {
+        throw IllegalStateException("Can't deserialize Utbetaling from string")
+    }
+
+    override val descriptor = PrimitiveSerialDescriptor(
+        serialName = "no.nav.tms.utbetalingsoversikt.api.v2",
+        kind = PrimitiveKind.STRING
+    )
+    override fun serialize(encoder: Encoder, value: Utbetaling) {
+        with(value) {
+            when {
+                !betaltTilKonto -> metode!!
+                kontonummer!!.length <= 5 -> kontonummer
+                else -> "xxxxxx${kontonummer.substring(kontonummer.length - 5)}"
+            }.let {
+                encoder.encodeString(it)
+            }
+        }
+    }
+}
+

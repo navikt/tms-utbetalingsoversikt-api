@@ -52,13 +52,14 @@ object YtelseIdUtil {
     fun unmarshalDateFromId(id: String?): LocalDate {
         try {
             val datePart = id!!.split("-").first()
-
             return datePart.toLong(16).let { LocalDate.ofEpochDay(it) }
 
         } catch (e: Exception) {
             log.warn { "Klarte ikke pakke ut info fra ytelseId $id" }
-
-            throw IllegalArgumentException("Invalid ytelseId $id")
+            throw IllegalYtelseIdException("Invalid ytelseId $id")
         }
     }
 }
+
+class IllegalYtelseIdException(message: String): IllegalArgumentException(message)
+class UtbetalingNotFoundException(val ytelseId: String, val details:String): IllegalArgumentException()

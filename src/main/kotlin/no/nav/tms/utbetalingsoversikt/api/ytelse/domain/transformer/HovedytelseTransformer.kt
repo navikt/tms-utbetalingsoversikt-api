@@ -1,17 +1,11 @@
 package no.nav.tms.utbetalingsoversikt.api.ytelse.domain.transformer
 
-import io.ktor.util.*
 import no.nav.tms.utbetalingsoversikt.api.utbetaling.YtelseIdUtil
-import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.external.AktoerEkstern
-import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.external.PeriodeEkstern
 import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.external.UtbetalingEkstern
-import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.external.YtelseEkstern
 import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.internal.Hovedytelse
 import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.internal.Periode
 import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.internal.Rettighetshaver
-import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.internal.Underytelse
 import java.time.LocalDate
-import java.util.*
 
 object HovedytelseTransformer {
 
@@ -19,52 +13,49 @@ object HovedytelseTransformer {
         return utbetaling.ytelseListe.map { ytelseEkstern ->
             Hovedytelse(
                 id = YtelseIdUtil.calculateId(utbetaling.posteringsdato, ytelseEkstern),
-                rettighetshaver = createRettighetshaver(ytelseEkstern.rettighetshaver),
-                ytelse = ytelseEkstern.ytelsestype?: "",
+                rettighetshaver = Rettighetshaver(
+                    ytelseEkstern.rettighetshaver.ident,
+                    ytelseEkstern.rettighetshaver.navn
+                ),
+                ytelse = ytelseEkstern.ytelsestype ?: "",
                 status = utbetaling.utbetalingsstatus,
-                ytelseDato = determineYtelseDato(utbetaling),
-                forfallDato = determineYtelseDato(utbetaling),
+                ytelseDato = ytelseDato(utbetaling),
+                forfallDato = ytelseDato(utbetaling),
                 utbetaltTil = utbetaling.utbetaltTil.navn,
-                ytelsePeriode = createPeriode(ytelseEkstern.ytelsesperiode),
-                kontonummer = KontonummerTransformer.determineKontonummerVerdi(utbetaling),
-                underytelser = createUnderYtelser(ytelseEkstern),
+                ytelsePeriode = Periode(
+                    fom = LocalDate.parse(ytelseEkstern.ytelsesperiode.fom),
+                    tom = LocalDate.parse(ytelseEkstern.ytelsesperiode.tom)
+                ),
+                kontonummer = kontonummerVerdi(utbetaling),
+                underytelser = ytelseEkstern.ytelseskomponentListe?.let { komponentList ->
+                    UnderytelseTransformer.createUnderytelser(komponentList)
+                } ?: emptyList(),
                 trekk = TrekkTransformer.createTrekkList(ytelseEkstern),
-                erUtbetalt = isUtbetalt(utbetaling),
-                melding = utbetaling.utbetalingsmelding?: ""
+                erUtbetalt = utbetaling.erUtbetalt,
+                melding = utbetaling.utbetalingsmelding ?: ""
             )
         }
     }
 
-    private fun createRettighetshaver(aktoer: AktoerEkstern): Rettighetshaver {
-        return Rettighetshaver(aktoer.ident, aktoer.navn)
-    }
+    private fun ytelseDato(utbetaling: UtbetalingEkstern): LocalDate? =
+        utbetaling.utbetalingsdato?.parseLocalDate() ?: utbetaling.forfallsdato?.parseLocalDate()
 
-    private fun isUtbetalt(utbetaling: UtbetalingEkstern): Boolean {
-        return utbetaling.utbetalingsdato != null
-    }
-
-    private fun determineYtelseDato(utbetaling: UtbetalingEkstern): LocalDate? {
-        return if (isUtbetalt(utbetaling)) {
-            utbetaling.utbetalingsdato?.parseLocalDate()
-        } else {
-            utbetaling.forfallsdato?.parseLocalDate()
+    private fun kontonummerVerdi(utbetaling: UtbetalingEkstern): String {
+        val kontonummer = utbetaling.utbetaltTilKonto?.kontonummer
+        return when {
+            !utbetaling.harKontonummer() -> utbetaling.utbetalingsmetode
+            kontonummer != null && kontonummer.length <= 5 -> kontonummer
+            else -> maskAllButFinalCharacters(kontonummer.removeWhitespace(), 5)
         }
     }
 
-    private fun String.parseLocalDate(): LocalDate = LocalDate.parse(this)
-
-    private fun createPeriode(ytelsesperiode: PeriodeEkstern): Periode {
-        return Periode (
-            fom = LocalDate.parse(ytelsesperiode.fom),
-            tom = LocalDate.parse(ytelsesperiode.tom)
-        )
-    }
-
-    private fun createUnderYtelser(ytelse: YtelseEkstern): List<Underytelse> {
-        return if (ytelse.ytelseskomponentListe != null) {
-            UnderytelseTransformer.createUnderytelser(ytelse.ytelseskomponentListe)
-        } else {
-            emptyList()
-        }
-    }
+    private fun maskAllButFinalCharacters(kontonummer: String?, numberUnmasked: Int): String =
+        kontonummer
+            ?.let {
+                val numberMaskedChars = it.length - numberUnmasked
+                return "${"x".repeat(numberMaskedChars)}${it.substring(numberMaskedChars)}"
+            } ?: ""
 }
+
+private fun String.parseLocalDate(): LocalDate = LocalDate.parse(this)
+private fun String?.removeWhitespace() = this?.replace(" ", "")

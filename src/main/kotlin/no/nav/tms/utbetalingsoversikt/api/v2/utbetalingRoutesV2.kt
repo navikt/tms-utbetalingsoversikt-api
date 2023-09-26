@@ -5,6 +5,9 @@ import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import no.nav.tms.utbetalingsoversikt.api.config.authenticatedUser
+import no.nav.tms.utbetalingsoversikt.api.utbetaling.IllegalYtelseIdException
+import no.nav.tms.utbetalingsoversikt.api.utbetaling.YtelseIdUtil
+import no.nav.tms.utbetalingsoversikt.api.utbetaling.UtbetalingNotFoundException
 import no.nav.tms.utbetalingsoversikt.api.ytelse.SokosUtbetalingConsumer
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -32,6 +35,24 @@ fun Route.utbetalingRoutesV2(sokosUtbetalingConsumer: SokosUtbetalingConsumer) {
 
             call.respond(HttpStatusCode.OK, SisteUtbetalingDetaljer.fromSokosRepsonse(sisteUtbetaling))
         }
+
+        get("/{ytelseId}") {
+
+            val ytelseId = call.parameters["ytelseId"]?: throw IllegalYtelseIdException("Ytelseid kan ikke være null")
+            val date = YtelseIdUtil.unmarshalDateFromId(ytelseId)
+
+            val ytelseDetaljer = sokosUtbetalingConsumer.fetchUtbetalingsInfo(
+                user = authenticatedUser,
+                fom = date,
+                tom = date
+            ).takeIf {
+                it.isNotEmpty()
+            }?.let {
+                YtelseUtbetalingDetaljer.fromSokosReponse(it, ytelseId)
+            }?: throw UtbetalingNotFoundException(ytelseId,"Utbetalingsapi returnerer tom liste")
+
+            call.respond(HttpStatusCode.OK, ytelseDetaljer)
+        }
     }
 }
 
@@ -42,7 +63,6 @@ private fun String?.localDateOrDefault(default: LocalDate = LocalDate.now()): Lo
         this,
         formatter
     )
-    //fom=2023 05 29&tom=20230829
 } ?: default
 
 val ApplicationCall.fromDateParam: String? get() = request.queryParameters["fom"]

@@ -1,24 +1,144 @@
 # tms-utbetalingsoversikt-api
+Henter og transformerer utbetalinger fra sokos-utbetaling.
 
-Kan brukes som utgangspunkt for å opprette nye Ktor-apper for Team DittNAV.
 
-# Tilpasse repo-et
-1. Søk etter og erstatt `tms-utbetalingsoversikt-api` med det som skal være navnet på den nye appen.
-2. Skift navnet på mappen `src/main/kotlin/no/nav/personbruker/template` til noe som passer for den nye appen. NB! unngå bidestreker i navnet.
-3. Oppdatert pakkenavnene, søk etter og erstatt `personbruker.teamplate.api` med `personbruker.<mappenavnet fra steg to>.api`.
-4. Verifiser at appen kan starte, som beskrevet i #kom
+## api v2
 
-# Kom i gang
-1. Bygg tms-utbetalingsoversikt-api ved å kjøre `gradle build`
-1. Start appens avhengigheter ved å kjøre `docker-compose up -d`
-1. Start appen lokalt ved å kjøre `gradle runServer`
-1. Appen nås på `http://localhost:8101/person/tms-utbetalingsoversikt-api`
-   * F.eks. via `curl http://localhost:8101/person/tms-utbetalingsoversikt-api/internal/isAlive`
+ `/utbetalinger/siste` \
+Detaljer om siste utbetaling \
+parameter : Ingen
 
-# Henvendelser
+```json
+{
+  "__dato_format__": "yyyyMMdd",
+  "dato": "string",
+  "harUtbetaling": "boolean",
+  "sisteUtbetaling": "number",
+  "ytelser": {
+    "__map_description__": "map med key=ytelsesId og value=beløp",
+    "__map_example__": "AAP:8990",
+    "<ytelseskode>": "number"
+  }
+}
+```
 
-Spørsmål knyttet til koden eller prosjektet kan stilles som issues her på github.
+`/utbetalinger/alle`\
+Utbetalinger over en gitt periode, defaulter til siste tre månedr\
+parameter:
+* fom: fra dato på format yyyyMMdd (optional)
+* tom: fra dato på format yyyyMMdd (optional)
 
-## For NAV-ansatte
+```json
+{
+  "__neste_content": "liste av ytelse",
+  "neste": [
+    {
+      "id": "string",
+      "beløp": "2-point-float-number",
+      "dato": "date",
+      "ytelse": "string"
+    },
+    {
+      "__example__": "ytelse",
+      "id": "h9kajfhau8",
+      "beløp": 4400.94,
+      "dato": "2023-02-24",
+      "ytelse": "2023-02-24"
+    }
+  ],
+  "__tidligere_content__": "liste av tidligere utbetalinger grupert på måned og år",
+  "tidligere": [
+    {
+      "år": "number",
+      "måned": "number",
+      "__utbetalinger_content__": "liste av ytelse, se neste-objekt for eksempel",
+      "utbetalinger": []
+    },
+    {
+      "__eksempel__": "utbetalinger pr måned og år",
+      "år": 2023,
+      "måned": 2,
+      "utbetalinger": [
+        {
+          "id": "4bd4-67777b5495719748",
+          "beløp": 2600.87,
+          "dato": "2023-02-24",
+          "ytelse": "2023-02-24"
+        },
+        {
+          "id": "4bd4-3b2db7f528db6965",
+          "beløp": 2311.13,
+          "dato": "2023-02-24",
+          "ytelse": "Økonomisk sosialhjelp"
+        }
+      ]
+    }
+  ],
+  "utbetalingerIPeriode": {
+    "harUtbetalinger": "boolean",
+    "brutto": "2-point-float-number representert i string",
+    "netto": "2-point-float-number representert i string",
+    "trekk": "2-point-float-number representert i string",
 
-Interne henvendelser kan sendes via Slack i kanalen #team-personbruker.
+    "__example_brutto__": "45612.87",
+    "__example_netto__": "33612.87",
+    "__example_trekk__": "12000",
+
+    "__content_ytelser__": "liste av ytelser med navn og samlet beløp for periode",
+
+    "ytelser": [
+      {
+        "ytelse": "string",
+        "beløp": "2-point-float-number representert i string"
+      },
+      {
+        "__example__": "oppsummert ytelse",
+        "ytelse": "Foreldrepenger",
+        "beløp": "18004.35"
+      }
+    ]
+  }
+}
+```
+
+`/utbetalinger/{ytelseId}`
+
+```json
+{
+  "ytelse": "Navn på ytelse",
+  "erUtbetalt": "true/false",
+  "ytelsePeriode": {
+    "fom": "dato",
+    "tom": "dato"
+  },
+  "ytelseDato": "utbetaltdato/forfallsdato ",
+  "__kontonummer_desc__": "Samme verdi som 'utbetaltTil'. Deprekeres.",
+  "kontonummer": "xxxxxx98765",
+  "__utbetaltTil_desc__":  "Utbetalt til vil enten være et maskert kontonummer, eller annen utbetalingsmetode.",
+  "utbetaltTil": "xxxxxx98765",
+  "underytelser": [
+    {
+      "beskrivelse": "Grunnbeløp",
+      "sats": 100,
+      "antall": 3,
+      "__beløp_desc__": "samlet beløp(sats*antall)",
+      "beløp": 300
+    }
+  ],
+  "trekk": [
+    {
+      "type": "Skatt",
+      "beløp": 50
+    },
+    {
+      "type": "Annet trekk",
+      "beløp": 50
+    }
+  ],
+  "melding": "Melding som handler om utbetalin av ytelse",
+  "__bruttoUtbetalt_desc__": "sum av utbetalinger fra alle underytelser",
+  "bruttoUtbetalt": 300,
+  "__nettoUtbetalt_desc__": "bruttoUtbetalt minus sum av alle trekk",
+  "nettoUtbetalt": 200
+}
+```
