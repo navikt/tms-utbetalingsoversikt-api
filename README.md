@@ -112,7 +112,8 @@ parameter:
     "tom": "dato"
   },
   "ytelseDato": "utbetaltdato/forfallsdato ",
-  "kontonummer": "xxxxxx9876",
+  "kontonummer": "xxxxxx98765",
+  "utbetaltTil": "xxxxxx98765",
   "underytelser": [
     {
       "beskrivelse": "Grunnbeløp",
