@@ -61,6 +61,7 @@ class YtelseUtbetalingDetaljer private constructor(
                     underytelse = ytelseEkstern.ytelseskomponentListe?.map {
                         UnderytelseDetaljer(
                             beskrivelse = it.ytelseskomponenttype ?: "Ukjent",
+                            satstype= it.satstype,
                             sats = it.satsbeloep?.toBigDecimal() ?: BigDecimal(0),
                             antall = it.satsantall?.toBigDecimal() ?: BigDecimal(0),
                             beløp = it.ytelseskomponentbeloep?.toBigDecimal() ?: BigDecimal(0)
@@ -103,6 +104,7 @@ class FomTom(
 @Serializable
 class UnderytelseDetaljer(
     val beskrivelse: String,
+    val satstype:String?,
     @Serializable(with = BigDecimalSerializer::class) val sats: BigDecimal,
     @Serializable(with = BigDecimalSerializer::class) val antall: BigDecimal,
     @Serializable(with = BigDecimalSerializer::class) val beløp: BigDecimal

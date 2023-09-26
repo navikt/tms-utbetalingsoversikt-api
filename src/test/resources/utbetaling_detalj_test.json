@@ -27,13 +27,13 @@
           {
             "ytelseskomponenttype": "Grunnbeløp",
             "satsbeloep": 500.25,
-            "satstype": "string",
+            "satstype": "et eller annet",
             "satsantall": 3,
             "ytelseskomponentbeloep": 1500.75
           },
           {
             "ytelseskomponenttype": "Annet beløp",
-            "satstype": "string",
+            "satstype": null,
             "ytelseskomponentbeloep": 400
           }
         ],

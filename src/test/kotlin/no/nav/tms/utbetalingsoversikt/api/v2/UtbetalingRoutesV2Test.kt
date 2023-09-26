@@ -42,8 +42,8 @@ class UtbetalingRoutesV2Test {
             it.exchangeToken(any(), any())
         } returns "<dummytoken>"
     }
-    private val spesifikkUtbetalingRespons =  File("src/test/resources/utbetaling_detalj_test.json").readText()
-    private val utbetaltTilRespons =  File("src/test/resources/utbetaling_detalj_utbetalttil_test.json").readText()
+    private val spesifikkUtbetalingRespons = File("src/test/resources/utbetaling_detalj_test.json").readText()
+    private val utbetaltTilRespons = File("src/test/resources/utbetaling_detalj_utbetalttil_test.json").readText()
 
     @Test
     fun `oppsumerer alle ytelser i periode`() = testApplication {
@@ -286,12 +286,14 @@ class UtbetalingRoutesV2Test {
                 size shouldBe 2
                 this[0].apply {
                     this["beskrivelse"].asText() shouldBe "Grunnbeløp"
+                    this["satstype"].asText() shouldBe "et eller annet"
                     this["sats"].asDouble() shouldBe 500.25
                     this["antall"].asDouble() shouldBe 3
                     this["beløp"].asDouble() shouldBe 1500.75
                 }
                 this[1].apply {
                     this["beskrivelse"].asText() shouldBe "Annet beløp"
+                    withClue("satstype skal være null") { this["satstype"].isNull shouldBe true }
                     this["sats"].asDouble() shouldBe 0.0
                     this["antall"].asDouble() shouldBe 0.0
                     this["beløp"].asDouble() shouldBe 400
