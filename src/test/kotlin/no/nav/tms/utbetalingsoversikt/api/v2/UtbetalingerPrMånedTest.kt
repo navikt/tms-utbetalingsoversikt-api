@@ -12,22 +12,25 @@ class UtbetalingerPeriodeTest {
         eksternYtelse(
             fom = LocalDate.now().minusDays(15).toString(),
             aktoerEkstern = eksternTestAktør,
-            nettobeløp = 180.77,
-            trekkbeløp = 19.23,
+            nettobeløp = 170.77,
+            trekkbeløp = -19.23,
+            skattsum = -10.0,
             ytelsesType = "Ytelse1"
         ),
         eksternYtelse(
             fom = LocalDate.now().minusDays(15).toString(),
             aktoerEkstern = eksternTestAktør,
-            nettobeløp = 180.77,
-            trekkbeløp = 19.23,
+            nettobeløp = 170.77,
+            skattsum = -10.0,
+            trekkbeløp = -19.23,
             ytelsesType = "Ytelse1"
         ),
         eksternYtelse(
             fom = LocalDate.now().minusDays(15).toString(),
             aktoerEkstern = eksternTestAktør,
-            nettobeløp = 87.11,
-            trekkbeløp = 13.7,
+            nettobeløp = 77.11,
+            trekkbeløp = -13.7,
+            skattsum = 10.0,
             ytelsesType = "Ytelse2"
         )
     )
@@ -51,8 +54,10 @@ class UtbetalingerPeriodeTest {
 
     @Test
     fun `utbetalinger og trekk for 1 periode `() {
-        val forventetBrutto = 500.81
-        val forventetNetto = 448.65
+        val forventetNetto = 418.65
+        val foventetTrekk = -62.16
+        val forventetBrutto = 480.81
+
 
         val testRepons = listOf(
             sokoTestResponse(
@@ -61,22 +66,25 @@ class UtbetalingerPeriodeTest {
                     eksternYtelse(
                         fom = LocalDate.now().minusDays(15).toString(),
                         aktoerEkstern = eksternTestAktør,
-                        nettobeløp = 180.77,
-                        trekkbeløp = 19.23,
+                        nettobeløp = 170.77,
+                        trekkbeløp = -19.23,
+                        skattsum = -10.0,
                         ytelsesType = "Ytelse1"
                     ),
                     eksternYtelse(
                         fom = LocalDate.now().minusDays(15).toString(),
                         aktoerEkstern = eksternTestAktør,
-                        nettobeløp = 180.77,
-                        trekkbeløp = 19.23,
+                        nettobeløp = 170.77,
+                        skattsum = -10.0,
+                        trekkbeløp = -19.23,
                         ytelsesType = "Ytelse1"
                     ),
                     eksternYtelse(
                         fom = LocalDate.now().minusDays(15).toString(),
                         aktoerEkstern = eksternTestAktør,
-                        nettobeløp = 87.11,
-                        trekkbeløp = 13.7,
+                        nettobeløp = 77.11,
+                        trekkbeløp = -13.7,
+                        skattsum = 10.0,
                         ytelsesType = "Ytelse2"
                     )
                 )
@@ -86,21 +94,24 @@ class UtbetalingerPeriodeTest {
         UtbetalingerIPeriode.fromSokosResponse(testRepons).apply {
             brutto shouldBe forventetBrutto.toBigDecimal()
             netto shouldBe forventetNetto.toBigDecimal()
+            trekk shouldBe foventetTrekk.toBigDecimal()
             ytelser.find { it.ytelse == "Ytelse1" }.apply {
                 require(this != null)
                 beløp shouldEqualDoubleValue 400.00
             }
             ytelser.find { it.ytelse == "Ytelse2" }.apply {
                 require(this != null)
-                beløp shouldEqualDoubleValue 100.81
+                beløp shouldEqualDoubleValue 80.81
             }
         }
     }
 
     @Test
     fun `utbetalinger og trekk for flere perioder `() {
-        val forventetBrutto = 1502.43
-        val forventetNetto = 1345.95
+
+        val forventetNetto = 1255.95
+        val foventetTrekk = -186.48
+        val forventetBrutto = 1442.43
 
         val testRepons = listOf(
             sokoTestResponse(
@@ -112,20 +123,21 @@ class UtbetalingerPeriodeTest {
         UtbetalingerIPeriode.fromSokosResponse(testRepons).apply {
             brutto shouldBe forventetBrutto.toBigDecimal()
             netto shouldBe forventetNetto.toBigDecimal()
+            trekk shouldBe foventetTrekk.toBigDecimal()
             ytelser.find { it.ytelse == "Ytelse1" }.apply {
                 require(this != null)
                 beløp shouldEqualDoubleValue 1200.00
             }
             ytelser.find { it.ytelse == "Ytelse2" }.apply {
                 require(this != null)
-                beløp shouldEqualDoubleValue 302.43
+                beløp shouldEqualDoubleValue 242.43
             }
         }
     }
 }
 
 private infix fun BigDecimal.shouldEqualDoubleValue(d: Double) {
-    withClue("expected: $this, acutal: $d") {
+    withClue("expected: $d, acutal: $this") {
         this.compareTo(d.toBigDecimal()) shouldBe 0
     }
 }

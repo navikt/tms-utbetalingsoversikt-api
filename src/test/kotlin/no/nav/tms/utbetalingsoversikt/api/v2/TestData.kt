@@ -18,7 +18,8 @@ internal fun eksternYtelse(
     nettobeløp: Double,
     ytelsesType: String,
     tom: String? = null,
-    trekkbeløp: Double = 200.0
+    trekkbeløp: Double = 200.0,
+    skattsum: Double = 10.0
 ) =
     YtelseEkstern(
         ytelsestype = ytelsesType,
@@ -28,9 +29,9 @@ internal fun eksternYtelse(
         ),
         ytelseNettobeloep = nettobeløp,
         rettighetshaver = aktoerEkstern,
-        skattsum = trekkbeløp,
+        skattsum = skattsum,
         trekksum = trekkbeløp,
-        ytelseskomponentersum = 0.0,
+        ytelseskomponentersum = (nettobeløp.toBigDecimal()-(trekkbeløp.toBigDecimal()+skattsum.toBigDecimal())).toDouble(),
         skattListe = listOf(),
         trekkListe = listOf(),
         ytelseskomponentListe = listOf(),

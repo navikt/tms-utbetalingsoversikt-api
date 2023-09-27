@@ -9,6 +9,7 @@ import no.nav.tms.utbetalingsoversikt.api.config.BigDecimalSerializer
 import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.external.UtbetalingEkstern
 import java.math.BigDecimal
 import java.time.LocalDate
+import kotlin.math.abs
 
 val log = KotlinLogging.logger { }
 
@@ -92,14 +93,14 @@ data class UtbetalingerIPeriode(
                 .map { ytelserMap ->
                     Ytelse(
                         ytelserMap.key,
-                        ytelserMap.value.sumOf { it.ytelseNettobeloep.toBigDecimal() + it.trekksum.toBigDecimal() })
+                        ytelserMap.value.sumOf { it.ytelseNettobeloep.toBigDecimal() - it.trekksum.toBigDecimal() - it.skattsum.toBigDecimal() })
                 }
 
             return UtbetalingerIPeriode(
                 harUtbetalinger = true,
-                brutto = ytelserWithBeløp.sumOf { it.beløp },
+                brutto = allYtelser.sumOf { it.ytelseskomponentersum.toBigDecimal() },
                 netto = allYtelser.sumOf { it.ytelseNettobeloep.toBigDecimal() },
-                trekk = allYtelser.sumOf { it.trekksum.toBigDecimal() },
+                trekk = allYtelser.sumOf { it.trekksum.toBigDecimal() } + allYtelser.sumOf { it.skattsum.toBigDecimal() },
                 ytelser = ytelserWithBeløp
             )
         }
