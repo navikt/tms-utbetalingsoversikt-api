@@ -46,6 +46,7 @@ class UtbetalingRoutesV2Test {
     private val spesifikkUtbetalingRespons = File("src/test/resources/utbetaling_detalj_test.json").readText()
     private val utbetaltTilRespons = File("src/test/resources/utbetaling_detalj_utbetalttil_test.json").readText()
 
+    /*
     @Disabled
     @Test
     fun `oppsumerer alle ytelser i periode`() = testApplication {
@@ -64,7 +65,7 @@ class UtbetalingRoutesV2Test {
                 expectedForeldrepenger = 79467.0,
                 expectedØkonomiskSosialhjelp = 10365.0,
                 expectedTrekk = 7659.0,
-                expectedUtbetalt = 92432.0 - 7659.0gi
+                expectedUtbetalt = 92432.0 - 7659.0
             )
         ) { true }
 
@@ -96,7 +97,7 @@ class UtbetalingRoutesV2Test {
                 responseBody["utbetalingerIPeriode"]["netto"].asDouble() shouldBe expectedTotalBrutto - 7659.0
             }
         }
-    }
+    }*/
 
     @Test
     fun `henter alle utbetalinger i kronologisk rekkefølge`() = testApplication {
