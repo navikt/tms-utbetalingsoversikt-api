@@ -2,6 +2,8 @@ package no.nav.tms.utbetalingsoversikt.api.v2
 
 import io.kotest.assertions.withClue
 import io.kotest.matchers.shouldBe
+import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.external.BankkontoEkstern
+import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.external.UtbetalingEkstern
 import org.junit.jupiter.api.Test
 import java.math.BigDecimal
 import java.time.LocalDate
@@ -131,6 +133,47 @@ class UtbetalingerPeriodeTest {
             ytelser.find { it.ytelse == "Ytelse2" }.apply {
                 require(this != null)
                 beløp shouldEqualDoubleValue 242.43
+            }
+        }
+    }
+
+    @Test
+    fun `behandling av tilbakebetalinger`() {
+        val utbetalingAAPBrutto = 12000.5
+        val utbetalingAAPNetto = 10000.0
+        val utbetalingAAPSkatt = -2000.5
+        val tilbakebetalingsTrekk = 550.3
+
+        val dateStr = "2023-10-10"
+
+        val utbetalingPlussTilbakebetaling = listOf(
+                UtbetalingEkstern(
+                utbetaltTil = eksternTestAktør,
+                utbetalingsmetode = "Bankkontooverføring",
+                utbetalingsstatus = "dummyverdi",
+                posteringsdato = dateStr,
+                forfallsdato = dateStr,
+                utbetalingsdato = dateStr,
+                utbetalingNettobeloep = 1550.3,
+                utbetalingsmelding = "En eller annen melding",
+                utbetaltTilKonto = BankkontoEkstern(kontonummer = "9988776655443322", kontotype = "norsk bankkonto"),
+                ytelseListe = listOf(
+                    eksternYtelse(eksternTestAktør, dateStr, utbetalingAAPNetto, "AAP", skattsum = utbetalingAAPSkatt, trekkbeløp = 0.0),
+                    eksternYtelse(eksternTestAktør, dateStr, tilbakebetalingsTrekk, "Skattetrekk", skattsum = tilbakebetalingsTrekk, trekkbeløp = 0.0),
+                )
+            )
+        )
+
+        UtbetalingerIPeriode.fromSokosResponse(utbetalingPlussTilbakebetaling).apply {
+            brutto shouldBe utbetalingAAPBrutto.toBigDecimal()
+            netto shouldBe (utbetalingAAPNetto + tilbakebetalingsTrekk).toBigDecimal()
+            trekk shouldBe (utbetalingAAPSkatt + tilbakebetalingsTrekk).toBigDecimal()
+            ytelser.find { it.ytelse == "AAP" }.apply {
+                require(this != null)
+                beløp shouldEqualDoubleValue utbetalingAAPBrutto
+            }
+            ytelser.find { it.ytelse == "Skattetrekk" }.apply {
+                require(this == null)
             }
         }
     }
