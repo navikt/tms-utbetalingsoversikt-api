@@ -95,6 +95,7 @@ data class UtbetalingerIPeriode(
                         ytelserMap.key,
                         ytelserMap.value.sumOf { it.ytelseNettobeloep.toBigDecimal() - it.trekksum.toBigDecimal() - it.skattsum.toBigDecimal() })
                 }
+                .filterNot { it.beløp == 0.toBigDecimal() }
 
             return UtbetalingerIPeriode(
                 harUtbetalinger = true,
