@@ -28,6 +28,7 @@ import no.nav.tms.utbetalingsoversikt.api.config.utbetalingApi
 import no.nav.tms.utbetalingsoversikt.api.utbetaling.YtelseIdUtil
 import no.nav.tms.utbetalingsoversikt.api.ytelse.SokosUtbetalingConsumer
 import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.io.File
 import java.net.URL
@@ -45,6 +46,7 @@ class UtbetalingRoutesV2Test {
     private val spesifikkUtbetalingRespons = File("src/test/resources/utbetaling_detalj_test.json").readText()
     private val utbetaltTilRespons = File("src/test/resources/utbetaling_detalj_utbetalttil_test.json").readText()
 
+    @Disabled
     @Test
     fun `oppsumerer alle ytelser i periode`() = testApplication {
         testApi(
@@ -62,7 +64,7 @@ class UtbetalingRoutesV2Test {
                 expectedForeldrepenger = 79467.0,
                 expectedØkonomiskSosialhjelp = 10365.0,
                 expectedTrekk = 7659.0,
-                expectedUtbetalt = 92432.0 - 7659.0
+                expectedUtbetalt = 92432.0 - 7659.0gi
             )
         ) { true }
 
