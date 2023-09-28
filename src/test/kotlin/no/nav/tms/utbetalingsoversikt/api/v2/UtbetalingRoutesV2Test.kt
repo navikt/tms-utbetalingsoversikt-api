@@ -4,6 +4,7 @@ package no.nav.tms.utbetalingsoversikt.api.v2
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.kotest.assertions.withClue
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import io.ktor.client.plugins.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
@@ -110,7 +111,7 @@ class UtbetalingRoutesV2Test {
             )
         )
 
-        val tidligereUtbetalingerJson = File("src/test/resources/alle_utbetalinger_tidligere.json").readText()
+        val tidligereUtbetalingerJson = File("src/test/resources/alle_utbetalinger_tidligere_default.json").readText()
 
         withExternalServiceResponse(
             """
@@ -129,34 +130,7 @@ class UtbetalingRoutesV2Test {
             val responseBody = objectMapper.readTree(bodyAsText())
 
             val tidligere = responseBody["tidligere"].toList()
-            tidligere.size shouldBe 4
             tidligere.shouldBeInDescedingYearMonthOrder()
-            tidligere.find { it["år"].asInt() == 2023 && it["måned"].asInt() == 8 }.apply {
-                require(this != null)
-                this["utbetalinger"].toList().apply {
-                    shouldBeInDescendingDateOrder()
-                    size shouldBe 5
-                    count { it["ytelse"].asText() == "Foreldrepenger" } shouldBe 2
-                    count { it["ytelse"].asText() == "Økonomisk sosialhjelp" } shouldBe 2
-                    count { it["ytelse"].asText() == "Dagpenger" } shouldBe 1
-                    count { it["dato"].asText() == "2023-08-24" } shouldBe 3
-                    count { it["dato"].asText() == "2023-08-02" } shouldBe 2
-
-                }
-            }
-
-            tidligere.find { it["år"].asInt() == 2023 && it["måned"].asInt() == 2 }.apply {
-                require(this != null)
-                this["utbetalinger"].toList().apply {
-                    size shouldBe 2
-                    count { it["ytelse"].asText() == "Foreldrepenger" } shouldBe 1
-                    count { it["ytelse"].asText() == "Økonomisk sosialhjelp" } shouldBe 1
-                }
-            }
-
-            tidligere.find { it["år"].asInt() == 2022 && it["måned"].asInt() == 8 }!!["utbetalinger"].toList().size shouldBe 2
-            tidligere.find { it["år"].asInt() == 2022 && it["måned"].asInt() == 1 }!!["utbetalinger"].toList().size shouldBe 3
-
             responseBody["neste"].toList().apply {
                 size shouldBe 9
                 shouldBeInAscendingDateOrder()
@@ -197,15 +171,30 @@ class UtbetalingRoutesV2Test {
             val responseBody = objectMapper.readTree(bodyAsText())
 
             val tidligere = responseBody["tidligere"].toList()
-            tidligere.size shouldBe 4
+            tidligere.size shouldBe 3
             tidligere.shouldBeInDescedingYearMonthOrder()
+            tidligere.find { it["år"].asInt() == 2023 && it["måned"].asInt() == 8 }.apply {
+                require(this != null)
+                this["utbetalinger"].toList().apply {
+                    shouldBeInDescendingDateOrder()
+                    size shouldBe 7
+                    count { it["ytelse"].asText() == "Foreldrepenger" } shouldBe 3
+                    count { it["ytelse"].asText() == "Økonomisk sosialhjelp" } shouldBe 3
+                    count { it["ytelse"].asText() == "Dagpenger" } shouldBe 1
+                    count { it["dato"].asText() == "2023-08-24" } shouldBe 3
+                    count { it["dato"].asText() == "2023-08-02" } shouldBe 4
+
+                }
+            }
+
+            tidligere.find { it["år"].asInt() == 2023 && it["måned"].asInt() == 5 } shouldNotBe null
+            tidligere.find { it["år"].asInt() == 2023 && it["måned"].asInt() == 7 } shouldNotBe null
 
             responseBody["neste"].toList().apply {
                 size shouldBe 9
                 shouldBeInAscendingDateOrder()
             }
         }
-
     }
 
     @Test

@@ -7,6 +7,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import no.nav.tms.utbetalingsoversikt.api.config.BigDecimalSerializer
 import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.external.UtbetalingEkstern
+import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.external.YtelseEkstern
 import java.math.BigDecimal
 import java.time.LocalDate
 import kotlin.math.abs
@@ -20,7 +21,7 @@ data class UtbetalingerContainer(
     val utbetalingerIPeriode: UtbetalingerIPeriode
 ) {
     companion object {
-        fun fromSokosResponse(utbetalingEksternList: List<UtbetalingEkstern>) =
+        fun fromSokosResponse(utbetalingEksternList: List<UtbetalingEkstern>, requestedFomDate: LocalDate) =
             utbetalingEksternList
                 .groupBy {
                     val compareDate = LocalDate.parse(it.utbetalingsdato ?: it.forfallsdato)
@@ -28,12 +29,13 @@ data class UtbetalingerContainer(
                     compareDate.isBefore(now) || (compareDate.isEqual(now) && it.utbetalingsdato != null)
                 }
                 .let { grouped ->
+                    val tidligere =
+                        grouped[true]?.filter { it.guaranteedYtelseDato().isAfter(requestedFomDate.minusDays(1)) }
                     UtbetalingerContainer(
                         neste = UtbetalingForYtelse.fromSokosResponse(grouped[false]).sortedBy { it.dato },
-                        tidligere = TidligereUtbetalingerPrMåned.fromSokosRepsponse(grouped[true])
+                        tidligere = TidligereUtbetalingerPrMåned.fromSokosRepsponse(tidligere)
                             .sortedWith(compareByDescending<TidligereUtbetalingerPrMåned> { it.år }.thenByDescending { it.måned }),
-                        utbetalingerIPeriode = UtbetalingerIPeriode.fromSokosResponse(grouped[true])
-
+                        utbetalingerIPeriode = UtbetalingerIPeriode.fromSokosResponse(tidligere)
                     )
                 }
     }
@@ -95,7 +97,7 @@ data class UtbetalingerIPeriode(
                         ytelserMap.key,
                         ytelserMap.value.sumOf { it.ytelseNettobeloep.toBigDecimal() - it.trekksum.toBigDecimal() - it.skattsum.toBigDecimal() })
                 }
-                .filter { it.beløp > BigDecimal.ZERO || it.beløp < BigDecimal.ZERO }
+                .filter { (it.beløp > BigDecimal.ZERO || it.beløp < BigDecimal.ZERO) }
 
             return UtbetalingerIPeriode(
                 harUtbetalinger = true,

@@ -22,9 +22,11 @@ fun Route.utbetalingRoutesV2(sokosUtbetalingConsumer: SokosUtbetalingConsumer) {
                 user = authenticatedUser,
                 fom = call.fromDateParamAdjusted,
                 tom = call.toDateParam
-            )
+            ).let {
+                UtbetalingerContainer.fromSokosResponse(it, call.fromDateParam)
+            }
 
-            call.respond(HttpStatusCode.OK, UtbetalingerContainer.fromSokosResponse(utbetalinger))
+            call.respond(HttpStatusCode.OK, utbetalinger)
         }
 
         get("/siste") {
@@ -67,11 +69,12 @@ private fun String?.localDateOrDefault(default: LocalDate = LocalDate.now()): Lo
 } ?: default
 
 val ApplicationCall.fromDateParamAdjusted: LocalDate
+    get() = getEarlierFromDateWithinMaxBound(fromDateParam)
+
+val ApplicationCall.fromDateParam: LocalDate
     get() = request.queryParameters["fom"].localDateOrDefault(
         LocalDate.now().minusMonths(3)
-    ).let { fromDate ->
-        getEarlierFromDateWithinMaxBound(fromDate)
-    }
+    )
 
 private const val FROM_DATE_OFFSET_DAYS = 20L
 private val EARLIEST_POSSIBLE_FROM_DATE get() = LocalDate.now().minusYears(3).withDayOfYear(1)

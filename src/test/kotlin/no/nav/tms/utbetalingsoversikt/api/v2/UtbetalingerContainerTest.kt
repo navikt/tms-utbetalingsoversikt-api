@@ -9,7 +9,7 @@ class UtbetalingerContainerTest {
 
     @Test
     fun `transformerer tomme resposone`() {
-        UtbetalingerContainer.fromSokosResponse(emptyList()).apply {
+        UtbetalingerContainer.fromSokosResponse(emptyList(), LocalDate.now()).apply {
             neste shouldBe emptyList()
             tidligere shouldBe emptyList()
         }
@@ -32,7 +32,7 @@ class UtbetalingerContainerTest {
             sokoTestResponse(date = now.minusYears(2)),
         )
 
-        UtbetalingerContainer.fromSokosResponse(sokoResponse).apply {
+        UtbetalingerContainer.fromSokosResponse(sokoResponse, LocalDate.now().minusYears(5)).apply {
             neste.groupBy { it.dato }.size shouldBe 2
             neste.map { it.dato }.shouldBeInAscendingOrder()
             tidligere.size shouldBe 4

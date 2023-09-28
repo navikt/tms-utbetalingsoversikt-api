@@ -1,6 +1,7 @@
 package no.nav.tms.utbetalingsoversikt.api.ytelse.domain.external
 
 import kotlinx.serialization.Serializable
+import java.time.LocalDate
 
 @Serializable
 data class UtbetalingEkstern(
@@ -17,6 +18,10 @@ data class UtbetalingEkstern(
 ) {
     fun harKontonummer() = utbetaltTilKonto != null && utbetaltTilKonto.kontonummer.isNotBlank()
     val erUtbetalt = utbetalingsdato != null
+    fun guaranteedYtelseDato(): LocalDate {
+        require(utbetalingsdato!=null)
+        return LocalDate.parse(utbetalingsdato)
+    }
 }
 
 
