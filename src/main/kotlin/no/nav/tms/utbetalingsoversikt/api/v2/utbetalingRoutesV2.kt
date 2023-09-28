@@ -23,7 +23,7 @@ fun Route.utbetalingRoutesV2(sokosUtbetalingConsumer: SokosUtbetalingConsumer) {
                 fom = call.fromDateParamAdjusted,
                 tom = call.toDateParam
             ).let {
-                UtbetalingerContainer.fromSokosResponse(it, call.fromDateParam)
+                UtbetalingerContainer.fromSokosResponse(it, call.fromDateParam, call.toDateParam)
             }
 
             call.respond(HttpStatusCode.OK, utbetalinger)

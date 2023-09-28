@@ -18,7 +18,11 @@ data class UtbetalingEkstern(
 ) {
     fun harKontonummer() = utbetaltTilKonto != null && utbetaltTilKonto.kontonummer.isNotBlank()
     val erUtbetalt = utbetalingsdato != null
-    fun guaranteedYtelseDato(): LocalDate {
+
+    fun isInPeriod(fomDate: LocalDate, toDate: LocalDate) = guaranteedYtelseDato().isAfter(fomDate.minusDays(1))
+        && guaranteedYtelseDato().isBefore(toDate.plusDays(1))
+
+    private fun guaranteedYtelseDato(): LocalDate {
         require(utbetalingsdato!=null)
         return LocalDate.parse(utbetalingsdato)
     }

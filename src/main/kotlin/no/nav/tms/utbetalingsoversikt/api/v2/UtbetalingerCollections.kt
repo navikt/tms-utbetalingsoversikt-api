@@ -7,10 +7,8 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import no.nav.tms.utbetalingsoversikt.api.config.BigDecimalSerializer
 import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.external.UtbetalingEkstern
-import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.external.YtelseEkstern
 import java.math.BigDecimal
 import java.time.LocalDate
-import kotlin.math.abs
 
 val log = KotlinLogging.logger { }
 
@@ -21,7 +19,7 @@ data class UtbetalingerContainer(
     val utbetalingerIPeriode: UtbetalingerIPeriode
 ) {
     companion object {
-        fun fromSokosResponse(utbetalingEksternList: List<UtbetalingEkstern>, requestedFomDate: LocalDate) =
+        fun fromSokosResponse(utbetalingEksternList: List<UtbetalingEkstern>, requestedFomDate: LocalDate, requestedTomDate: LocalDate) =
             utbetalingEksternList
                 .groupBy {
                     val compareDate = LocalDate.parse(it.utbetalingsdato ?: it.forfallsdato)
@@ -29,8 +27,7 @@ data class UtbetalingerContainer(
                     compareDate.isBefore(now) || (compareDate.isEqual(now) && it.utbetalingsdato != null)
                 }
                 .let { grouped ->
-                    val tidligere =
-                        grouped[true]?.filter { it.guaranteedYtelseDato().isAfter(requestedFomDate.minusDays(1)) }
+                    val tidligere = grouped[true]?.filter { it.isInPeriod(requestedFomDate, requestedTomDate) }
                     UtbetalingerContainer(
                         neste = UtbetalingForYtelse.fromSokosResponse(grouped[false]).sortedBy { it.dato },
                         tidligere = TidligereUtbetalingerPrMåned.fromSokosRepsponse(tidligere)
