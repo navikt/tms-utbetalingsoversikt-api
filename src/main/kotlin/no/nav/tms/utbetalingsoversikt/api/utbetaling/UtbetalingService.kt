@@ -29,8 +29,7 @@ class UtbetalingService(private val hovedytelseService: HovedytelseService) {
         log.info { "Henter ytelse for id: $ytelseId, dato: $date" }
 
         return hovedytelseService.getHovedytelserBetaltTilBruker(user, date, date)
-            .filter { it.id == ytelseId }
-            .first()
+            .first { it.id == ytelseId }
     }
 
     private fun Hovedytelse.isInPeriod(fromDate: LocalDate, toDate: LocalDate): Boolean {

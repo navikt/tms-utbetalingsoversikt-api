@@ -37,14 +37,14 @@ class YtelseUtbetalingDetaljer private constructor(
 
     companion object {
         fun fromSokosReponse(ekstern: List<UtbetalingEkstern>, ytelseId: String) =
-            ekstern.first().let { utbetalingEkstern ->
-                val ytelseEkstern = utbetalingEkstern.ytelseListe
-                    .firstOrNull { ytelseEkstern ->
-                        YtelseIdUtil.calculateId(utbetalingEkstern.posteringsdato, ytelseEkstern) == ytelseId
-                    } ?: throw UtbetalingNotFoundException(
-                        ytelseId,
-                        "Ikke funnet i ytelsesliste med posteringsdato ${utbetalingEkstern.posteringsdato}"
-                    )
+            ekstern.flatMap { utbetaling ->
+                utbetaling.ytelseListe.map { ytelse -> utbetaling to ytelse }
+            }
+            .firstOrNull {  (utbetaling, ytelse) ->
+                YtelseIdUtil.calculateId(utbetaling.posteringsdato, ytelse) == ytelseId
+            }
+            ?.let { (utbetalingEkstern, ytelseEkstern) ->
+
                 YtelseUtbetalingDetaljer(
                     utbetaltTil = Utbetaling(
                         betaltTilKonto = utbetalingEkstern.utbetaltTilKonto?.kontonummer.isNullOrBlank().not(),
@@ -72,7 +72,7 @@ class YtelseUtbetalingDetaljer private constructor(
                     bruttoUtbetalt = ytelseEkstern.ytelseskomponentersum.toBigDecimal(),
                     nettoUtbetalt = ytelseEkstern.ytelseNettobeloep.toBigDecimal()
                 )
-            }
+            }?: throw UtbetalingNotFoundException(ytelseId, "Ikke funnet i ytelsesliste.")
 
         private fun skatteTrekk(ytelseEkstern: YtelseEkstern) =
             ytelseEkstern.skattListe
