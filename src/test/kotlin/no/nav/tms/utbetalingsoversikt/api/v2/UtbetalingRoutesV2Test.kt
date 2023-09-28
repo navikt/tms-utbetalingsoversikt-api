@@ -188,7 +188,7 @@ class UtbetalingRoutesV2Test {
         """.trimIndent()
         ) {
             val fomtom = objectMapper.readTree(call.receiveText())
-            fomtom["periode"]["fom"].asText() == "2023-05-29" && fomtom["periode"]["tom"].asText() == "2023-08-30"
+            fomtom["periode"]["fom"].asText() == "2023-05-09" && fomtom["periode"]["tom"].asText() == "2023-08-30"
         }
 
 

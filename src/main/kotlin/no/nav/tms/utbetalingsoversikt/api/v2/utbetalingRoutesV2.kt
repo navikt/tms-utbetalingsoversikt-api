@@ -17,10 +17,11 @@ fun Route.utbetalingRoutesV2(sokosUtbetalingConsumer: SokosUtbetalingConsumer) {
     route("utbetalinger") {
 
         get("/alle") {
+
             val utbetalinger = sokosUtbetalingConsumer.fetchUtbetalingsInfo(
                 user = authenticatedUser,
-                fom = call.fromDateParam.localDateOrDefault(LocalDate.now().minusMonths(3)),
-                tom = call.toDateParam.localDateOrDefault()
+                fom = call.fromDateParamAdjusted,
+                tom = call.toDateParam
             )
 
             call.respond(HttpStatusCode.OK, UtbetalingerContainer.fromSokosResponse(utbetalinger))
@@ -38,7 +39,7 @@ fun Route.utbetalingRoutesV2(sokosUtbetalingConsumer: SokosUtbetalingConsumer) {
 
         get("/{ytelseId}") {
 
-            val ytelseId = call.parameters["ytelseId"]?: throw IllegalYtelseIdException("Ytelseid kan ikke være null")
+            val ytelseId = call.parameters["ytelseId"] ?: throw IllegalYtelseIdException("Ytelseid kan ikke være null")
             val date = YtelseIdUtil.unmarshalDateFromId(ytelseId)
 
             val ytelseDetaljer = sokosUtbetalingConsumer.fetchUtbetalingsInfo(
@@ -49,7 +50,7 @@ fun Route.utbetalingRoutesV2(sokosUtbetalingConsumer: SokosUtbetalingConsumer) {
                 it.isNotEmpty()
             }?.let {
                 YtelseUtbetalingDetaljer.fromSokosReponse(it, ytelseId)
-            }?: throw UtbetalingNotFoundException(ytelseId,"Utbetalingsapi returnerer tom liste")
+            } ?: throw UtbetalingNotFoundException(ytelseId, "Utbetalingsapi returnerer tom liste")
 
             call.respond(HttpStatusCode.OK, ytelseDetaljer)
         }
@@ -65,5 +66,19 @@ private fun String?.localDateOrDefault(default: LocalDate = LocalDate.now()): Lo
     )
 } ?: default
 
-val ApplicationCall.fromDateParam: String? get() = request.queryParameters["fom"]
-val ApplicationCall.toDateParam: String? get() = request.queryParameters["tom"]
+val ApplicationCall.fromDateParamAdjusted: LocalDate
+    get() = request.queryParameters["fom"].localDateOrDefault(
+        LocalDate.now().minusMonths(3)
+    ).let { fromDate ->
+        getEarlierFromDateWithinMaxBound(fromDate)
+    }
+
+private const val FROM_DATE_OFFSET_DAYS = 20L
+private val EARLIEST_POSSIBLE_FROM_DATE get() = LocalDate.now().minusYears(3).withDayOfYear(1)
+private fun getEarlierFromDateWithinMaxBound(fromDate: LocalDate): LocalDate {
+    val adjustedDate = fromDate.minusDays(FROM_DATE_OFFSET_DAYS)
+    return maxOf(adjustedDate, EARLIEST_POSSIBLE_FROM_DATE)
+}
+
+val ApplicationCall.toDateParam: LocalDate
+    get() = request.queryParameters["tom"].localDateOrDefault()
