@@ -22,15 +22,18 @@ object YtelseIdUtil {
     }
 
     fun hashString(ytelse: YtelseEkstern): String {
+
         val hashLowerHalf = concat(
             ytelse.bilagsnummer,
             ytelse.ytelsestype,
+            ytelse.ytelseNettobeloep,
+            ytelse.trekksum,
+            ytelse.skattsum,
             *mapBeskrivelseToBelop(ytelse.ytelseskomponentListe)
         )
             .toByteArray()
             .let { md5.digest(it) }
             .also { md5.reset() }
-            .slice(0..7)
 
         return hashLowerHalf.joinToString(separator = "") { byte -> "%02x".format(byte) }
     }
