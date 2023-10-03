@@ -10,7 +10,7 @@ import java.time.LocalDate
 class UtbetalingService(private val hovedytelseService: HovedytelseService) {
 
     private val log = KotlinLogging.logger {}
-    private val secureLog = KotlinLogging.logger("secureLogs")
+    private val secureLog = KotlinLogging.logger("secureLog")
 
     suspend fun fetchUtbetalingForPeriod(user: IdportenUser, fromDateString: String?, toDateString: String?): UtbetalingResponse {
 
@@ -52,7 +52,7 @@ class UtbetalingService(private val hovedytelseService: HovedytelseService) {
 
     private fun debugLogAvvikMottaker(hovedytelser: List<Hovedytelse>, user: IdportenUser) {
         hovedytelser
-            .filter { it.rettighetshaver.aktoerId == user.ident }
+            .filter { it.rettighetshaver.aktoerId != user.ident }
             .map { avvik ->
                 secureLog.info { "Betaling (${avvik.melding}, ${avvik.ytelse}) har annen mottaker (${avvik.rettighetshaver.aktoerId}) enn innlogget bruker (${user.ident})" }
             }
