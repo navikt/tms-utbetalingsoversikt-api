@@ -52,12 +52,12 @@ class YtelseUtbetalingDetaljer private constructor(
                         metode = utbetalingEkstern.utbetalingsmetode
                     ),
                     ytelse = ytelseEkstern.ytelsestype ?: "Ukjent",
-                    erUtbetalt = utbetalingEkstern.utbetalingsdato != null,
+                    erUtbetalt = utbetalingEkstern.erUtbetalt,
                     ytelsePeriode = FomTom(
                         fom = LocalDate.parse(ytelseEkstern.ytelsesperiode.fom),
                         tom = LocalDate.parse(ytelseEkstern.ytelsesperiode.tom)
                     ),
-                    ytelseDato = LocalDate.parse(utbetalingEkstern.utbetalingsdato ?: utbetalingEkstern.forfallsdato),
+                    ytelseDato = utbetalingEkstern.ytelsesdato(),
                     underytelse = ytelseEkstern.ytelseskomponentListe?.map {
                         UnderytelseDetaljer(
                             beskrivelse = it.ytelseskomponenttype ?: "Ukjent",
