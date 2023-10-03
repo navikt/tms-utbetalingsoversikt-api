@@ -23,7 +23,7 @@ data class UtbetalingerContainer(
             utbetalingEksternList
                 .partition {
                     val now = LocalDate.now()
-                    it.ytelsesdato().isBefore(now) || (it.ytelsesdato().isEqual(now) && it.utbetalingsdato != null)
+                    it.ytelsesdato().isBefore(now) || (it.ytelsesdato().isEqual(now) && it.erUtbetalt)
                 }
                 .let { (tidligere, kommende) ->
                     val utbetaltIPeriode = tidligere.filter { it.isInPeriod(requestedFomDate, requestedTomDate) }
@@ -56,7 +56,7 @@ data class TidligereUtbetalingerPrMåned(val år: Int, val måned: Int, val utbe
 
         private fun UtbetalingEkstern.monthYearKey(): MonthYearKey? =
             try {
-                LocalDate.parse(this.utbetalingsdato)
+                ytelsesdato()
                     .let { MonthYearKey(it.monthValue, it.year) }
             } catch (exception: Exception) {
                 log.error { "Feil i sortering; utbetalingsdato er null, forfallsdato er $forfallsdato" }
