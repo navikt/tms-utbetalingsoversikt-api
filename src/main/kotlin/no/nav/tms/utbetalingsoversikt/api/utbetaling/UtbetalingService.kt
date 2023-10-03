@@ -10,7 +10,7 @@ import java.time.LocalDate
 class UtbetalingService(private val hovedytelseService: HovedytelseService) {
 
     private val log = KotlinLogging.logger {}
-    val secureLog = KotlinLogging.logger("secureLogs")
+    private val secureLog = KotlinLogging.logger("secureLogs")
 
     suspend fun fetchUtbetalingForPeriod(user: IdportenUser, fromDateString: String?, toDateString: String?): UtbetalingResponse {
 
