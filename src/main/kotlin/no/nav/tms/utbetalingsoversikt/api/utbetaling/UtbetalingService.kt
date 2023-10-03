@@ -51,6 +51,7 @@ class UtbetalingService(private val hovedytelseService: HovedytelseService) {
     }
 
     private fun debugLogAvvikMottaker(hovedytelser: List<Hovedytelse>, user: IdportenUser) {
+        secureLog.info { "Test" }
         hovedytelser
             .filter { it.rettighetshaver.aktoerId != user.ident }
             .map { avvik ->
