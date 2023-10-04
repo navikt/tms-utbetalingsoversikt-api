@@ -30,6 +30,8 @@ spec:
     sidecar:
       enabled: true
       level: Level3
+  secureLogs:
+    enabled: true
   accessPolicy:
     outbound:
       rules:
