@@ -11,6 +11,7 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
+import io.ktor.server.auth.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
@@ -22,14 +23,13 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkObject
 import no.nav.tms.token.support.idporten.sidecar.mock.LevelOfAssurance.HIGH
-import no.nav.tms.token.support.idporten.sidecar.mock.installIdPortenAuthMock
+import no.nav.tms.token.support.idporten.sidecar.mock.idPortenMock
 import no.nav.tms.token.support.tokendings.exchange.TokendingsService
 import no.nav.tms.utbetalingsoversikt.api.config.jsonConfig
 import no.nav.tms.utbetalingsoversikt.api.config.utbetalingApi
 import no.nav.tms.utbetalingsoversikt.api.utbetaling.YtelseIdUtil
 import no.nav.tms.utbetalingsoversikt.api.ytelse.SokosUtbetalingConsumer
 import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.io.File
 import java.net.URL
@@ -48,7 +48,6 @@ class UtbetalingRoutesV2Test {
     private val utbetaltTilRespons = File("src/test/resources/utbetaling_detalj_utbetalttil_test.json").readText()
 
     /*
-    @Disabled
     @Test
     fun `oppsumerer alle ytelser i periode`() = testApplication {
         testApi(
@@ -430,11 +429,13 @@ private fun ApplicationTestBuilder.testApi(sokosUtbetalingConsumer: SokosUtbetal
             httpClient = httpClient,
             sokosUtbetalingConsumer = sokosUtbetalingConsumer,
             authConfig = {
-                installIdPortenAuthMock {
-                    setAsDefault = true
-                    staticLevelOfAssurance = HIGH
-                    staticUserPid = "12345"
-                    alwaysAuthenticated = true
+                authentication {
+                    idPortenMock {
+                        setAsDefault = true
+                        staticLevelOfAssurance = HIGH
+                        staticUserPid = "12345"
+                        alwaysAuthenticated = true
+                    }
                 }
             },
             corsAllowedSchemes = listOf("https", "http"),
