@@ -21,8 +21,9 @@ import io.ktor.util.pipeline.*
 import nav.no.tms.common.metrics.installTmsMicrometerMetrics
 import no.nav.personbruker.dittnav.common.util.config.StringEnvVar
 import no.nav.personbruker.dittnav.common.util.config.UrlEnvVar
+import no.nav.tms.token.support.idporten.sidecar.IdPortenLogin
 import no.nav.tms.token.support.idporten.sidecar.LevelOfAssurance.SUBSTANTIAL
-import no.nav.tms.token.support.idporten.sidecar.installIdPortenAuth
+import no.nav.tms.token.support.idporten.sidecar.idPorten
 import no.nav.tms.token.support.idporten.sidecar.user.IdportenUser
 import no.nav.tms.token.support.idporten.sidecar.user.IdportenUserFactory
 import no.nav.tms.token.support.tokendings.exchange.TokendingsServiceBuilder
@@ -127,10 +128,13 @@ fun Application.utbetalingApi(
 }
 
 private fun idPortenAuth(): Application.() -> Unit = {
-    installIdPortenAuth {
-        setAsDefault = true
-        levelOfAssurance = SUBSTANTIAL
+    authentication {
+        idPorten {
+            setAsDefault = true
+            levelOfAssurance = SUBSTANTIAL
+        }
     }
+    install(IdPortenLogin)
 }
 
 private fun Application.configureShutdownHook(httpClient: HttpClient) {
