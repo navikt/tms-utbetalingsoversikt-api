@@ -76,6 +76,8 @@ fun Application.utbetalingApi(
     corsAllowedSchemes: List<String>
 ) {
     val log = KotlinLogging.logger { }
+    val secureLog = KotlinLogging.logger("secureLog")
+
     install(DefaultHeaders)
 
     install(CORS) {
@@ -87,7 +89,7 @@ fun Application.utbetalingApi(
         exception<Throwable> { call, cause ->
             when (cause) {
                 is IllegalYtelseIdException -> {
-                    call.respondText(text = cause.message ?: "Ukjent ytelse-input feil", status = BadRequest)
+                    call.respondText(text = cause.message ?: "Ukjent ytelse-id feil", status = BadRequest)
                 }
 
                 is UtbetalingNotFoundException -> {
@@ -96,8 +98,9 @@ fun Application.utbetalingApi(
                 }
 
                 else -> {
-                    log.error { "${cause.message}" }
-                    call.respondText(text = "500: $cause", status = InternalServerError)
+                    secureLog.error(cause) { "Uventet feil." }
+                    log.error { "Uventet feil. Svarer med feilkode." }
+                    call.respondText("Feil i baksystem.", status = InternalServerError)
                 }
             }
 
