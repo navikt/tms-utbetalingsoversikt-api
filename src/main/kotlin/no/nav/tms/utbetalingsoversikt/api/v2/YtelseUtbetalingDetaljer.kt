@@ -37,7 +37,8 @@ class YtelseUtbetalingDetaljer private constructor(
 
     companion object {
         fun fromSokosReponse(ekstern: List<UtbetalingEkstern>, ytelseId: String) =
-            ekstern.flatMap { utbetaling ->
+            ekstern.filter { it.ytelsesdato() != null }
+            .flatMap { utbetaling ->
                 utbetaling.ytelseListe.map { ytelse -> utbetaling to ytelse }
             }
             .firstOrNull {  (utbetaling, ytelse) ->
@@ -57,7 +58,7 @@ class YtelseUtbetalingDetaljer private constructor(
                         fom = LocalDate.parse(ytelseEkstern.ytelsesperiode.fom),
                         tom = LocalDate.parse(ytelseEkstern.ytelsesperiode.tom)
                     ),
-                    ytelseDato = utbetalingEkstern.ytelsesdato(),
+                    ytelseDato = utbetalingEkstern.ytelsesdato()!!,
                     underytelse = ytelseEkstern.ytelseskomponentListe?.map {
                         UnderytelseDetaljer(
                             beskrivelse = it.ytelseskomponenttype ?: "Ukjent",

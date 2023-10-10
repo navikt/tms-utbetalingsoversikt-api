@@ -19,9 +19,16 @@ data class UtbetalingEkstern(
     fun harKontonummer() = utbetaltTilKonto != null && utbetaltTilKonto.kontonummer.isNotBlank()
     val erUtbetalt = utbetalingsdato != null
 
-    fun isInPeriod(fomDate: LocalDate, toDate: LocalDate) = ytelsesdato() in fomDate..toDate
+    fun isInPeriod(fomDate: LocalDate, tomDate: LocalDate): Boolean {
+        return when {
+            utbetalingsdato != null -> LocalDate.parse(utbetalingsdato) in fomDate..tomDate
+            forfallsdato != null -> true
+            else -> false
+        }
+    }
 
-    fun ytelsesdato() = LocalDate.parse(utbetalingsdato ?: forfallsdato)
+    fun ytelsesdato() = utbetalingsdato?.let { LocalDate.parse(it) }
+        ?: forfallsdato?.let { LocalDate.parse(it) }
 }
 
 

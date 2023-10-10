@@ -21,17 +21,19 @@ data class UtbetalingerContainer(
     companion object {
         fun fromSokosResponse(utbetalingEksternList: List<UtbetalingEkstern>, requestedFomDate: LocalDate, requestedTomDate: LocalDate) =
             utbetalingEksternList
+                .filter { it.isInPeriod(requestedFomDate, requestedTomDate) }
                 .partition {
                     val now = LocalDate.now()
-                    it.ytelsesdato().isBefore(now) || (it.ytelsesdato().isEqual(now) && it.erUtbetalt)
+                    val ytelsesdato = it.ytelsesdato() ?: throw IllegalStateException("Feil i filtrering - mangler ytelsesdato.")
+
+                    ytelsesdato.isBefore(now) || ytelsesdato.isEqual(now) && it.erUtbetalt
                 }
                 .let { (tidligere, kommende) ->
-                    val utbetaltIPeriode = tidligere.filter { it.isInPeriod(requestedFomDate, requestedTomDate) }
                     UtbetalingerContainer(
                         neste = UtbetalingForYtelse.fromSokosResponse(kommende).sortedBy { it.dato },
-                        tidligere = TidligereUtbetalingerPrMåned.fromSokosResponse(utbetaltIPeriode)
+                        tidligere = TidligereUtbetalingerPrMåned.fromSokosResponse(tidligere)
                             .sortedWith(compareByDescending<TidligereUtbetalingerPrMåned> { it.år }.thenByDescending { it.måned }),
-                        utbetalingerIPeriode = UtbetalingerIPeriode.fromSokosResponse(utbetaltIPeriode)
+                        utbetalingerIPeriode = UtbetalingerIPeriode.fromSokosResponse(tidligere)
                     )
                 }
     }
@@ -40,28 +42,20 @@ data class UtbetalingerContainer(
 @Serializable
 data class TidligereUtbetalingerPrMåned(val år: Int, val måned: Int, val utbetalinger: List<UtbetalingForYtelse>) {
     companion object {
-        fun fromSokosResponse(sokosUtbetalinger: List<UtbetalingEkstern>?): List<TidligereUtbetalingerPrMåned> =
+        fun fromSokosResponse(sokosUtbetalinger: List<UtbetalingEkstern>): List<TidligereUtbetalingerPrMåned> =
             sokosUtbetalinger
-                ?.groupBy { it.monthYearKey() }
-                ?.filter { it.key != null }
-                ?.map {
+                .groupBy { it.monthYearKey() }
+                .map {
                     TidligereUtbetalingerPrMåned(
-                        år = it.key!!.year,
-                        måned = it.key!!.month,
+                        år = it.key.year,
+                        måned = it.key.month,
                         utbetalinger = UtbetalingForYtelse.fromSokosResponse(it.value)
                             .sortedByDescending { utbetaling -> utbetaling.dato }
                     )
                 }
-                ?: emptyList()
 
-        private fun UtbetalingEkstern.monthYearKey(): MonthYearKey? =
-            try {
-                ytelsesdato()
-                    .let { MonthYearKey(it.monthValue, it.year) }
-            } catch (exception: Exception) {
-                log.error { "Feil i sortering; utbetalingsdato er null, forfallsdato er $forfallsdato" }
-                null
-            }
+        private fun UtbetalingEkstern.monthYearKey() =
+                ytelsesdato()!!.let { MonthYearKey(it.monthValue, it.year) }
 
         private data class MonthYearKey(val month: Int, val year: Int)
     }
