@@ -22,26 +22,18 @@ data class UtbetalingForYtelse(
             ytelse = ytelse.ytelsestype ?: "Ukjent"
         )
 
-        fun fromSokosResponse(utbetalingEkstern: List<UtbetalingEkstern>?): List<UtbetalingForYtelse> =
+        fun fromSokosResponse(utbetalingEkstern: List<UtbetalingEkstern>): List<UtbetalingForYtelse> =
             utbetalingEkstern
-                ?.map {
-                    UtbetalingForYtelseMappingObject(
-                        it.ytelsesdato(),
-                        it.posteringsdato,
-                        it.ytelseListe
-                    )
-                }
-                ?.map { ytelseMappingObject ->
-                    ytelseMappingObject.ytelser.map { mappedYtelse ->
+                .map { ytelseMappingObject ->
+                    ytelseMappingObject.ytelseListe.map { mappedYtelse ->
                         medGenerertId(
                             ytelse = mappedYtelse,
-                            dato = ytelseMappingObject.utbetalingsDato,
+                            dato = ytelseMappingObject.ytelsesdato()!!,
                             posteringsdato = ytelseMappingObject.posteringsdato
                         )
                     }
                 }
-                ?.flatten()
-                ?: emptyList()
+                .flatten()
     }
 }
 
@@ -88,11 +80,5 @@ private fun Utbetalingsdato?.toLocalDate(): LocalDate = try {
 } catch (e: Exception) {
     throw UtbetalingSerializationException("Fant ikke utbetalingsdato, ${e.message}")
 }
-
-private class UtbetalingForYtelseMappingObject(
-    val utbetalingsDato: LocalDate,
-    val posteringsdato: String,
-    val ytelser: List<YtelseEkstern>
-)
 
 class UtbetalingSerializationException(message: String) : Exception(message)
