@@ -49,18 +49,6 @@ class BigDecimalSerializer : KSerializer<BigDecimal> {
 
 }
 
-class KontonummerSerializer : KSerializer<String?> {
-    override fun deserialize(decoder: Decoder): String = decoder.decodeString()
-
-    override val descriptor = PrimitiveSerialDescriptor(
-        serialName = "no.nav.tms.utbetalingsoversikt.api.v2",
-        kind = PrimitiveKind.STRING
-    )
-    override fun serialize(encoder: Encoder, value: String?) {
-        encoder.encodeString(value?.let { "xxxxxx${it.substring(it.length - 5)}" } ?: "----")
-    }
-}
-
 class UtbetalingSerializer : KSerializer<Utbetaling> {
     override fun deserialize(decoder: Decoder): Utbetaling {
         throw IllegalStateException("Can't deserialize Utbetaling from string")

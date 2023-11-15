@@ -33,10 +33,10 @@ fun Route.utbetalingRoutesV2(sokosUtbetalingConsumer: SokosUtbetalingConsumer) {
             val sisteUtbetaling = sokosUtbetalingConsumer.fetchUtbetalingsInfo(
                 user = authenticatedUser,
                 fom = LocalDate.now().minusMonths(3),
-                tom = LocalDate.now()
+                tom = LocalDate.now().plusMonths(3)
             )
 
-            call.respond(HttpStatusCode.OK, SisteUtbetalingDetaljer.fromSokosRepsonse(sisteUtbetaling))
+            call.respond(HttpStatusCode.OK, SisteOgNesteUtbetaling.fromSokosResponse(sisteUtbetaling))
         }
 
         get("/{ytelseId}") {

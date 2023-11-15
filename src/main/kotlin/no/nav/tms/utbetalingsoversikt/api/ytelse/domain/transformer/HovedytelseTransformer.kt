@@ -26,7 +26,7 @@ object HovedytelseTransformer {
                     fom = LocalDate.parse(ytelseEkstern.ytelsesperiode.fom),
                     tom = LocalDate.parse(ytelseEkstern.ytelsesperiode.tom)
                 ),
-                kontonummer = kontonummerVerdi(utbetaling),
+                kontonummer = utbetaling.maskertKontonummer(),
                 underytelser = ytelseEkstern.ytelseskomponentListe?.let { komponentList ->
                     UnderytelseTransformer.createUnderytelser(komponentList)
                 } ?: emptyList(),
@@ -40,22 +40,6 @@ object HovedytelseTransformer {
     private fun ytelseDato(utbetaling: UtbetalingEkstern): LocalDate? =
         utbetaling.utbetalingsdato?.parseLocalDate() ?: utbetaling.forfallsdato?.parseLocalDate()
 
-    private fun kontonummerVerdi(utbetaling: UtbetalingEkstern): String {
-        val kontonummer = utbetaling.utbetaltTilKonto?.kontonummer
-        return when {
-            !utbetaling.harKontonummer() -> utbetaling.utbetalingsmetode
-            kontonummer != null && kontonummer.length <= 5 -> kontonummer
-            else -> maskAllButFinalCharacters(kontonummer.removeWhitespace(), 5)
-        }
-    }
-
-    private fun maskAllButFinalCharacters(kontonummer: String?, numberUnmasked: Int): String =
-        kontonummer
-            ?.let {
-                val numberMaskedChars = it.length - numberUnmasked
-                return "${"x".repeat(numberMaskedChars)}${it.substring(numberMaskedChars)}"
-            } ?: ""
 }
 
 private fun String.parseLocalDate(): LocalDate = LocalDate.parse(this)
-private fun String?.removeWhitespace() = this?.replace(" ", "")

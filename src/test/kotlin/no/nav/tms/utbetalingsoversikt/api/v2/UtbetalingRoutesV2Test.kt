@@ -157,46 +157,47 @@ class UtbetalingRoutesV2Test {
         val tidligereUtbetalingerJson = File("src/test/resources/siste_utbetaling_test.json").readText()
 
         withExternalServiceResponse(
-            """
+            body = """
           ${tidligereUtbetalingerJson.substring(0, tidligereUtbetalingerJson.lastIndexOf("]"))},
-          ${nesteYtelseJson(15)},   
-          ${nesteYtelseJson(1)},     
+          ${nesteYtelseJson(1)},    
+          ${nesteYtelseJson(15)},    
           ${nesteYtelseJson(20)}    
            ]
-            
-        ""${'"'}.trimIndent()
         """.trimIndent()
         ) {
             val fomtom = objectMapper.readTree(call.receiveText())
             val expectedFom = LocalDate.now().minusMonths(3)
-            val expectedTom = LocalDate.now().plusMonths(3)
-            LocalDate.parse(fomtom["periode"]["fom"].asText()) == expectedFom
-                    && LocalDate.parse(fomtom["periode"]["tom"].asText()) == expectedTom
+            val expectedTom = LocalDate.now().plusMonths(3).plusDays(1)
+            val actualFom = LocalDate.parse(fomtom["periode"]["fom"].asText())
+            val actualTom = LocalDate.parse(fomtom["periode"]["tom"].asText())
+            actualFom == expectedFom && actualTom == expectedTom
         }
 
         client.get("/utbetalinger/siste").assert {
             status shouldBe HttpStatusCode.OK
             val response = objectMapper.readTree(bodyAsText())
 
+            response["hasUtbetaling"].asBoolean() shouldBe true
+            response["hasKommende"].asBoolean() shouldBe true
             response["sisteUtbetaling"].apply {
-                this["hasUtbetaling"].asBoolean() shouldBe true
+                require(this!=null && !this.isNull){"sisteUtbetaling har ikke innhold"}
                 this["utbetaling"].asInt() shouldBe 3788
                 this["dato"].asText() shouldBe "2023-11-10"
                 this["ytelse"].asText() shouldBe "Dagpenger"
                 withClue("id ikke tilstede i respons") {
                     this["id"].isNull shouldNotBe true
                 }
-                this["kontonummer"].asText() shouldBe "xxxxxx39876"
+                this["kontonummer"].asText() shouldBe "xxxxx39876"
             }
 
             response["kommende"].apply {
-                this["hasKommende"].asBoolean() shouldBe true
-                this["utbetaling"].asInt() shouldBe 2300
+                require(this!=null && !this.isNull){"kommendeobjekt har ikke innhold"}
+                this["utbetaling"].asInt() shouldBe 3788
                 this["ytelse"].asText() shouldBe "Dagpenger"
                 withClue("id ikke tilstede i respons") {
                     this["id"].isNull shouldNotBe true
                 }
-                this["kontonummer"].asText() shouldBe ""
+                this["kontonummer"].asText() shouldBe "xxxxx55444"
                 LocalDate.parse(this["dato"].asText()) shouldBe LocalDate.now().plusDays(1)
             }
         }
@@ -217,10 +218,10 @@ class UtbetalingRoutesV2Test {
         client.get("/utbetalinger/siste").assert {
             status shouldBe HttpStatusCode.OK
             objectMapper.readTree(bodyAsText()).apply {
-                this["harUtbetaling"].asBoolean() shouldBe false
-                this["sisteUtbetaling"].asDouble() shouldBe 0.0
-                this["ytelser"].toList() shouldBe emptyList()
-                this["dato"].isNull shouldBe true
+                this["hasUtbetaling"].asBoolean() shouldBe false
+                this["hasKommende"].asBoolean() shouldBe false
+                this["sisteUtbetaling"].isNull shouldBe true
+                this["kommende"].isNull shouldBe true
             }
         }
     }
