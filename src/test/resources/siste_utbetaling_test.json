@@ -1,5 +1,331 @@
 [
   {
+    "posteringsdato": "2023-05-29",
+    "utbetaltTil": {
+      "aktoertype": "PERSON",
+      "ident": "123345567",
+      "navn": "string"
+    },
+    "utbetalingNettobeloep": 8700,
+    "utbetalingsmelding": "string",
+    "utbetalingsdato": "2023-05-29",
+    "forfallsdato": "2023-02-24",
+    "utbetaltTilKonto": {
+      "kontonummer": "888777666555444",
+      "kontotype": "Norsk bank"
+    },
+    "utbetalingsmetode": "Til konto",
+    "utbetalingsstatus": "something",
+    "ytelseListe": [
+      {
+        "ytelsestype": "Foreldrepenger",
+        "ytelsesperiode": {
+          "fom": "2023-05-29",
+          "tom": "2023-05-29"
+        },
+        "ytelseskomponentListe": [
+          {
+            "ytelseskomponenttype": "string",
+            "satsbeloep": 999,
+            "satstype": "string",
+            "satsantall": 2.5,
+            "ytelseskomponentbeloep": 42
+          }
+        ],
+        "ytelseskomponentersum": 111.22,
+        "trekkListe": [
+          {
+            "trekktype": "string",
+            "trekkbeloep": 100,
+            "kreditor": "string"
+          }
+        ],
+        "trekksum": 1000,
+        "skattListe": [
+          {
+            "skattebeloep": 99.9
+          }
+        ],
+        "skattsum": 1000.5,
+        "ytelseNettobeloep": 2600.87,
+        "bilagsnummer": "84172491",
+        "rettighetshaver": {
+          "aktoertype": "PERSON",
+          "ident": "1234567890g",
+          "navn": "Navn Navnesen"
+        }
+      },
+      {
+        "ytelsestype": "Økonomisk sosialhjelp",
+        "ytelsesperiode": {
+          "fom": "2023-05-29",
+          "tom": "2023-05-29"
+        },
+        "ytelseskomponentListe": [
+          {
+            "ytelseskomponenttype": "string",
+            "satsbeloep": 999,
+            "satstype": "string",
+            "satsantall": 2.5,
+            "ytelseskomponentbeloep": 42
+          }
+        ],
+        "ytelseskomponentersum": 111.22,
+        "trekkListe": [
+          {
+            "trekktype": "string",
+            "trekkbeloep": 100,
+            "kreditor": "string"
+          }
+        ],
+        "trekksum": 1000,
+        "skattListe": [
+          {
+            "skattebeloep": 99.9
+          }
+        ],
+        "skattsum": 1000.5,
+        "ytelseNettobeloep": 2311.13,
+        "bilagsnummer": "84172491",
+        "rettighetshaver": {
+          "aktoertype": "PERSON",
+          "ident": "12345678909",
+          "navn": "Navn Navnesen"
+        }
+      }
+    ]
+  },
+  {
+    "posteringsdato": "2023-05-29",
+    "utbetaltTil": {
+      "aktoertype": "PERSON",
+      "ident": "123345567",
+      "navn": "string"
+    },
+    "utbetalingNettobeloep": 8700,
+    "utbetalingsmelding": "string",
+    "utbetalingsdato": "2023-05-29",
+    "forfallsdato": "2022-08-24",
+    "utbetaltTilKonto": {
+      "kontonummer": "888777666555444",
+      "kontotype": "Norsk bank"
+    },
+    "utbetalingsmetode": "Til konto",
+    "utbetalingsstatus": "something",
+    "ytelseListe": [
+      {
+        "ytelsestype": "Dagpenger",
+        "ytelsesperiode": {
+          "fom": "2022-08-24",
+          "tom": "2022-08-24"
+        },
+        "ytelseskomponentListe": [
+          {
+            "ytelseskomponenttype": "string",
+            "satsbeloep": 999,
+            "satstype": "string",
+            "satsantall": 2.5,
+            "ytelseskomponentbeloep": 42
+          }
+        ],
+        "ytelseskomponentersum": 111.22,
+        "trekkListe": [
+          {
+            "trekktype": "string",
+            "trekkbeloep": 100,
+            "kreditor": "string"
+          }
+        ],
+        "trekksum": 1000,
+        "skattListe": [
+          {
+            "skattebeloep": 99.9
+          }
+        ],
+        "skattsum": 120015,
+        "ytelseNettobeloep": 3788,
+        "bilagsnummer": "84172491",
+        "rettighetshaver": {
+          "aktoertype": "PERSON",
+          "ident": "1234567890g",
+          "navn": "Navn Navnesen"
+        }
+      },
+      {
+        "ytelsestype": "Foreldrepenger",
+        "ytelsesperiode": {
+          "fom": "2022-01-04",
+          "tom": "2022-01-04"
+        },
+        "ytelseskomponentListe": [
+          {
+            "ytelseskomponenttype": "string",
+            "satsbeloep": 999,
+            "satstype": "string",
+            "satsantall": 2.5,
+            "ytelseskomponentbeloep": 42
+          }
+        ],
+        "ytelseskomponentersum": 111.22,
+        "trekkListe": [
+          {
+            "trekktype": "string",
+            "trekkbeloep": 100,
+            "kreditor": "string"
+          }
+        ],
+        "trekksum": 1000,
+        "skattListe": [
+          {
+            "skattebeloep": 99.9
+          }
+        ],
+        "skattsum": 120015,
+        "ytelseNettobeloep": 2600.87,
+        "bilagsnummer": "84172491",
+        "rettighetshaver": {
+          "aktoertype": "PERSON",
+          "ident": "1234567890g",
+          "navn": "Navn Navnesen"
+        }
+      }
+    ]
+  },
+  {
+    "posteringsdato": "2023-11-10",
+    "utbetaltTil": {
+      "aktoertype": "PERSON",
+      "ident": "123345567",
+      "navn": "string"
+    },
+    "utbetalingNettobeloep": 8700,
+    "utbetalingsmelding": "string",
+    "utbetalingsdato": "2023-11-10",
+    "forfallsdato": "2023-11-10",
+    "utbetaltTilKonto": {
+      "kontonummer": "888777666539876",
+      "kontotype": "Norsk bank"
+    },
+    "utbetalingsmetode": "Til konto",
+    "utbetalingsstatus": "something",
+    "ytelseListe": [
+      {
+        "ytelsestype": "Dagpenger",
+        "ytelsesperiode": {
+          "fom": "2023-07-29",
+          "tom": "2023-07-29"
+        },
+        "ytelseskomponentListe": [
+          {
+            "ytelseskomponenttype": "string",
+            "satsbeloep": 999,
+            "satstype": "string",
+            "satsantall": 2.5,
+            "ytelseskomponentbeloep": 42
+          }
+        ],
+        "ytelseskomponentersum": 111.22,
+        "trekkListe": [
+          {
+            "trekktype": "string",
+            "trekkbeloep": 100,
+            "kreditor": "string"
+          }
+        ],
+        "trekksum": 1000,
+        "skattListe": [
+          {
+            "skattebeloep": 99.9
+          }
+        ],
+        "skattsum": 1000.5,
+        "ytelseNettobeloep": 3788,
+        "bilagsnummer": "84172491",
+        "rettighetshaver": {
+          "aktoertype": "PERSON",
+          "ident": "1234567890g",
+          "navn": "Navn Navnesen"
+        }
+      },
+      {
+        "ytelsestype": "Foreldrepenger",
+        "ytelsesperiode": {
+          "fom": "2022-01-04",
+          "tom": "2022-01-04"
+        },
+        "ytelseskomponentListe": [
+          {
+            "ytelseskomponenttype": "string",
+            "satsbeloep": 999,
+            "satstype": "string",
+            "satsantall": 2.5,
+            "ytelseskomponentbeloep": 42
+          }
+        ],
+        "ytelseskomponentersum": 111.22,
+        "trekkListe": [
+          {
+            "trekktype": "string",
+            "trekkbeloep": 100,
+            "kreditor": "string"
+          }
+        ],
+        "trekksum": 1000,
+        "skattListe": [
+          {
+            "skattebeloep": 99.9
+          }
+        ],
+        "skattsum": 1000.5,
+        "ytelseNettobeloep": 2600.87,
+        "bilagsnummer": "84172491",
+        "rettighetshaver": {
+          "aktoertype": "PERSON",
+          "ident": "1234567890g",
+          "navn": "Navn Navnesen"
+        }
+      },
+      {
+        "ytelsestype": "Økonomisk sosialhjelp",
+        "ytelsesperiode": {
+          "fom": "2022-01-04",
+          "tom": "2022-01-04"
+        },
+        "ytelseskomponentListe": [
+          {
+            "ytelseskomponenttype": "string",
+            "satsbeloep": 999,
+            "satstype": "string",
+            "satsantall": 2.5,
+            "ytelseskomponentbeloep": 42
+          }
+        ],
+        "ytelseskomponentersum": 111.22,
+        "trekkListe": [
+          {
+            "trekktype": "string",
+            "trekkbeloep": 100,
+            "kreditor": "string"
+          }
+        ],
+        "trekksum": 1000,
+        "skattListe": [
+          {
+            "skattebeloep": 99.9
+          }
+        ],
+        "skattsum": 1000.5,
+        "ytelseNettobeloep": 2311.13,
+        "bilagsnummer": "84172491",
+        "rettighetshaver": {
+          "aktoertype": "PERSON",
+          "ident": "12345678909",
+          "navn": "Navn Navnesen"
+        }
+      }
+    ]
+  },
+  {
     "posteringsdato": "2023-08-24",
     "utbetaltTil": {
       "aktoertype": "PERSON",
@@ -9,9 +335,9 @@
     "utbetalingNettobeloep": 8700,
     "utbetalingsmelding": "string",
     "utbetalingsdato": "2023-08-24",
-    "forfallsdato": "2023-08-24",
+    "forfallsdato": "2023-05-29",
     "utbetaltTilKonto": {
-      "kontonummer": "12345612345",
+      "kontonummer": "888777666555444",
       "kontotype": "Norsk bank"
     },
     "utbetalingsmetode": "Til konto",
@@ -26,10 +352,10 @@
         "ytelseskomponentListe": [
           {
             "ytelseskomponenttype": "string",
-            "satsbeloep": 2000.0,
+            "satsbeloep": 999,
             "satstype": "string",
-            "satsantall": 4.0,
-            "ytelseskomponentbeloep": 8000.0
+            "satsantall": 2.5,
+            "ytelseskomponentbeloep": 42
           }
         ],
         "ytelseskomponentersum": 111.22,
@@ -66,7 +392,8 @@
             "ytelseskomponenttype": "string",
             "satsbeloep": 999,
             "satstype": "string",
-            "ytelseskomponentbeloep": 999
+            "satsantall": 2.5,
+            "ytelseskomponentbeloep": 42
           }
         ],
         "ytelseskomponentersum": 111.22,
@@ -104,7 +431,199 @@
             "satsbeloep": 999,
             "satstype": "string",
             "satsantall": 2.5,
-            "ytelseskomponentbeloep": 2497.5
+            "ytelseskomponentbeloep": 42
+          }
+        ],
+        "ytelseskomponentersum": 111.22,
+        "trekkListe": [
+          {
+            "trekktype": "string",
+            "trekkbeloep": 100,
+            "kreditor": "string"
+          }
+        ],
+        "trekksum": 1000,
+        "skattListe": [
+          {
+            "skattebeloep": 99.9
+          }
+        ],
+        "skattsum": 1000.5,
+        "ytelseNettobeloep": 2311.13,
+        "bilagsnummer": "84172491",
+        "rettighetshaver": {
+          "aktoertype": "PERSON",
+          "ident": "12345678909",
+          "navn": "Navn Navnesen"
+        }
+      }
+    ]
+  },
+  {
+    "posteringsdato": "2023-08-02",
+    "utbetaltTil": {
+      "aktoertype": "PERSON",
+      "ident": "123345567",
+      "navn": "string"
+    },
+    "utbetalingNettobeloep": 8700,
+    "utbetalingsmelding": "string",
+    "utbetalingsdato": "2023-08-02",
+    "forfallsdato": "2023-08-02",
+    "utbetaltTilKonto": {
+      "kontonummer": "888777666555444",
+      "kontotype": "Norsk bank"
+    },
+    "utbetalingsmetode": "Til konto",
+    "utbetalingsstatus": "something",
+    "ytelseListe": [
+      {
+        "ytelsestype": "Foreldrepenger",
+        "ytelsesperiode": {
+          "fom": "2023-08-02",
+          "tom": "2023-08-02"
+        },
+        "ytelseskomponentListe": [
+          {
+            "ytelseskomponenttype": "string",
+            "satsbeloep": 999,
+            "satstype": "string",
+            "satsantall": 2.5,
+            "ytelseskomponentbeloep": 42
+          }
+        ],
+        "ytelseskomponentersum": 111.22,
+        "trekkListe": [
+          {
+            "trekktype": "string",
+            "trekkbeloep": 100,
+            "kreditor": "string"
+          }
+        ],
+        "trekksum": 1000,
+        "skattListe": [
+          {
+            "skattebeloep": 99.9
+          }
+        ],
+        "skattsum": 1000.5,
+        "ytelseNettobeloep": 2600.87,
+        "bilagsnummer": "84172491",
+        "rettighetshaver": {
+          "aktoertype": "PERSON",
+          "ident": "1234567890g",
+          "navn": "Navn Navnesen"
+        }
+      },
+      {
+        "ytelsestype": "Økonomisk sosialhjelp",
+        "ytelsesperiode": {
+          "fom": "2023-08-02",
+          "tom": "2023-08-02"
+        },
+        "ytelseskomponentListe": [
+          {
+            "ytelseskomponenttype": "string",
+            "satsbeloep": 999,
+            "satstype": "string",
+            "satsantall": 2.5,
+            "ytelseskomponentbeloep": 42
+          }
+        ],
+        "ytelseskomponentersum": 111.22,
+        "trekkListe": [
+          {
+            "trekktype": "string",
+            "trekkbeloep": 100,
+            "kreditor": "string"
+          }
+        ],
+        "trekksum": 1000,
+        "skattListe": [
+          {
+            "skattebeloep": 99.9
+          }
+        ],
+        "skattsum": 1000.5,
+        "ytelseNettobeloep": 2311.13,
+        "bilagsnummer": "84172491",
+        "rettighetshaver": {
+          "aktoertype": "PERSON",
+          "ident": "12345678909",
+          "navn": "Navn Navnesen"
+        }
+      }
+    ]
+  },
+  {
+    "posteringsdato": "2022-08-02",
+    "utbetaltTil": {
+      "aktoertype": "PERSON",
+      "ident": "123345567",
+      "navn": "string"
+    },
+    "utbetalingNettobeloep": 8700,
+    "utbetalingsmelding": "string",
+    "utbetalingsdato": "2023-08-02",
+    "forfallsdato": "2023-08-02",
+    "utbetaltTilKonto": {
+      "kontonummer": "888777666555444",
+      "kontotype": "Norsk bank"
+    },
+    "utbetalingsmetode": "Til konto",
+    "utbetalingsstatus": "something",
+    "ytelseListe": [
+      {
+        "ytelsestype": "Foreldrepenger",
+        "ytelsesperiode": {
+          "fom": "2023-08-02",
+          "tom": "2023-08-02"
+        },
+        "ytelseskomponentListe": [
+          {
+            "ytelseskomponenttype": "string",
+            "satsbeloep": 999,
+            "satstype": "string",
+            "satsantall": 2.5,
+            "ytelseskomponentbeloep": 42
+          }
+        ],
+        "ytelseskomponentersum": 111.22,
+        "trekkListe": [
+          {
+            "trekktype": "string",
+            "trekkbeloep": 100,
+            "kreditor": "string"
+          }
+        ],
+        "trekksum": 1000,
+        "skattListe": [
+          {
+            "skattebeloep": 99.9
+          }
+        ],
+        "skattsum": 1000.5,
+        "ytelseNettobeloep": 2600.87,
+        "bilagsnummer": "84172491",
+        "rettighetshaver": {
+          "aktoertype": "PERSON",
+          "ident": "1234567890g",
+          "navn": "Navn Navnesen"
+        }
+      },
+      {
+        "ytelsestype": "Økonomisk sosialhjelp",
+        "ytelsesperiode": {
+          "fom": "2023-08-02",
+          "tom": "2023-08-02"
+        },
+        "ytelseskomponentListe": [
+          {
+            "ytelseskomponenttype": "string",
+            "satsbeloep": 999,
+            "satstype": "string",
+            "satsantall": 2.5,
+            "ytelseskomponentbeloep": 42
           }
         ],
         "ytelseskomponentersum": 111.22,
