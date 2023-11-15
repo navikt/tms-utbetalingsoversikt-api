@@ -37,7 +37,7 @@ dependencies {
     implementation(Ktor.Server.netty)
     implementation(Ktor.Server.statusPages)
     implementation(DittNAVCommonLib.utils)
-    implementation(TmsCommobLibBeta.commonLib)
+    implementation(TmsCommonLibBeta.commonLib)
     implementation(TmsKtorTokenSupport.tokendingsExchange)
     implementation(TmsKtorTokenSupport.idportenSidecar)
     implementation("io.ktor:ktor-server-core-jvm:2.3.2")

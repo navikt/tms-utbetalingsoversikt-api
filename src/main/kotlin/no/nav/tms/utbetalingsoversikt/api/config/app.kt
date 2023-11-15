@@ -91,9 +91,9 @@ fun Application.utbetalingApi(
     }
     install(StatusPages) {
         exception<Throwable> { call, cause ->
-            MDC.put("origin", cause::class.simpleName)
             when (cause) {
                 is IllegalYtelseIdException -> {
+                    log.warn { cause.message }
                     call.respondText(text = cause.message ?: "Ukjent ytelse-id feil", status = BadRequest)
                 }
 
@@ -103,12 +103,11 @@ fun Application.utbetalingApi(
                 }
 
                 is UtbetalingSerializationException -> {
-                    log.error { cause.message }
-                    log.error { cause.stackTrace }
+                    log.error(cause) { cause.message }
                 }
 
                 else -> {
-                    secureLog.error(cause) { "Uventet feil. ${cause.message}" }
+                    secureLog.error(cause) { "Uventet feil" }
                     log.error { "Uventet feil. Svarer med feilkode." }
                     call.respondText("Feil i baksystem.", status = InternalServerError)
                 }
