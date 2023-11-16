@@ -145,7 +145,7 @@ class UtbetalingRoutesV2Test {
     }
 
     @Test
-    fun `henter siste utbetalinger`() = testApplication {
+    fun `returnerer siste og neste utbetalinger`() = testApplication {
         testApi(
             SokosUtbetalingConsumer(
                 client = sokosHttpClient,
@@ -180,7 +180,7 @@ class UtbetalingRoutesV2Test {
             response["hasUtbetaling"].asBoolean() shouldBe true
             response["hasKommende"].asBoolean() shouldBe true
             response["sisteUtbetaling"].apply {
-                require(this!=null && !this.isNull){"sisteUtbetaling har ikke innhold"}
+                require(this != null && !this.isNull) { "sisteUtbetaling har ikke innhold" }
                 this["utbetaling"].asInt() shouldBe 3788
                 this["dato"].asText() shouldBe "2023-11-10"
                 this["ytelse"].asText() shouldBe "Dagpenger"
@@ -191,7 +191,7 @@ class UtbetalingRoutesV2Test {
             }
 
             response["kommende"].apply {
-                require(this!=null && !this.isNull){"kommendeobjekt har ikke innhold"}
+                require(this != null && !this.isNull) { "kommendeobjekt har ikke innhold" }
                 this["utbetaling"].asInt() shouldBe 3788
                 this["ytelse"].asText() shouldBe "Dagpenger"
                 withClue("id ikke tilstede i respons") {
@@ -200,6 +200,73 @@ class UtbetalingRoutesV2Test {
                 this["kontonummer"].asText() shouldBe "xxxxx55444"
                 LocalDate.parse(this["dato"].asText()) shouldBe LocalDate.now().plusDays(1)
             }
+        }
+    }
+
+    @Test
+    fun `returnerer siste utbetaling og tomt for neste utbetaling`() = testApplication {
+        testApi(
+            SokosUtbetalingConsumer(
+                client = sokosHttpClient,
+                baseUrl = URL(testHost),
+                tokendingsService = tokendingsMockk,
+                sokosUtbetaldataClientId = "test:client:id"
+            )
+        )
+        val tidligereUtbetalingerJson = File("src/test/resources/siste_utbetaling_test.json").readText()
+
+        withExternalServiceResponse(tidligereUtbetalingerJson) {
+            val fomtom = objectMapper.readTree(call.receiveText())
+            val expectedFom = LocalDate.now().minusMonths(3)
+            val expectedTom = LocalDate.now().plusMonths(3).plusDays(1)
+            val actualFom = LocalDate.parse(fomtom["periode"]["fom"].asText())
+            val actualTom = LocalDate.parse(fomtom["periode"]["tom"].asText())
+            actualFom == expectedFom && actualTom == expectedTom
+        }
+
+        client.get("/utbetalinger/siste").assert {
+            status shouldBe HttpStatusCode.OK
+            val response = objectMapper.readTree(bodyAsText())
+            response["hasUtbetaling"].asBoolean() shouldBe true
+            response["hasKommende"].asBoolean() shouldBe false
+            response["sisteUtbetaling"].isNull shouldBe false
+            response["kommende"].isNull shouldBe true
+        }
+    }
+    @Test
+    fun `returnerer neste utbetaling og tomt for siste utbetaling`() = testApplication {
+        testApi(
+            SokosUtbetalingConsumer(
+                client = sokosHttpClient,
+                baseUrl = URL(testHost),
+                tokendingsService = tokendingsMockk,
+                sokosUtbetaldataClientId = "test:client:id"
+            )
+        )
+        withExternalServiceResponse(
+            body = """[
+          ${nesteYtelseJson(1)},    
+          ${nesteYtelseJson(15)},    
+          ${nesteYtelseJson(20)}    
+           ]
+        """.trimIndent()
+        ) {
+            val fomtom = objectMapper.readTree(call.receiveText())
+            val expectedFom = LocalDate.now().minusMonths(3)
+            val expectedTom = LocalDate.now().plusMonths(3).plusDays(1)
+            val actualFom = LocalDate.parse(fomtom["periode"]["fom"].asText())
+            val actualTom = LocalDate.parse(fomtom["periode"]["tom"].asText())
+            actualFom == expectedFom && actualTom == expectedTom
+        }
+
+        client.get("/utbetalinger/siste").assert {
+            status shouldBe HttpStatusCode.OK
+            val response = objectMapper.readTree(bodyAsText())
+
+            response["hasUtbetaling"].asBoolean() shouldBe false
+            response["hasKommende"].asBoolean() shouldBe true
+            response["sisteUtbetaling"].isNull shouldBe true
+            response["kommende"].isNull shouldBe false
         }
     }
 
