@@ -47,58 +47,6 @@ class UtbetalingRoutesV2Test {
     private val spesifikkUtbetalingRespons = File("src/test/resources/utbetaling_detalj_test.json").readText()
     private val utbetaltTilRespons = File("src/test/resources/utbetaling_detalj_utbetalttil_test.json").readText()
 
-    /*
-    @Test
-    fun `oppsumerer alle ytelser i periode`() = testApplication {
-        testApi(
-            SokosUtbetalingConsumer(
-                client = sokosHttpClient,
-                baseUrl = URL(testHost),
-                tokendingsService = tokendingsMockk,
-                sokosUtbetaldataClientId = "test:client:id"
-            )
-        )
-
-        withExternalServiceResponse(
-            5.tidligereYtelser(
-                expectedKontantstøtte = 2600.12,
-                expectedForeldrepenger = 79467.0,
-                expectedØkonomiskSosialhjelp = 10365.0,
-                expectedTrekk = 7659.0,
-                expectedUtbetalt = 92432.0 - 7659.0
-            )
-        ) { true }
-
-
-        client.get("/utbetalinger/alle").assert {
-            status shouldBe HttpStatusCode.OK
-            val responseBody = objectMapper.readTree(bodyAsText())
-            responseBody["utbetalingerIPeriode"]["ytelser"].toList().apply {
-                withClue("Foreldrepenger") {
-                    find { it["ytelse"].asText() == "Foreldrepenger" }!!["beløp"].asDouble() shouldBe (79467.0 * 5)
-                }
-                withClue("Økonomisk Sosialhjelp") {
-                    find { it["ytelse"].asText() == "Økonomisk Sosialhjelp" }!!["beløp"].asDouble() shouldBe (10365.0 * 5)
-
-                }
-                withClue("Kontantstøtte") {
-                    find { it["ytelse"].asText() == "Kontantstøtte" }!!["beløp"].asDouble() shouldBe (2600.12.toBigDecimal() * 5.0.toBigDecimal()).toDouble()
-                }
-            }
-            val expectedTotalBrutto = (79467.0 + 10365.0 + 2600.12) * 5
-            withClue("trekk") {
-                responseBody["utbetalingerIPeriode"]["trekk"].asDouble() shouldBe 7659.0
-            }
-            withClue("brutto") {
-                responseBody["utbetalingerIPeriode"]["brutto"].asDouble() shouldBe expectedTotalBrutto
-            }
-
-            withClue("netto") {
-                responseBody["utbetalingerIPeriode"]["netto"].asDouble() shouldBe expectedTotalBrutto - 7659.0
-            }
-        }
-    }*/
-
     @Test
     fun `henter alle utbetalinger i kronologisk rekkefølge`() = testApplication {
         testApi(
@@ -197,7 +145,7 @@ class UtbetalingRoutesV2Test {
     }
 
     @Test
-    fun `henter siste utbetalinger`() = testApplication {
+    fun `returnerer siste og neste utbetalinger`() = testApplication {
         testApi(
             SokosUtbetalingConsumer(
                 client = sokosHttpClient,
@@ -206,20 +154,119 @@ class UtbetalingRoutesV2Test {
                 sokosUtbetaldataClientId = "test:client:id"
             )
         )
-        val responseJsonText = File("src/test/resources/siste_utbetaling_test.json").readText()
-        withExternalServiceResponse(responseJsonText) { true }
+        val tidligereUtbetalingerJson = File("src/test/resources/siste_utbetaling_test.json").readText()
+
+        withExternalServiceResponse(
+            body = """
+          ${tidligereUtbetalingerJson.substring(0, tidligereUtbetalingerJson.lastIndexOf("]"))},
+          ${nesteYtelseJson(1)},    
+          ${nesteYtelseJson(15)},    
+          ${nesteYtelseJson(20)}    
+           ]
+        """.trimIndent()
+        ) {
+            val fomtom = objectMapper.readTree(call.receiveText())
+            val expectedFom = LocalDate.now().minusMonths(3)
+            val expectedTom = LocalDate.now().plusMonths(3).plusDays(1)
+            val actualFom = LocalDate.parse(fomtom["periode"]["fom"].asText())
+            val actualTom = LocalDate.parse(fomtom["periode"]["tom"].asText())
+            actualFom == expectedFom && actualTom == expectedTom
+        }
+
         client.get("/utbetalinger/siste").assert {
             status shouldBe HttpStatusCode.OK
-            objectMapper.readTree(bodyAsText()).apply {
-                this["harUtbetaling"].asBoolean() shouldBe true
-                this["sisteUtbetaling"].asInt() shouldBe 8700
-                this["ytelser"].let { objectMapper.convertValue(it, Map::class.java) }.apply {
-                    this["Dagpenger"] shouldBe 3788
-                    this["Foreldrepenger"] shouldBe 2600.87
-                    this["Økonomisk sosialhjelp"] shouldBe 2311.13
+            val response = objectMapper.readTree(bodyAsText())
 
+            response["hasUtbetaling"].asBoolean() shouldBe true
+            response["hasKommende"].asBoolean() shouldBe true
+            response["sisteUtbetaling"].apply {
+                require(this != null && !this.isNull) { "sisteUtbetaling har ikke innhold" }
+                this["utbetaling"].asInt() shouldBe 3788
+                this["dato"].asText() shouldBe "2023-11-10"
+                this["ytelse"].asText() shouldBe "Dagpenger"
+                withClue("id ikke tilstede i respons") {
+                    this["id"].isNull shouldNotBe true
                 }
+                this["kontonummer"].asText() shouldBe "xxxxx39876"
             }
+
+            response["kommende"].apply {
+                require(this != null && !this.isNull) { "kommendeobjekt har ikke innhold" }
+                this["utbetaling"].asInt() shouldBe 3788
+                this["ytelse"].asText() shouldBe "Dagpenger"
+                withClue("id ikke tilstede i respons") {
+                    this["id"].isNull shouldNotBe true
+                }
+                this["kontonummer"].asText() shouldBe "xxxxx55444"
+                LocalDate.parse(this["dato"].asText()) shouldBe LocalDate.now().plusDays(1)
+            }
+        }
+    }
+
+    @Test
+    fun `returnerer siste utbetaling og tomt for neste utbetaling`() = testApplication {
+        testApi(
+            SokosUtbetalingConsumer(
+                client = sokosHttpClient,
+                baseUrl = URL(testHost),
+                tokendingsService = tokendingsMockk,
+                sokosUtbetaldataClientId = "test:client:id"
+            )
+        )
+        val tidligereUtbetalingerJson = File("src/test/resources/siste_utbetaling_test.json").readText()
+
+        withExternalServiceResponse(tidligereUtbetalingerJson) {
+            val fomtom = objectMapper.readTree(call.receiveText())
+            val expectedFom = LocalDate.now().minusMonths(3)
+            val expectedTom = LocalDate.now().plusMonths(3).plusDays(1)
+            val actualFom = LocalDate.parse(fomtom["periode"]["fom"].asText())
+            val actualTom = LocalDate.parse(fomtom["periode"]["tom"].asText())
+            actualFom == expectedFom && actualTom == expectedTom
+        }
+
+        client.get("/utbetalinger/siste").assert {
+            status shouldBe HttpStatusCode.OK
+            val response = objectMapper.readTree(bodyAsText())
+            response["hasUtbetaling"].asBoolean() shouldBe true
+            response["hasKommende"].asBoolean() shouldBe false
+            response["sisteUtbetaling"].isNull shouldBe false
+            response["kommende"].isNull shouldBe true
+        }
+    }
+    @Test
+    fun `returnerer neste utbetaling og tomt for siste utbetaling`() = testApplication {
+        testApi(
+            SokosUtbetalingConsumer(
+                client = sokosHttpClient,
+                baseUrl = URL(testHost),
+                tokendingsService = tokendingsMockk,
+                sokosUtbetaldataClientId = "test:client:id"
+            )
+        )
+        withExternalServiceResponse(
+            body = """[
+          ${nesteYtelseJson(1)},    
+          ${nesteYtelseJson(15)},    
+          ${nesteYtelseJson(20)}    
+           ]
+        """.trimIndent()
+        ) {
+            val fomtom = objectMapper.readTree(call.receiveText())
+            val expectedFom = LocalDate.now().minusMonths(3)
+            val expectedTom = LocalDate.now().plusMonths(3).plusDays(1)
+            val actualFom = LocalDate.parse(fomtom["periode"]["fom"].asText())
+            val actualTom = LocalDate.parse(fomtom["periode"]["tom"].asText())
+            actualFom == expectedFom && actualTom == expectedTom
+        }
+
+        client.get("/utbetalinger/siste").assert {
+            status shouldBe HttpStatusCode.OK
+            val response = objectMapper.readTree(bodyAsText())
+
+            response["hasUtbetaling"].asBoolean() shouldBe false
+            response["hasKommende"].asBoolean() shouldBe true
+            response["sisteUtbetaling"].isNull shouldBe true
+            response["kommende"].isNull shouldBe false
         }
     }
 
@@ -238,10 +285,10 @@ class UtbetalingRoutesV2Test {
         client.get("/utbetalinger/siste").assert {
             status shouldBe HttpStatusCode.OK
             objectMapper.readTree(bodyAsText()).apply {
-                this["harUtbetaling"].asBoolean() shouldBe false
-                this["sisteUtbetaling"].asDouble() shouldBe 0.0
-                this["ytelser"].toList() shouldBe emptyList()
-                this["dato"].isNull shouldBe true
+                this["hasUtbetaling"].asBoolean() shouldBe false
+                this["hasKommende"].asBoolean() shouldBe false
+                this["sisteUtbetaling"].isNull shouldBe true
+                this["kommende"].isNull shouldBe true
             }
         }
     }

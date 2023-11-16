@@ -37,11 +37,12 @@ dependencies {
     implementation(Ktor.Server.netty)
     implementation(Ktor.Server.statusPages)
     implementation(DittNAVCommonLib.utils)
-    implementation(TmsCommonLib.commonLib)
+    implementation(TmsCommonLibBeta.commonLib)
     implementation(TmsKtorTokenSupport.tokendingsExchange)
     implementation(TmsKtorTokenSupport.idportenSidecar)
     implementation("io.ktor:ktor-server-core-jvm:2.3.2")
     implementation("io.ktor:ktor-server-host-common-jvm:2.3.2")
+
 
     testImplementation(Junit.api)
     testImplementation(Junit.engine)

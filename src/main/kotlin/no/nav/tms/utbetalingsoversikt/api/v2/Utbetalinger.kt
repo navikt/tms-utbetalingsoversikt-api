@@ -4,6 +4,9 @@ import kotlinx.serialization.Serializable
 import no.nav.tms.utbetalingsoversikt.api.config.LocalDateSerializer
 import no.nav.tms.utbetalingsoversikt.api.utbetaling.YtelseIdUtil
 import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.external.UtbetalingEkstern
+import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.external.UtbetalingEkstern.Companion.nesteUtbetaling
+import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.external.UtbetalingEkstern.Companion.sisteUtbetaling
+import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.external.UtbetalingEkstern.Companion.toLocalDate
 import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.external.YtelseEkstern
 import java.time.LocalDate
 
@@ -36,49 +39,54 @@ data class UtbetalingForYtelse(
                 .flatten()
     }
 }
-
 @Serializable
-data class SisteUtbetalingDetaljer(
-    @Serializable(with = LocalDateSerializer::class) val dato: LocalDate?,
-    val sisteUtbetaling: Double?,
-    val ytelser: Map<String, Double>,
-    val harUtbetaling: Boolean
+data class SisteOgNesteUtbetaling(
+    val hasUtbetaling: Boolean,
+    val hasKommende: Boolean,
+    val sisteUtbetaling: UtbetalingOppsummering?,
+    val kommende: UtbetalingOppsummering?
 ) {
     companion object {
-        fun fromSokosRepsonse(sokosResponse: List<UtbetalingEkstern>): SisteUtbetalingDetaljer =
-            sokosResponse
-                .takeIf { it.isNotEmpty() }
-                ?.let { eksterneUtbetalinger ->
-                    eksterneUtbetalinger
-                        .filter { it.utbetalingsdato != null }
-                        .maxBy { it.utbetalingsdato.toLocalDate() }
-                        .let { sisteUtbetaling ->
-                            SisteUtbetalingDetaljer(
-                                dato = sisteUtbetaling.utbetalingsdato.toLocalDate(),
-                                sisteUtbetaling = sisteUtbetaling.utbetalingNettobeloep,
-                                ytelser = sisteUtbetaling.ytelseListe.associate {
-                                    (it.ytelsestype ?: "ukjent") to it.ytelseNettobeloep
-                                },
-                                harUtbetaling = true
-                            )
-                        }
 
+        fun fromSokosResponse(utbetalinger: List<UtbetalingEkstern>): SisteOgNesteUtbetaling {
+            val siste = utbetalinger.sisteUtbetaling()
+            val nesteUtbetaling = utbetalinger.nesteUtbetaling()
+
+            return SisteOgNesteUtbetaling(
+                hasUtbetaling = siste != null,
+                hasKommende = nesteUtbetaling != null,
+                sisteUtbetaling = siste?.let { utbetalingEkstern ->
+                    val ytelse = utbetalingEkstern.ytelseListe.first()
+                    UtbetalingOppsummering(
+                        id = YtelseIdUtil.calculateId(utbetalingEkstern.posteringsdato, ytelse),
+                        utbetaling = ytelse.ytelseNettobeloep,
+                        kontonummer = utbetalingEkstern.maskertKontonummer(),
+                        ytelse = ytelse.ytelsestype ?: "Diverse",
+                        dato = LocalDate.parse(utbetalingEkstern.utbetalingsdato)
+                    )
+                },
+                kommende = nesteUtbetaling?.let { utbetalingEkstern ->
+                    val ytelse = utbetalingEkstern.ytelseListe.first()
+                    UtbetalingOppsummering(
+                        id = YtelseIdUtil.calculateId(utbetalingEkstern.posteringsdato, ytelse),
+                        utbetaling = ytelse.ytelseNettobeloep,
+                        kontonummer = utbetalingEkstern.maskertKontonummer(),
+                        ytelse = ytelse.ytelsestype ?: "Diverse",
+                        dato = LocalDate.parse(utbetalingEkstern.forfallsdato)
+                    )
                 }
-                ?: SisteUtbetalingDetaljer(
-                    sisteUtbetaling = 0.0,
-                    ytelser = mapOf(),
-                    harUtbetaling = false,
-                    dato = null
-                )
+            )
+        }
     }
 }
 
-typealias Utbetalingsdato = String
-
-private fun Utbetalingsdato?.toLocalDate(): LocalDate = try {
-    LocalDate.parse(this)
-} catch (e: Exception) {
-    throw UtbetalingSerializationException("Fant ikke utbetalingsdato, ${e.message}")
-}
+@Serializable
+class UtbetalingOppsummering(
+    @Serializable(with = LocalDateSerializer::class) val dato: LocalDate,
+    val id: String,
+    val utbetaling: Double,
+    val ytelse: String,
+    val kontonummer: String, //fiks maskering!
+)
 
 class UtbetalingSerializationException(message: String) : Exception(message)

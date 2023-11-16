@@ -1,6 +1,7 @@
 package no.nav.tms.utbetalingsoversikt.api.ytelse.domain.external
 
 import kotlinx.serialization.Serializable
+import no.nav.tms.utbetalingsoversikt.api.v2.UtbetalingSerializationException
 import java.time.LocalDate
 
 @Serializable
@@ -17,6 +18,22 @@ data class UtbetalingEkstern(
     val ytelseListe: List<YtelseEkstern> = emptyList(),
 ) {
     fun harKontonummer() = utbetaltTilKonto != null && utbetaltTilKonto.kontonummer.isNotBlank()
+    fun maskertKontonummer(): String {
+        val kontonummer = utbetaltTilKonto?.kontonummer
+        return when {
+            !harKontonummer() -> utbetalingsmetode
+            kontonummer != null && kontonummer.length <= 5 -> kontonummer
+            else -> maskAllButFinalCharacters(kontonummer?.replace(" ", ""), 5)
+        }
+    }
+
+    private fun maskAllButFinalCharacters(kontonummer: String?, numberUnmasked: Int): String =
+        kontonummer
+            ?.let {
+                val numberMaskedChars = it.length - numberUnmasked
+                return "${"x".repeat(5)}${it.substring(numberMaskedChars)}"
+            } ?: ""
+
     val erUtbetalt = utbetalingsdato != null
 
     fun isInPeriod(fomDate: LocalDate, tomDate: LocalDate): Boolean {
@@ -27,8 +44,26 @@ data class UtbetalingEkstern(
         }
     }
 
-    fun ytelsesdato() = utbetalingsdato?.let { LocalDate.parse(it) }
+    fun ytelsesdato(): LocalDate? = utbetalingsdato?.let { LocalDate.parse(it) }
         ?: forfallsdato?.let { LocalDate.parse(it) }
+
+    companion object {
+        fun List<UtbetalingEkstern>.sisteUtbetaling(): UtbetalingEkstern? =
+            this.filter { it.utbetalingsdato != null }
+                .maxByOrNull { it.utbetalingsdato.toLocalDate() }
+
+        fun List<UtbetalingEkstern>.nesteUtbetaling(): UtbetalingEkstern? =
+            this.filter { (it.ytelsesdato()?.isAfter(LocalDate.now()) ?: false) }
+                .minByOrNull { it.forfallsdato.toLocalDate() }
+
+        fun String?.toLocalDate(): LocalDate = try {
+            LocalDate.parse(this)
+        } catch (e: Exception) {
+            throw UtbetalingSerializationException("Fant ikke utbetalingsdato, ${e.message}")
+        }
+
+    }
+
 }
 
 

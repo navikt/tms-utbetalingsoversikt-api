@@ -10,15 +10,24 @@ parameter : Ingen
 
 ```json
 {
-  "__dato_format__": "yyyyMMdd",
-  "dato": "string",
-  "harUtbetaling": "boolean",
-  "sisteUtbetaling": "number",
-  "ytelser": {
-    "__map_description__": "map med key=ytelsesId og value=beløp",
-    "__map_example__": "AAP:8990",
-    "<ytelseskode>": "number"
+  "hasUtbetaling": "boolean",
+  "hasKommende": "boolean",
+  "sisteUtbetaling": {
+    "utbetaling": "number",
+    "dato": "string",
+    "ytelse": "number",
+    "id": "number",
+    "kontonummer": "string"
+  },
+  "kommende": {
+    "utbetaling": "number",
+    "dato": "string",
+    "ytelse": "number",
+    "id": "string",
+    "kontonummer": "string"
   }
+}
+  
 }
 ```
 
