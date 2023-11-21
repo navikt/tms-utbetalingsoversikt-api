@@ -17,10 +17,16 @@ tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "17"
 }
 
+
 repositories {
-    mavenLocal()
-    maven("https://jitpack.io")
     mavenCentral()
+    maven("https://maven.pkg.github.com/navikt/*") {
+        credentials {
+            username = System.getenv("GITHUB_ACTOR")?: "x-access-token"
+            password = System.getenv("GITHUB_TOKEN")?: project.findProperty("githubPassword") as String
+        }
+    }
+    mavenLocal()
 }
 
 dependencies {
@@ -36,8 +42,9 @@ dependencies {
     implementation(Ktor.Server.defaultHeaders)
     implementation(Ktor.Server.netty)
     implementation(Ktor.Server.statusPages)
-    implementation(DittNAVCommonLib.utils)
-    implementation(TmsCommonLibBeta.commonLib)
+    implementation(TmsCommonLib.utils)
+    implementation(TmsCommonLib.metrics)
+    implementation(TmsCommonLib.observability)
     implementation(TmsKtorTokenSupport.tokendingsExchange)
     implementation(TmsKtorTokenSupport.idportenSidecar)
     implementation("io.ktor:ktor-server-core-jvm:2.3.2")
