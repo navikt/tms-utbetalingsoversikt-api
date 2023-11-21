@@ -20,8 +20,8 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.util.pipeline.*
 import nav.no.tms.common.metrics.installTmsMicrometerMetrics
-import no.nav.personbruker.dittnav.common.util.config.StringEnvVar
-import no.nav.personbruker.dittnav.common.util.config.UrlEnvVar
+import no.nav.tms.common.util.config.StringEnvVar
+import no.nav.tms.common.util.config.UrlEnvVar
 import no.nav.tms.token.support.idporten.sidecar.IdPortenLogin
 import no.nav.tms.token.support.idporten.sidecar.LevelOfAssurance.SUBSTANTIAL
 import no.nav.tms.token.support.idporten.sidecar.idPorten
