@@ -9,7 +9,6 @@ import io.ktor.http.HttpStatusCode.Companion.InternalServerError
 import io.ktor.http.HttpStatusCode.Companion.NotFound
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
-import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
@@ -28,16 +27,12 @@ import no.nav.tms.token.support.idporten.sidecar.idPorten
 import no.nav.tms.token.support.idporten.sidecar.user.IdportenUser
 import no.nav.tms.token.support.idporten.sidecar.user.IdportenUserFactory
 import no.nav.tms.token.support.tokendings.exchange.TokendingsServiceBuilder
-import no.nav.tms.utbetalingsoversikt.api.utbetaling.UtbetalingService
 import no.nav.tms.utbetalingsoversikt.api.utbetaling.IllegalYtelseIdException
 import no.nav.tms.utbetalingsoversikt.api.utbetaling.UtbetalingNotFoundException
-import no.nav.tms.utbetalingsoversikt.api.utbetaling.utbetalingApi
 import no.nav.tms.utbetalingsoversikt.api.v2.UtbetalingSerializationException
 import no.nav.tms.utbetalingsoversikt.api.v2.utbetalingRoutesV2
-import no.nav.tms.utbetalingsoversikt.api.ytelse.HovedytelseService
 import no.nav.tms.utbetalingsoversikt.api.ytelse.SokosUtbetalingConsumer
 import observability.ApiMdc
-import org.slf4j.MDC
 
 fun main() {
     val httpClient = HttpClientBuilder.build()
@@ -133,7 +128,6 @@ fun Application.utbetalingApi(
     routing {
         healthApi()
         authenticate {
-            utbetalingApi(UtbetalingService(HovedytelseService(sokosUtbetalingConsumer)))
             utbetalingRoutesV2(sokosUtbetalingConsumer)
         }
     }
