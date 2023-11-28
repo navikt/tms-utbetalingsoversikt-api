@@ -1,7 +1,8 @@
-package no.nav.tms.utbetalingsoversikt.api.v2
+package no.nav.tms.utbetalingsoversikt.api.utbetaling
 
 import io.kotest.assertions.withClue
 import io.kotest.matchers.shouldBe
+import no.nav.tms.utbetalingsoversikt.api.utbetaling.UtbetalingerIPeriode
 import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.external.BankkontoEkstern
 import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.external.UtbetalingEkstern
 import org.junit.jupiter.api.Test

@@ -1,4 +1,4 @@
-package no.nav.tms.utbetalingsoversikt.api.v2
+package no.nav.tms.utbetalingsoversikt.api.utbetaling
 
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
@@ -27,7 +27,6 @@ import no.nav.tms.token.support.idporten.sidecar.mock.idPortenMock
 import no.nav.tms.token.support.tokendings.exchange.TokendingsService
 import no.nav.tms.utbetalingsoversikt.api.config.jsonConfig
 import no.nav.tms.utbetalingsoversikt.api.config.utbetalingApi
-import no.nav.tms.utbetalingsoversikt.api.utbetaling.YtelseIdUtil
 import no.nav.tms.utbetalingsoversikt.api.ytelse.SokosUtbetalingConsumer
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
@@ -36,7 +35,7 @@ import java.net.URL
 import java.time.LocalDate
 
 
-class UtbetalingRoutesV2Test {
+class UtbetalingRoutesTest {
     private val objectMapper = jacksonObjectMapper()
     private val testHost = "https://utbetaling.ekstern.test"
     private val tokendingsMockk = mockk<TokendingsService>().also {

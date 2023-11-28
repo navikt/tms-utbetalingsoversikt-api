@@ -29,8 +29,8 @@ import no.nav.tms.token.support.idporten.sidecar.user.IdportenUserFactory
 import no.nav.tms.token.support.tokendings.exchange.TokendingsServiceBuilder
 import no.nav.tms.utbetalingsoversikt.api.utbetaling.IllegalYtelseIdException
 import no.nav.tms.utbetalingsoversikt.api.utbetaling.UtbetalingNotFoundException
-import no.nav.tms.utbetalingsoversikt.api.v2.UtbetalingSerializationException
-import no.nav.tms.utbetalingsoversikt.api.v2.utbetalingRoutesV2
+import no.nav.tms.utbetalingsoversikt.api.utbetaling.UtbetalingSerializationException
+import no.nav.tms.utbetalingsoversikt.api.utbetaling.utbetalingRoutes
 import no.nav.tms.utbetalingsoversikt.api.ytelse.SokosUtbetalingConsumer
 import observability.ApiMdc
 
@@ -128,7 +128,7 @@ fun Application.utbetalingApi(
     routing {
         healthApi()
         authenticate {
-            utbetalingRoutesV2(sokosUtbetalingConsumer)
+            utbetalingRoutes(sokosUtbetalingConsumer)
         }
     }
 
