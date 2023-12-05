@@ -125,7 +125,6 @@ fun Application.utbetalingApi(
     installTmsMicrometerMetrics {
         setupMetricsRoute = true
         installMicrometerPlugin = true
-        maskPathParams("/tms-utbetalingsoversikt-api/utbetalinger/{ytelseId}")
     }
 
     install(ApiMdc)
