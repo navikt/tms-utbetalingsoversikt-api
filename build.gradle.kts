@@ -43,7 +43,7 @@ dependencies {
     implementation(Ktor.Server.netty)
     implementation(Ktor.Server.statusPages)
     implementation(TmsCommonLib.utils)
-    implementation(TmsCommonLib.metrics)
+    implementation(TmsCommonLibBeta.metrics)
     implementation(TmsCommonLib.observability)
     implementation(TmsKtorTokenSupport.tokendingsExchange)
     implementation(TmsKtorTokenSupport.idportenSidecar)

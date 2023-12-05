@@ -1,4 +1,4 @@
 
 object TmsCommonLibBeta: default.TmsCommonLibDefaults{
-    override val version get() = "1.7.2"
+    override val version get() = "3.0.0"
 }
