@@ -27,8 +27,6 @@ spec:
     enabled: true
   idporten:
     enabled: true
-    postLogoutRedirectURIs:
-      - "https://www.nav.no"
     sidecar:
       enabled: true
       level: Level3
