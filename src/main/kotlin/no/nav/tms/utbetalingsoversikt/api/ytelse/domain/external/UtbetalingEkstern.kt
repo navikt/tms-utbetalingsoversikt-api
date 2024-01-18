@@ -53,7 +53,7 @@ data class UtbetalingEkstern(
                 .maxByOrNull { it.utbetalingsdato.toLocalDate() }
 
         fun List<UtbetalingEkstern>.nesteUtbetaling(): UtbetalingEkstern? =
-            this.filter { (it.ytelsesdato()?.isAfter(LocalDate.now()) ?: false) }
+            this.filter { (it.ytelsesdato()?.isAfter(LocalDate.now().minusDays(1)) ?: false) }
                 .minByOrNull { it.forfallsdato.toLocalDate() }
 
         fun String?.toLocalDate(): LocalDate = try {
