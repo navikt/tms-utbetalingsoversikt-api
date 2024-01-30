@@ -42,11 +42,11 @@ spec:
     - "https://www.intern.dev.nav.no/tms-utbetalingsoversikt-api"
   resources:
     limits:
-      cpu: "3"
+      cpu: "1"
       memory: 768Mi
     requests:
-      cpu: "50m"
-      memory: 384Mi
+      cpu: "20m"
+      memory: 128Mi
   env:
     - name: CORS_ALLOWED_ORIGINS
       value: "*.dev.nav.no"
