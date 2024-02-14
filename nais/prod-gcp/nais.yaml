@@ -44,7 +44,6 @@ spec:
     - "https://person.nav.no/tms-utbetalingsoversikt-api"
   resources:
     limits:
-      cpu: "1"
       memory: 768Mi
     requests:
       cpu: "20m"
