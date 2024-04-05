@@ -114,8 +114,10 @@ fun Application.utbetalingApi(
                 }
 
                 else -> {
-                    secureLog.error(cause) { "Uventet feil" }
-                    log.error { "Uventet feil. Svarer med feilkode." }
+                    secureLog.error(cause) {
+                        "Uventet feil ${cause::class.simpleName}"
+                    }
+                    log.error { "Uventet feil. Svarer med feilkode. ${cause::class.simpleName}" }
                     call.respondText("Feil i baksystem.", status = InternalServerError)
                 }
             }
