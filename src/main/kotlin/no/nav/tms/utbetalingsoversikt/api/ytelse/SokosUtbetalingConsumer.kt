@@ -1,9 +1,13 @@
 package no.nav.tms.utbetalingsoversikt.api.ytelse
 
 import io.ktor.client.*
+import io.ktor.client.call.*
+import io.ktor.client.request.*
+import io.ktor.http.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import no.nav.tms.token.support.idporten.sidecar.user.IdportenUser
 import no.nav.tms.token.support.tokendings.exchange.TokendingsService
-import no.nav.tms.utbetalingsoversikt.api.config.post
 import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.external.*
 import java.net.URL
 import java.time.LocalDate
@@ -35,4 +39,22 @@ class SokosUtbetalingConsumer(
             periodetype = PeriodetypeEkstern.UTBETALINGSPERIODE
         )
     }
+}
+
+suspend inline fun <reified T> HttpClient.post(url: URL, requestBody: Any, token: String): T = withContext(Dispatchers.IO) {
+    request {
+        url("$url")
+        method = HttpMethod.Post
+        header(HttpHeaders.Authorization, "Bearer $token")
+        contentType(ContentType.Application.Json)
+        setBody(requestBody)
+    }.let { response ->
+        if ( response.status != HttpStatusCode.OK ){
+            throw ApiException(response.status, url)
+        } else response
+    }.body()
+}
+
+class ApiException (private val statusCode: HttpStatusCode, private  val url: URL) : Exception () {
+    val errorMessage = "Kall mot ${url.host} feiler med statuskode $statusCode"
 }

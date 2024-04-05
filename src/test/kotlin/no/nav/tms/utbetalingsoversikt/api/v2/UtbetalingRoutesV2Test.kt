@@ -233,6 +233,7 @@ class UtbetalingRoutesV2Test {
             response["kommende"].isNull shouldBe true
         }
     }
+
     @Test
     fun `returnerer neste utbetaling og tomt for siste utbetaling`() = testApplication {
         testApi(
@@ -434,6 +435,33 @@ class UtbetalingRoutesV2Test {
             json["nettoUtbetalt"].asDouble() shouldBe 700
         }
     }
+
+    @Test
+    fun `Retunere 503 når baksystemfeiler`() = testApplication {
+        testApi(
+            (SokosUtbetalingConsumer(
+                client = sokosHttpClient,
+                baseUrl = URL(testHost),
+                sokosUtbetaldataClientId = "test:client:id",
+                tokendingsService = tokendingsMockk
+            ))
+        )
+        externalServices {
+            hosts(testHost) {
+                routing {
+                    route("hent-utbetalingsinformasjon/ekstern") {
+                        post {
+                            call.respond(HttpStatusCode.InternalServerError)
+                        }
+                    }
+
+                }
+            }
+        }
+        client.get("/utbetalinger/siste").status shouldBe HttpStatusCode.ServiceUnavailable
+    }
+
+
 
     private fun ApplicationTestBuilder.withExternalServiceResponse(
         body: String,

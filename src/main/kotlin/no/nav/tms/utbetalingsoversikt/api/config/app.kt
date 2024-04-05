@@ -34,6 +34,7 @@ import no.nav.tms.utbetalingsoversikt.api.utbetaling.UtbetalingNotFoundException
 import no.nav.tms.utbetalingsoversikt.api.utbetaling.utbetalingApi
 import no.nav.tms.utbetalingsoversikt.api.v2.UtbetalingSerializationException
 import no.nav.tms.utbetalingsoversikt.api.v2.utbetalingRoutesV2
+import no.nav.tms.utbetalingsoversikt.api.ytelse.ApiException
 import no.nav.tms.utbetalingsoversikt.api.ytelse.HovedytelseService
 import no.nav.tms.utbetalingsoversikt.api.ytelse.SokosUtbetalingConsumer
 import observability.ApiMdc
@@ -104,6 +105,12 @@ fun Application.utbetalingApi(
 
                 is UtbetalingSerializationException -> {
                     log.error(cause) { cause.message }
+                    call.respond(HttpStatusCode.ServiceUnavailable)
+                }
+
+                is ApiException -> {
+                    log.error { cause.errorMessage }
+                    call.respond(HttpStatusCode.ServiceUnavailable)
                 }
 
                 else -> {

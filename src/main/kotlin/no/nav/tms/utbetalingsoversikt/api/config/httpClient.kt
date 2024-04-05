@@ -21,13 +21,3 @@ object HttpClientBuilder {
         install(HttpTimeout)
     }
 }
-
-suspend inline fun <reified T> HttpClient.post(url: URL, requestBody: Any, token: String): T = withContext(Dispatchers.IO) {
-    request {
-        url("$url")
-        method = HttpMethod.Post
-        header(HttpHeaders.Authorization, "Bearer $token")
-        contentType(ContentType.Application.Json)
-        setBody(requestBody)
-    }.body()
-}
