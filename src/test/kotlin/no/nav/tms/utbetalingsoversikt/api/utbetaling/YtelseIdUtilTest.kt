@@ -2,8 +2,8 @@ package no.nav.tms.utbetalingsoversikt.api.utbetaling
 
 import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.EksternModelObjectMother.giveMeYtelseEkstern
 import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.EksternModelObjectMother.giveMeYtelsesKomponentEkstern
-import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.`should not be equal to`
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 
@@ -17,7 +17,7 @@ internal class YtelseIdUtilTest {
 
         val id = YtelseIdUtil.calculateId(posteringsdato.toString(), ytelse)
 
-        YtelseIdUtil.unmarshalDateFromId(id) `should be equal to` posteringsdato
+        YtelseIdUtil.unmarshalDateFromId(id) shouldBe posteringsdato
     }
 
     @Test
@@ -30,13 +30,13 @@ internal class YtelseIdUtilTest {
         val id1 = YtelseIdUtil.calculateId(postering1, ytelse)
         val id2 = YtelseIdUtil.calculateId(postering2, ytelse)
 
-        id1 `should not be equal to` id2
+        id1 shouldNotBe id2
 
         val (datePart1, contentPart1) = id1.split("-")
         val (datePart2, contentPart2) = id2.split("-")
 
-        datePart1 `should not be equal to` datePart2
-        contentPart1 `should be equal to` contentPart2
+        datePart1 shouldNotBe datePart2
+        contentPart1 shouldBe contentPart2
     }
 
     @Test
@@ -49,13 +49,13 @@ internal class YtelseIdUtilTest {
         val id1 = YtelseIdUtil.calculateId(postering, ytelse1)
         val id2 = YtelseIdUtil.calculateId(postering, ytelse2)
 
-        id1 `should not be equal to` id2
+        id1 shouldNotBe id2
 
         val (datePart1, contentPart1) = id1.split("-")
         val (datePart2, contentPart2) = id2.split("-")
 
-        datePart1 `should be equal to` datePart2
-        contentPart1 `should not be equal to` contentPart2
+        datePart1 shouldBe datePart2
+        contentPart1 shouldNotBe contentPart2
     }
 
     @Test
@@ -68,13 +68,13 @@ internal class YtelseIdUtilTest {
         val id1 = YtelseIdUtil.calculateId(postering, ytelse1)
         val id2 = YtelseIdUtil.calculateId(postering, ytelse2)
 
-        id1 `should not be equal to` id2
+        id1 shouldNotBe id2
 
         val (datePart1, contentPart1) = id1.split("-")
         val (datePart2, contentPart2) = id2.split("-")
 
-        datePart1 `should be equal to` datePart2
-        contentPart1 `should not be equal to` contentPart2
+        datePart1 shouldBe datePart2
+        contentPart1 shouldNotBe contentPart2
     }
 
     @Test
@@ -97,13 +97,13 @@ internal class YtelseIdUtilTest {
         val id1 = YtelseIdUtil.calculateId(postering, ytelse1)
         val id2 = YtelseIdUtil.calculateId(postering, ytelse2)
 
-        id1 `should not be equal to` id2
+        id1 shouldNotBe id2
 
         val (datePart1, contentPart1) = id1.split("-")
         val (datePart2, contentPart2) = id2.split("-")
 
-        datePart1 `should be equal to` datePart2
-        contentPart1 `should not be equal to` contentPart2
+        datePart1 shouldBe datePart2
+        contentPart1 shouldNotBe contentPart2
     }
 
     @Test
@@ -126,13 +126,13 @@ internal class YtelseIdUtilTest {
         val id1 = YtelseIdUtil.calculateId(postering, ytelse1)
         val id2 = YtelseIdUtil.calculateId(postering, ytelse2)
 
-        id1 `should not be equal to` id2
+        id1 shouldNotBe id2
 
         val (datePart1, contentPart1) = id1.split("-")
         val (datePart2, contentPart2) = id2.split("-")
 
-        datePart1 `should be equal to` datePart2
-        contentPart1 `should not be equal to` contentPart2
+        datePart1 shouldBe datePart2
+        contentPart1 shouldNotBe contentPart2
     }
 
     @Test
@@ -155,6 +155,6 @@ internal class YtelseIdUtilTest {
         val id1 = YtelseIdUtil.calculateId(postering, ytelse1)
         val id2 = YtelseIdUtil.calculateId(postering, ytelse2)
 
-        id1 `should be equal to` id2
+        id1 shouldBe id2
     }
 }
