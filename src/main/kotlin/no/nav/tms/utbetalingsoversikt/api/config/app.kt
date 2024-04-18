@@ -9,7 +9,6 @@ import io.ktor.http.HttpStatusCode.Companion.InternalServerError
 import io.ktor.http.HttpStatusCode.Companion.NotFound
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
-import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
@@ -19,7 +18,8 @@ import io.ktor.server.plugins.statuspages.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.util.pipeline.*
-import nav.no.tms.common.metrics.installTmsMicrometerMetrics
+import no.nav.tms.common.metrics.installTmsMicrometerMetrics
+import no.nav.tms.common.observability.ApiMdc
 import no.nav.tms.common.util.config.StringEnvVar
 import no.nav.tms.common.util.config.UrlEnvVar
 import no.nav.tms.token.support.idporten.sidecar.IdPortenLogin
@@ -37,8 +37,6 @@ import no.nav.tms.utbetalingsoversikt.api.v2.utbetalingRoutesV2
 import no.nav.tms.utbetalingsoversikt.api.ytelse.ApiException
 import no.nav.tms.utbetalingsoversikt.api.ytelse.HovedytelseService
 import no.nav.tms.utbetalingsoversikt.api.ytelse.SokosUtbetalingConsumer
-import observability.ApiMdc
-import org.slf4j.MDC
 
 fun main() {
     val httpClient = HttpClientBuilder.build()

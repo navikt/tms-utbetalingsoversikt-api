@@ -7,7 +7,7 @@ import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.external.RolleEkstern.UT
 import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.external.UtbetalingEkstern
 import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.internal.Hovedytelse
 import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.transformer.HovedytelseTransformer
-import org.amshove.kluent.`should be equal to`
+import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
@@ -53,7 +53,7 @@ internal class HovedytelseServiceTest {
             hovedytelseService.getHovedytelserBetaltTilBruker(user, fom, tom)
         }
 
-        result.size `should be equal to` 5
+        result.size shouldBe 5
 
         coVerify(exactly = 1) { consumer.fetchUtbetalingsInfo(any(), any(), any()) }
         verify(exactly = 2) { HovedytelseTransformer.toHovedYtelse(any()) }
