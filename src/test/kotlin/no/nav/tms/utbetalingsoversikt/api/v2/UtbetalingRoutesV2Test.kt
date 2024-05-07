@@ -282,7 +282,7 @@ class UtbetalingRoutesV2Test {
             )
         )
 
-        withExternalServiceResponse("[]") { true }
+        withExternalServiceResponse("[]")
         client.get("/utbetalinger/siste").assert {
             status shouldBe HttpStatusCode.OK
             objectMapper.readTree(bodyAsText()).apply {
@@ -304,7 +304,7 @@ class UtbetalingRoutesV2Test {
                 sokosUtbetaldataClientId = "test:client:id"
             )
         )
-        withExternalServiceResponse(spesifikkUtbetalingRespons) { true }
+        withExternalServiceResponse(spesifikkUtbetalingRespons)
         mockkObject(YtelseIdUtil)
         every { YtelseIdUtil.unmarshalDateFromId("ydaj31") } returns LocalDate.now()
         every { YtelseIdUtil.calculateId("2023-08-24", any()) } returns "ydaj31"
@@ -388,7 +388,7 @@ class UtbetalingRoutesV2Test {
         mockkObject(YtelseIdUtil)
         every { YtelseIdUtil.unmarshalDateFromId("ydaj31") } returns LocalDate.now()
 
-        withExternalServiceResponse("[]") { true }
+        withExternalServiceResponse("[]")
         client.get("/utbetalinger/ydaj31").status shouldBe HttpStatusCode.NotFound
 
     }
@@ -404,7 +404,7 @@ class UtbetalingRoutesV2Test {
             )
         )
 
-        withExternalServiceResponse(spesifikkUtbetalingRespons) { true }
+        withExternalServiceResponse(spesifikkUtbetalingRespons)
         every { YtelseIdUtil.unmarshalDateFromId("ydaj31") } returns LocalDate.now()
         every { YtelseIdUtil.calculateId("2023-08-24", any()) } returns "notthis"
 
@@ -421,7 +421,7 @@ class UtbetalingRoutesV2Test {
                 sokosUtbetaldataClientId = "test:client:id"
             )
         )
-        withExternalServiceResponse(utbetaltTilRespons) { true }
+        withExternalServiceResponse(utbetaltTilRespons)
         mockkObject(YtelseIdUtil)
         every { YtelseIdUtil.unmarshalDateFromId("testId") } returns LocalDate.now()
         every { YtelseIdUtil.calculateId("2023-08-24", any()) } returns "testId"
