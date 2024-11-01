@@ -1,4 +1,4 @@
-package no.nav.tms.utbetalingsoversikt.api.v2
+package no.nav.tms.utbetalingsoversikt.api.utbetaling
 
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe

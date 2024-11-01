@@ -1,9 +1,8 @@
 package no.nav.tms.utbetalingsoversikt.api.utbetaling
 
-import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.EksternModelObjectMother.giveMeYtelseEkstern
-import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.EksternModelObjectMother.giveMeYtelsesKomponentEkstern
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.EksternModelObjectMother
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 
@@ -13,7 +12,7 @@ internal class YtelseIdUtilTest {
     fun `kan hente posteringsdato fra id`() {
         val posteringsdato = LocalDate.now()
 
-        val ytelse = giveMeYtelseEkstern()
+        val ytelse = EksternModelObjectMother.giveMeYtelseEkstern()
 
         val id = YtelseIdUtil.calculateId(posteringsdato.toString(), ytelse)
 
@@ -25,7 +24,7 @@ internal class YtelseIdUtilTest {
         val postering1 = LocalDate.now().toString()
         val postering2 = LocalDate.now().minusDays(1).toString()
 
-        val ytelse = giveMeYtelseEkstern()
+        val ytelse = EksternModelObjectMother.giveMeYtelseEkstern()
 
         val id1 = YtelseIdUtil.calculateId(postering1, ytelse)
         val id2 = YtelseIdUtil.calculateId(postering2, ytelse)
@@ -43,8 +42,8 @@ internal class YtelseIdUtilTest {
     fun `endring i bilagsnummer endrer id`() {
         val postering = LocalDate.now().toString()
 
-        val ytelse1 = giveMeYtelseEkstern(bilagsnummer = "123")
-        val ytelse2 = giveMeYtelseEkstern(bilagsnummer = "456")
+        val ytelse1 = EksternModelObjectMother.giveMeYtelseEkstern(bilagsnummer = "123")
+        val ytelse2 = EksternModelObjectMother.giveMeYtelseEkstern(bilagsnummer = "456")
 
         val id1 = YtelseIdUtil.calculateId(postering, ytelse1)
         val id2 = YtelseIdUtil.calculateId(postering, ytelse2)
@@ -62,8 +61,8 @@ internal class YtelseIdUtilTest {
     fun `endring i ytelsetype endrer id`() {
         val postering = LocalDate.now().toString()
 
-        val ytelse1 = giveMeYtelseEkstern(ytelsestype = "Type 1")
-        val ytelse2 = giveMeYtelseEkstern(ytelsestype = "Type 2")
+        val ytelse1 = EksternModelObjectMother.giveMeYtelseEkstern(ytelsestype = "Type 1")
+        val ytelse2 = EksternModelObjectMother.giveMeYtelseEkstern(ytelsestype = "Type 2")
 
         val id1 = YtelseIdUtil.calculateId(postering, ytelse1)
         val id2 = YtelseIdUtil.calculateId(postering, ytelse2)
@@ -82,17 +81,17 @@ internal class YtelseIdUtilTest {
         val postering = LocalDate.now().toString()
 
         val ytelsesKomponenter1 = listOf(
-            giveMeYtelsesKomponentEkstern(komponenttype = "Type 1"),
-            giveMeYtelsesKomponentEkstern(komponenttype = "Type 2")
+            EksternModelObjectMother.giveMeYtelsesKomponentEkstern(komponenttype = "Type 1"),
+            EksternModelObjectMother.giveMeYtelsesKomponentEkstern(komponenttype = "Type 2")
         )
 
         val ytelsesKomponenter2 = listOf(
-            giveMeYtelsesKomponentEkstern(komponenttype = "Type 1"),
-            giveMeYtelsesKomponentEkstern(komponenttype = "Type 1")
+            EksternModelObjectMother.giveMeYtelsesKomponentEkstern(komponenttype = "Type 1"),
+            EksternModelObjectMother.giveMeYtelsesKomponentEkstern(komponenttype = "Type 1")
         )
 
-        val ytelse1 = giveMeYtelseEkstern(ytelseskomponentListe = ytelsesKomponenter1)
-        val ytelse2 = giveMeYtelseEkstern(ytelseskomponentListe = ytelsesKomponenter2)
+        val ytelse1 = EksternModelObjectMother.giveMeYtelseEkstern(ytelseskomponentListe = ytelsesKomponenter1)
+        val ytelse2 = EksternModelObjectMother.giveMeYtelseEkstern(ytelseskomponentListe = ytelsesKomponenter2)
 
         val id1 = YtelseIdUtil.calculateId(postering, ytelse1)
         val id2 = YtelseIdUtil.calculateId(postering, ytelse2)
@@ -111,17 +110,17 @@ internal class YtelseIdUtilTest {
         val postering = LocalDate.now().toString()
 
         val ytelsesKomponenter1 = listOf(
-            giveMeYtelsesKomponentEkstern(komponentbeloep = 123.0),
-            giveMeYtelsesKomponentEkstern(komponentbeloep = 456.0)
+            EksternModelObjectMother.giveMeYtelsesKomponentEkstern(komponentbeloep = 123.0),
+            EksternModelObjectMother.giveMeYtelsesKomponentEkstern(komponentbeloep = 456.0)
         )
 
         val ytelsesKomponenter2 = listOf(
-            giveMeYtelsesKomponentEkstern(komponentbeloep = 123.0),
-            giveMeYtelsesKomponentEkstern(komponentbeloep = 123.0)
+            EksternModelObjectMother.giveMeYtelsesKomponentEkstern(komponentbeloep = 123.0),
+            EksternModelObjectMother.giveMeYtelsesKomponentEkstern(komponentbeloep = 123.0)
         )
 
-        val ytelse1 = giveMeYtelseEkstern(ytelseskomponentListe = ytelsesKomponenter1)
-        val ytelse2 = giveMeYtelseEkstern(ytelseskomponentListe = ytelsesKomponenter2)
+        val ytelse1 = EksternModelObjectMother.giveMeYtelseEkstern(ytelseskomponentListe = ytelsesKomponenter1)
+        val ytelse2 = EksternModelObjectMother.giveMeYtelseEkstern(ytelseskomponentListe = ytelsesKomponenter2)
 
         val id1 = YtelseIdUtil.calculateId(postering, ytelse1)
         val id2 = YtelseIdUtil.calculateId(postering, ytelse2)
@@ -140,17 +139,17 @@ internal class YtelseIdUtilTest {
         val postering = LocalDate.now().toString()
 
         val ytelsesKomponenter1 = listOf(
-            giveMeYtelsesKomponentEkstern(komponenttype = "Type 1", komponentbeloep = 123.0),
-            giveMeYtelsesKomponentEkstern(komponenttype = "Type 2", komponentbeloep = 456.0)
+            EksternModelObjectMother.giveMeYtelsesKomponentEkstern(komponenttype = "Type 1", komponentbeloep = 123.0),
+            EksternModelObjectMother.giveMeYtelsesKomponentEkstern(komponenttype = "Type 2", komponentbeloep = 456.0)
         )
 
         val ytelsesKomponenter2 = listOf(
-            giveMeYtelsesKomponentEkstern(komponenttype = "Type 2", komponentbeloep = 456.0),
-            giveMeYtelsesKomponentEkstern(komponenttype = "Type 1", komponentbeloep = 123.0)
+            EksternModelObjectMother.giveMeYtelsesKomponentEkstern(komponenttype = "Type 2", komponentbeloep = 456.0),
+            EksternModelObjectMother.giveMeYtelsesKomponentEkstern(komponenttype = "Type 1", komponentbeloep = 123.0)
         )
 
-        val ytelse1 = giveMeYtelseEkstern(ytelseskomponentListe = ytelsesKomponenter1)
-        val ytelse2 = giveMeYtelseEkstern(ytelseskomponentListe = ytelsesKomponenter2)
+        val ytelse1 = EksternModelObjectMother.giveMeYtelseEkstern(ytelseskomponentListe = ytelsesKomponenter1)
+        val ytelse2 = EksternModelObjectMother.giveMeYtelseEkstern(ytelseskomponentListe = ytelsesKomponenter2)
 
         val id1 = YtelseIdUtil.calculateId(postering, ytelse1)
         val id2 = YtelseIdUtil.calculateId(postering, ytelse2)

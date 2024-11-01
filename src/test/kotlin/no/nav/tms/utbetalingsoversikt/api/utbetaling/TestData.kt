@@ -1,4 +1,4 @@
-package no.nav.tms.utbetalingsoversikt.api.v2
+package no.nav.tms.utbetalingsoversikt.api.utbetaling
 
 import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.external.*
 import org.intellij.lang.annotations.Language

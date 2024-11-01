@@ -40,6 +40,7 @@ dependencies {
     implementation(TmsCommonLib.metrics)
     implementation(TmsCommonLib.observability)
     implementation(TmsKtorTokenSupport.tokendingsExchange)
+    implementation(TmsKtorTokenSupport.tokenXValidation)
     implementation(TmsKtorTokenSupport.idportenSidecar)
 
     testImplementation(Junit.api)
@@ -48,6 +49,7 @@ dependencies {
     testImplementation(Kotest.assertionsCore)
     testImplementation(Ktor.Test.serverTestHost)
     testImplementation(TmsKtorTokenSupport.idportenSidecarMock)
+    testImplementation(TmsKtorTokenSupport.tokenXValidationMock)
     testImplementation(JacksonDatatype.datatypeJsr310)
     testImplementation(JacksonDatatype.moduleKotlin)
     testImplementation(Mockk.mockk)

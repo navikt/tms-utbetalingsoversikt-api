@@ -40,6 +40,9 @@ spec:
           cluster: prod-fss
       external:
         - host: sokos-utbetaldata.prod-fss-pub.nais.io
+    inbound:
+      rules:
+        - application: tms-utbetalingsoversikt-frontend
   ingresses:
     - "https://person.nav.no/tms-utbetalingsoversikt-api"
   resources:

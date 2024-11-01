@@ -1,4 +1,4 @@
-package no.nav.tms.utbetalingsoversikt.api.v2
+package no.nav.tms.utbetalingsoversikt.api.utbetaling
 
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
@@ -25,9 +25,10 @@ import io.mockk.mockkObject
 import no.nav.tms.token.support.idporten.sidecar.mock.LevelOfAssurance.HIGH
 import no.nav.tms.token.support.idporten.sidecar.mock.idPortenMock
 import no.nav.tms.token.support.tokendings.exchange.TokendingsService
+import no.nav.tms.token.support.tokenx.validation.mock.LevelOfAssurance
+import no.nav.tms.token.support.tokenx.validation.mock.tokenXMock
 import no.nav.tms.utbetalingsoversikt.api.config.jsonConfig
 import no.nav.tms.utbetalingsoversikt.api.config.utbetalingApi
-import no.nav.tms.utbetalingsoversikt.api.utbetaling.YtelseIdUtil
 import no.nav.tms.utbetalingsoversikt.api.ytelse.SokosUtbetalingConsumer
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
@@ -36,7 +37,7 @@ import java.net.URL
 import java.time.LocalDate
 
 
-class UtbetalingRoutesV2Test {
+class UtbetalingRoutesTest {
     private val objectMapper = jacksonObjectMapper()
     private val testHost = "https://utbetaling.ekstern.test"
     private val tokendingsMockk = mockk<TokendingsService>().also {
@@ -462,6 +463,84 @@ class UtbetalingRoutesV2Test {
     }
 
 
+    @Test
+    fun `henter alle utbetalinger for tokenx`() = testApplication {
+        testApi(
+            SokosUtbetalingConsumer(
+                client = sokosHttpClient,
+                baseUrl = URL(testHost),
+                tokendingsService = tokendingsMockk,
+                sokosUtbetaldataClientId = "test:client:id"
+            )
+        )
+
+        val tidligereUtbetalingerJson = File("src/test/resources/alle_utbetalinger_tidligere_default.json").readText()
+
+        withExternalServiceResponse(
+            """
+          ${tidligereUtbetalingerJson.substring(0, tidligereUtbetalingerJson.lastIndexOf("]"))},
+          ${nesteYtelseJson(20)}    
+           ]
+            
+        """.trimIndent()
+        ) { true }
+
+        client.get("/utbetalinger/ssr/alle").assert {
+            status shouldBe HttpStatusCode.OK
+        }
+    }
+
+    @Test
+    fun `henter siste og neste utbetalinger for tokenx`() = testApplication {
+        testApi(
+            SokosUtbetalingConsumer(
+                client = sokosHttpClient,
+                baseUrl = URL(testHost),
+                tokendingsService = tokendingsMockk,
+                sokosUtbetaldataClientId = "test:client:id"
+            )
+        )
+        val tidligereUtbetalingerJson = File("src/test/resources/siste_utbetaling_test.json").readText()
+
+        withExternalServiceResponse(
+            body = """
+          ${tidligereUtbetalingerJson.substring(0, tidligereUtbetalingerJson.lastIndexOf("]"))},
+          ${nesteYtelseJson(20)}    
+           ]
+        """.trimIndent()
+        ) {
+            val fomtom = objectMapper.readTree(call.receiveText())
+            val expectedFom = LocalDate.now().minusMonths(3)
+            val expectedTom = LocalDate.now().plusMonths(3).plusDays(1)
+            val actualFom = LocalDate.parse(fomtom["periode"]["fom"].asText())
+            val actualTom = LocalDate.parse(fomtom["periode"]["tom"].asText())
+            actualFom == expectedFom && actualTom == expectedTom
+        }
+
+        client.get("/utbetalinger/ssr/siste").assert {
+            status shouldBe HttpStatusCode.OK
+        }
+    }
+
+    @Test
+    fun `henter detaljert info om utbetaling for tokenx`() = testApplication {
+        testApi(
+            SokosUtbetalingConsumer(
+                client = sokosHttpClient,
+                baseUrl = URL(testHost),
+                tokendingsService = tokendingsMockk,
+                sokosUtbetaldataClientId = "test:client:id"
+            )
+        )
+        withExternalServiceResponse(spesifikkUtbetalingRespons)
+        mockkObject(YtelseIdUtil)
+        every { YtelseIdUtil.unmarshalDateFromId("<mockID>") } returns LocalDate.now()
+        every { YtelseIdUtil.calculateId("2023-08-24", any()) } returns "<mockID>"
+
+        client.get("/utbetalinger/ssr/<mockID>").assert {
+            status shouldBe HttpStatusCode.OK
+        }
+    }
 
     private fun ApplicationTestBuilder.withExternalServiceResponse(
         body: String,
@@ -508,6 +587,12 @@ private fun ApplicationTestBuilder.testApi(sokosUtbetalingConsumer: SokosUtbetal
                     idPortenMock {
                         setAsDefault = true
                         staticLevelOfAssurance = HIGH
+                        staticUserPid = "12345"
+                        alwaysAuthenticated = true
+                    }
+                    tokenXMock {
+                        setAsDefault = false
+                        staticLevelOfAssurance = LevelOfAssurance.SUBSTANTIAL
                         staticUserPid = "12345"
                         alwaysAuthenticated = true
                     }

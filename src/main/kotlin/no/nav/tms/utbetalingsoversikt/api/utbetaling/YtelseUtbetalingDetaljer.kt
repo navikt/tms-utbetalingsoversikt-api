@@ -1,14 +1,12 @@
 @file:UseSerializers(LocalDateSerializer::class)
 
-package no.nav.tms.utbetalingsoversikt.api.v2
+package no.nav.tms.utbetalingsoversikt.api.utbetaling
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import no.nav.tms.utbetalingsoversikt.api.config.BigDecimalSerializer
 import no.nav.tms.utbetalingsoversikt.api.config.LocalDateSerializer
 import no.nav.tms.utbetalingsoversikt.api.config.UtbetalingSerializer
-import no.nav.tms.utbetalingsoversikt.api.utbetaling.YtelseIdUtil
-import no.nav.tms.utbetalingsoversikt.api.utbetaling.UtbetalingNotFoundException
 import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.external.UtbetalingEkstern
 import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.external.YtelseEkstern
 import java.math.BigDecimal

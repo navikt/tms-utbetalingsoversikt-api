@@ -38,6 +38,9 @@ spec:
           cluster: dev-fss
       external:
         - host: sokos-utbetaldata.dev-fss-pub.nais.io
+    inbound:
+      rules:
+        - application: tms-utbetalingsoversikt-frontend
   ingresses:
     - "https://www.intern.dev.nav.no/tms-utbetalingsoversikt-api"
     - "https://www.ansatt.dev.nav.no/tms-utbetalingsoversikt-api"
