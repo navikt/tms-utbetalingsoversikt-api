@@ -41,6 +41,7 @@ spec:
     inbound:
       rules:
         - application: tms-utbetalingsoversikt-frontend
+        - application: tms-min-side
   ingresses:
     - "https://www.intern.dev.nav.no/tms-utbetalingsoversikt-api"
     - "https://www.ansatt.dev.nav.no/tms-utbetalingsoversikt-api"

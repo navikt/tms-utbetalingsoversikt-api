@@ -43,6 +43,7 @@ spec:
     inbound:
       rules:
         - application: tms-utbetalingsoversikt-frontend
+        - application: tms-min-side
   ingresses:
     - "https://person.nav.no/tms-utbetalingsoversikt-api"
   resources:
