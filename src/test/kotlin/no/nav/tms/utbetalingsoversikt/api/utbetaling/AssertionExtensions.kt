@@ -1,4 +1,4 @@
-package no.nav.tms.utbetalingsoversikt.api.v2
+package no.nav.tms.utbetalingsoversikt.api.utbetaling
 
 import com.fasterxml.jackson.databind.JsonNode
 import io.kotest.matchers.date.shouldBeBefore

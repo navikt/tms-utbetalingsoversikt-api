@@ -6,7 +6,7 @@ import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.Json
-import no.nav.tms.utbetalingsoversikt.api.v2.Utbetaling
+import no.nav.tms.utbetalingsoversikt.api.utbetaling.Utbetaling
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.time.LocalDate

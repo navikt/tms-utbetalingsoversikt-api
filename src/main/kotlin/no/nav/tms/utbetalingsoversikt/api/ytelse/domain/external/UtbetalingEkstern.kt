@@ -1,7 +1,7 @@
 package no.nav.tms.utbetalingsoversikt.api.ytelse.domain.external
 
 import kotlinx.serialization.Serializable
-import no.nav.tms.utbetalingsoversikt.api.v2.UtbetalingSerializationException
+import no.nav.tms.utbetalingsoversikt.api.utbetaling.UtbetalingSerializationException
 import java.time.LocalDate
 
 @Serializable

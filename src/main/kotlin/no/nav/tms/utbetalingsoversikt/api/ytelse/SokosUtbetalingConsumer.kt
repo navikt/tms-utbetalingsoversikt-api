@@ -8,6 +8,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import no.nav.tms.token.support.idporten.sidecar.user.IdportenUser
 import no.nav.tms.token.support.tokendings.exchange.TokendingsService
+import no.nav.tms.token.support.tokenx.validation.user.TokenXUser
 import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.external.*
 import java.net.URL
 import java.time.LocalDate
@@ -21,6 +22,12 @@ class SokosUtbetalingConsumer(
     private val utbetalingsinformasjonInternUrl = URL("$baseUrl/hent-utbetalingsinformasjon/ekstern")
 
     suspend fun fetchUtbetalingsInfo(user: IdportenUser, fom: LocalDate, tom: LocalDate): List<UtbetalingEkstern> {
+        val targetToken = tokendingsService.exchangeToken(user.tokenString, sokosUtbetaldataClientId)
+        val requestBody = createRequest(user.ident, fom, tom, RolleEkstern.UTBETALT_TIL)
+        return client.post(utbetalingsinformasjonInternUrl, requestBody, targetToken)
+    }
+
+    suspend fun fetchUtbetalingsInfoForTokenX(user: TokenXUser, fom: LocalDate, tom: LocalDate): List<UtbetalingEkstern> {
         val targetToken = tokendingsService.exchangeToken(user.tokenString, sokosUtbetaldataClientId)
         val requestBody = createRequest(user.ident, fom, tom, RolleEkstern.UTBETALT_TIL)
         return client.post(utbetalingsinformasjonInternUrl, requestBody, targetToken)
