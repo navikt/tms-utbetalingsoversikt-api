@@ -45,19 +45,18 @@ fun main() {
 
     embeddedServer(
         factory = Netty,
-        environment = applicationEngineEnvironment {
-            rootPath = "tms-utbetalingsoversikt-api"
-
-            module {
+            module = {
                 utbetalingApi(
                     httpClient = httpClient,
                     sokosUtbetalingConsumer = sokosUtbetalingConsumer,
                     authConfig = setupAuth(),
                     corsAllowedOrigins = StringEnvVar.getEnvVar("CORS_ALLOWED_ORIGINS"),
                     corsAllowedSchemes = StringEnvVar.getEnvVarAsList("CORS_ALLOWED_SCHEMES"),
+                )
 
-                    )
-            }
+                rootPath = "tms-utbetalingsoversikt-api"
+        },
+        configure = {
             connector {
                 port = 8080
             }
@@ -158,7 +157,7 @@ private fun setupAuth(): Application.() -> Unit = {
 }
 
 private fun Application.configureShutdownHook(httpClient: HttpClient) {
-    environment.monitor.subscribe(ApplicationStopping) {
+    monitor.subscribe(ApplicationStopping) {
         httpClient.close()
     }
 }

@@ -544,7 +544,7 @@ class UtbetalingRoutesTest {
 
     private fun ApplicationTestBuilder.withExternalServiceResponse(
         body: String,
-        replyIf: suspend PipelineContext<Unit, ApplicationCall>.() -> Boolean = { true }
+        replyIf: suspend RoutingContext.() -> Boolean = { true }
     ) {
         externalServices {
             hosts(testHost) {
