@@ -133,8 +133,8 @@ private fun getEarlierFromDateWithinMaxBound(fromDate: LocalDate): LocalDate {
 val ApplicationCall.toDateParam: LocalDate
     get() = request.queryParameters["tom"].localDateOrDefault()
 
-val PipelineContext<Unit, ApplicationCall>.tokenXUser: TokenXUser
+val RoutingContext.tokenXUser: TokenXUser
     get() = TokenXUserFactory.createTokenXUser(call)
 
-val PipelineContext<Unit, ApplicationCall>.authenticatedUser: IdportenUser
+val RoutingContext.authenticatedUser: IdportenUser
     get() = IdportenUserFactory.createIdportenUser(call)
