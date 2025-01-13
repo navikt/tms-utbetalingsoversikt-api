@@ -5,14 +5,14 @@ plugins {
 
     kotlin("plugin.serialization").version(Kotlin.version)
 
-    id(Shadow.pluginId) version (Shadow.version)
+    id(TmsJarBundling.plugin)
 
     application
 }
 
 kotlin {
     jvmToolchain {
-        languageVersion.set(JavaLanguageVersion.of(17))
+        languageVersion.set(JavaLanguageVersion.of(21))
     }
 }
 

@@ -31,6 +31,7 @@ import no.nav.tms.token.support.tokenx.validation.tokenX
 import no.nav.tms.utbetalingsoversikt.api.utbetaling.*
 import no.nav.tms.utbetalingsoversikt.api.ytelse.ApiException
 import no.nav.tms.utbetalingsoversikt.api.ytelse.SokosUtbetalingConsumer
+import java.net.URI
 
 fun main() {
     val httpClient = HttpClientBuilder.build()
@@ -161,3 +162,5 @@ private fun Application.configureShutdownHook(httpClient: HttpClient) {
         httpClient.close()
     }
 }
+
+fun createUrl(uri: String) = URI.create(uri).toURL()

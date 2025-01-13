@@ -27,6 +27,7 @@ import no.nav.tms.token.support.idporten.sidecar.mock.idPortenMock
 import no.nav.tms.token.support.tokendings.exchange.TokendingsService
 import no.nav.tms.token.support.tokenx.validation.mock.LevelOfAssurance
 import no.nav.tms.token.support.tokenx.validation.mock.tokenXMock
+import no.nav.tms.utbetalingsoversikt.api.config.createUrl
 import no.nav.tms.utbetalingsoversikt.api.config.jsonConfig
 import no.nav.tms.utbetalingsoversikt.api.config.utbetalingApi
 import no.nav.tms.utbetalingsoversikt.api.ytelse.SokosUtbetalingConsumer
@@ -53,7 +54,7 @@ class UtbetalingRoutesTest {
         testApi(
             SokosUtbetalingConsumer(
                 client = sokosHttpClient,
-                baseUrl = URL(testHost),
+                baseUrl = createUrl(testHost),
                 tokendingsService = tokendingsMockk,
                 sokosUtbetaldataClientId = "test:client:id"
             )
@@ -88,10 +89,11 @@ class UtbetalingRoutesTest {
 
     @Test
     fun `henter utbetalinger for definert fom og tom`() = testApplication {
+
         testApi(
             SokosUtbetalingConsumer(
                 client = sokosHttpClient,
-                baseUrl = URL(testHost),
+                baseUrl = createUrl(testHost),
                 tokendingsService = tokendingsMockk,
                 sokosUtbetaldataClientId = "test:client:id"
             )
@@ -150,7 +152,7 @@ class UtbetalingRoutesTest {
         testApi(
             SokosUtbetalingConsumer(
                 client = sokosHttpClient,
-                baseUrl = URL(testHost),
+                baseUrl = createUrl(testHost),
                 tokendingsService = tokendingsMockk,
                 sokosUtbetaldataClientId = "test:client:id"
             )
@@ -209,7 +211,7 @@ class UtbetalingRoutesTest {
         testApi(
             SokosUtbetalingConsumer(
                 client = sokosHttpClient,
-                baseUrl = URL(testHost),
+                baseUrl = createUrl(testHost),
                 tokendingsService = tokendingsMockk,
                 sokosUtbetaldataClientId = "test:client:id"
             )
@@ -240,7 +242,7 @@ class UtbetalingRoutesTest {
         testApi(
             SokosUtbetalingConsumer(
                 client = sokosHttpClient,
-                baseUrl = URL(testHost),
+                baseUrl = createUrl(testHost),
                 tokendingsService = tokendingsMockk,
                 sokosUtbetaldataClientId = "test:client:id"
             )
@@ -277,7 +279,7 @@ class UtbetalingRoutesTest {
         testApi(
             SokosUtbetalingConsumer(
                 client = sokosHttpClient,
-                baseUrl = URL(testHost),
+                baseUrl = createUrl(testHost),
                 tokendingsService = tokendingsMockk,
                 sokosUtbetaldataClientId = "test:client:id"
             )
@@ -300,7 +302,7 @@ class UtbetalingRoutesTest {
         testApi(
             SokosUtbetalingConsumer(
                 client = sokosHttpClient,
-                baseUrl = URL(testHost),
+                baseUrl = createUrl(testHost),
                 tokendingsService = tokendingsMockk,
                 sokosUtbetaldataClientId = "test:client:id"
             )
@@ -366,7 +368,7 @@ class UtbetalingRoutesTest {
         testApi(
             SokosUtbetalingConsumer(
                 client = sokosHttpClient,
-                baseUrl = URL(testHost),
+                baseUrl = createUrl(testHost),
                 tokendingsService = tokendingsMockk,
                 sokosUtbetaldataClientId = "test:client:id"
             )
@@ -380,7 +382,7 @@ class UtbetalingRoutesTest {
         testApi(
             SokosUtbetalingConsumer(
                 client = sokosHttpClient,
-                baseUrl = URL(testHost),
+                baseUrl = createUrl(testHost),
                 tokendingsService = tokendingsMockk,
                 sokosUtbetaldataClientId = "test:client:id"
             )
@@ -399,7 +401,7 @@ class UtbetalingRoutesTest {
         testApi(
             SokosUtbetalingConsumer(
                 client = sokosHttpClient,
-                baseUrl = URL(testHost),
+                baseUrl = createUrl(testHost),
                 tokendingsService = tokendingsMockk,
                 sokosUtbetaldataClientId = "test:client:id"
             )
@@ -417,7 +419,7 @@ class UtbetalingRoutesTest {
         testApi(
             SokosUtbetalingConsumer(
                 client = sokosHttpClient,
-                baseUrl = URL(testHost),
+                baseUrl = createUrl(testHost),
                 tokendingsService = tokendingsMockk,
                 sokosUtbetaldataClientId = "test:client:id"
             )
@@ -442,7 +444,7 @@ class UtbetalingRoutesTest {
         testApi(
             (SokosUtbetalingConsumer(
                 client = sokosHttpClient,
-                baseUrl = URL(testHost),
+                baseUrl = createUrl(testHost),
                 sokosUtbetaldataClientId = "test:client:id",
                 tokendingsService = tokendingsMockk
             ))
@@ -468,7 +470,7 @@ class UtbetalingRoutesTest {
         testApi(
             SokosUtbetalingConsumer(
                 client = sokosHttpClient,
-                baseUrl = URL(testHost),
+                baseUrl = createUrl(testHost),
                 tokendingsService = tokendingsMockk,
                 sokosUtbetaldataClientId = "test:client:id"
             )
@@ -495,7 +497,7 @@ class UtbetalingRoutesTest {
         testApi(
             SokosUtbetalingConsumer(
                 client = sokosHttpClient,
-                baseUrl = URL(testHost),
+                baseUrl = createUrl(testHost),
                 tokendingsService = tokendingsMockk,
                 sokosUtbetaldataClientId = "test:client:id"
             )
@@ -527,7 +529,7 @@ class UtbetalingRoutesTest {
         testApi(
             SokosUtbetalingConsumer(
                 client = sokosHttpClient,
-                baseUrl = URL(testHost),
+                baseUrl = createUrl(testHost),
                 tokendingsService = tokendingsMockk,
                 sokosUtbetaldataClientId = "test:client:id"
             )
