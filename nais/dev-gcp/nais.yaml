@@ -20,7 +20,6 @@ spec:
   replicas:
     min: 2
     max: 4
-  webproxy: true
   tokenx:
     enabled: true
   idporten:
