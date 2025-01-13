@@ -9,7 +9,7 @@ import kotlinx.coroutines.withContext
 import no.nav.tms.token.support.idporten.sidecar.user.IdportenUser
 import no.nav.tms.token.support.tokendings.exchange.TokendingsService
 import no.nav.tms.token.support.tokenx.validation.user.TokenXUser
-import no.nav.tms.utbetalingsoversikt.api.config.createUrl
+import no.nav.tms.utbetalingsoversikt.api.createUrl
 import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.external.*
 import java.net.URL
 import java.time.LocalDate

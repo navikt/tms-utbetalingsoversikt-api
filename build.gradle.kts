@@ -57,7 +57,7 @@ dependencies {
 }
 
 application {
-    mainClass.set("no.nav.tms.utbetalingsoversikt.api.config.AppKt")
+    mainClass.set("no.nav.tms.utbetalingsoversikt.api.AppKt")
 }
 
 tasks {

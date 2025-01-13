@@ -1,4 +1,4 @@
-package no.nav.tms.utbetalingsoversikt.api.config
+package no.nav.tms.utbetalingsoversikt.api
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.client.*
@@ -28,6 +28,9 @@ import no.nav.tms.token.support.tokendings.exchange.TokendingsServiceBuilder
 import no.nav.tms.token.support.tokenx.validation.LevelOfAssurance
 import no.nav.tms.token.support.tokenx.validation.TokenXAuthenticator
 import no.nav.tms.token.support.tokenx.validation.tokenX
+import no.nav.tms.utbetalingsoversikt.api.config.HttpClientBuilder
+import no.nav.tms.utbetalingsoversikt.api.config.healthApi
+import no.nav.tms.utbetalingsoversikt.api.config.jsonConfig
 import no.nav.tms.utbetalingsoversikt.api.utbetaling.*
 import no.nav.tms.utbetalingsoversikt.api.ytelse.ApiException
 import no.nav.tms.utbetalingsoversikt.api.ytelse.SokosUtbetalingConsumer
@@ -41,8 +44,7 @@ fun main() {
         sokosUtbetaldataClientId = StringEnvVar.getEnvVar("SOKOS_UTBETALING_TOKENX_CLIENT_ID"),
         tokendingsService = tokendingsService,
         baseUrl = UrlEnvVar.getEnvVarAsURL("SOKOS_UTBETALDATA_URL"),
-
-        )
+    )
 
     embeddedServer(
         factory = Netty,
