@@ -12,10 +12,10 @@ spec:
   port: 8080
   liveness:
     path: /tms-utbetalingsoversikt-api/internal/isAlive
-    initialDelay: 10
+    initialDelay: 15
   readiness:
     path: /tms-utbetalingsoversikt-api/internal/isReady
-    initialDelay: 10
+    initialDelay: 15
   prometheus:
     enabled: true
     path: /tms-utbetalingsoversikt-api/metrics
