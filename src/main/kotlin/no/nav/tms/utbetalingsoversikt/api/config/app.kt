@@ -46,16 +46,16 @@ fun main() {
 
     embeddedServer(
         factory = Netty,
-            module = {
-                utbetalingApi(
-                    httpClient = httpClient,
-                    sokosUtbetalingConsumer = sokosUtbetalingConsumer,
-                    authConfig = setupAuth(),
-                    corsAllowedOrigins = StringEnvVar.getEnvVar("CORS_ALLOWED_ORIGINS"),
-                    corsAllowedSchemes = StringEnvVar.getEnvVarAsList("CORS_ALLOWED_SCHEMES"),
-                )
+        module = {
+            rootPath = "tms-utbetalingsoversikt-api"
 
-                rootPath = "tms-utbetalingsoversikt-api"
+            utbetalingApi(
+                httpClient = httpClient,
+                sokosUtbetalingConsumer = sokosUtbetalingConsumer,
+                authConfig = setupAuth(),
+                corsAllowedOrigins = StringEnvVar.getEnvVar("CORS_ALLOWED_ORIGINS"),
+                corsAllowedSchemes = StringEnvVar.getEnvVarAsList("CORS_ALLOWED_SCHEMES"),
+            )
         },
         configure = {
             connector {

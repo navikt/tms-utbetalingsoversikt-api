@@ -116,6 +116,11 @@ class UtbetalingRoutesTest {
         }
 
 
+        val status = client.get("/internal/isAlive")
+
+        println(status)
+
+
         client.get("/utbetalinger/alle?fom=20230529&tom=20230829").assert {
             status shouldBe HttpStatusCode.OK
             val responseBody = objectMapper.readTree(bodyAsText())
