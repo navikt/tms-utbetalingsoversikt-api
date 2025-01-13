@@ -36,6 +36,7 @@ dependencies {
     implementation(Ktor.Server.defaultHeaders)
     implementation(Ktor.Server.netty)
     implementation(Ktor.Server.statusPages)
+    implementation(Logstash.logbackEncoder)
     implementation(TmsCommonLib.utils)
     implementation(TmsCommonLib.metrics)
     implementation(TmsCommonLib.observability)
