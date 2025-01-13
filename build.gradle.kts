@@ -5,14 +5,14 @@ plugins {
 
     kotlin("plugin.serialization").version(Kotlin.version)
 
-    id(Shadow.pluginId) version (Shadow.version)
+    id(TmsJarBundling.plugin)
 
     application
 }
 
 kotlin {
     jvmToolchain {
-        languageVersion.set(JavaLanguageVersion.of(17))
+        languageVersion.set(JavaLanguageVersion.of(21))
     }
 }
 
@@ -36,6 +36,7 @@ dependencies {
     implementation(Ktor.Server.defaultHeaders)
     implementation(Ktor.Server.netty)
     implementation(Ktor.Server.statusPages)
+    implementation(Logstash.logbackEncoder)
     implementation(TmsCommonLib.utils)
     implementation(TmsCommonLib.metrics)
     implementation(TmsCommonLib.observability)
@@ -56,7 +57,7 @@ dependencies {
 }
 
 application {
-    mainClass.set("no.nav.tms.utbetalingsoversikt.api.config.AppKt")
+    mainClass.set("no.nav.tms.utbetalingsoversikt.api.AppKt")
 }
 
 tasks {

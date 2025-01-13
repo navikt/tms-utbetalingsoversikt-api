@@ -17,7 +17,6 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.testing.*
-import io.ktor.util.pipeline.*
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
@@ -27,13 +26,13 @@ import no.nav.tms.token.support.idporten.sidecar.mock.idPortenMock
 import no.nav.tms.token.support.tokendings.exchange.TokendingsService
 import no.nav.tms.token.support.tokenx.validation.mock.LevelOfAssurance
 import no.nav.tms.token.support.tokenx.validation.mock.tokenXMock
+import no.nav.tms.utbetalingsoversikt.api.createUrl
 import no.nav.tms.utbetalingsoversikt.api.config.jsonConfig
-import no.nav.tms.utbetalingsoversikt.api.config.utbetalingApi
+import no.nav.tms.utbetalingsoversikt.api.utbetalingApi
 import no.nav.tms.utbetalingsoversikt.api.ytelse.SokosUtbetalingConsumer
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import java.io.File
-import java.net.URL
 import java.time.LocalDate
 
 
@@ -53,7 +52,7 @@ class UtbetalingRoutesTest {
         testApi(
             SokosUtbetalingConsumer(
                 client = sokosHttpClient,
-                baseUrl = URL(testHost),
+                baseUrl = createUrl(testHost),
                 tokendingsService = tokendingsMockk,
                 sokosUtbetaldataClientId = "test:client:id"
             )
@@ -88,10 +87,11 @@ class UtbetalingRoutesTest {
 
     @Test
     fun `henter utbetalinger for definert fom og tom`() = testApplication {
+
         testApi(
             SokosUtbetalingConsumer(
                 client = sokosHttpClient,
-                baseUrl = URL(testHost),
+                baseUrl = createUrl(testHost),
                 tokendingsService = tokendingsMockk,
                 sokosUtbetaldataClientId = "test:client:id"
             )
@@ -112,7 +112,6 @@ class UtbetalingRoutesTest {
             val fomtom = objectMapper.readTree(call.receiveText())
             fomtom["periode"]["fom"].asText() == "2023-05-09" && fomtom["periode"]["tom"].asText() == "2023-08-30"
         }
-
 
         client.get("/utbetalinger/alle?fom=20230529&tom=20230829").assert {
             status shouldBe HttpStatusCode.OK
@@ -150,7 +149,7 @@ class UtbetalingRoutesTest {
         testApi(
             SokosUtbetalingConsumer(
                 client = sokosHttpClient,
-                baseUrl = URL(testHost),
+                baseUrl = createUrl(testHost),
                 tokendingsService = tokendingsMockk,
                 sokosUtbetaldataClientId = "test:client:id"
             )
@@ -209,7 +208,7 @@ class UtbetalingRoutesTest {
         testApi(
             SokosUtbetalingConsumer(
                 client = sokosHttpClient,
-                baseUrl = URL(testHost),
+                baseUrl = createUrl(testHost),
                 tokendingsService = tokendingsMockk,
                 sokosUtbetaldataClientId = "test:client:id"
             )
@@ -240,7 +239,7 @@ class UtbetalingRoutesTest {
         testApi(
             SokosUtbetalingConsumer(
                 client = sokosHttpClient,
-                baseUrl = URL(testHost),
+                baseUrl = createUrl(testHost),
                 tokendingsService = tokendingsMockk,
                 sokosUtbetaldataClientId = "test:client:id"
             )
@@ -277,7 +276,7 @@ class UtbetalingRoutesTest {
         testApi(
             SokosUtbetalingConsumer(
                 client = sokosHttpClient,
-                baseUrl = URL(testHost),
+                baseUrl = createUrl(testHost),
                 tokendingsService = tokendingsMockk,
                 sokosUtbetaldataClientId = "test:client:id"
             )
@@ -300,7 +299,7 @@ class UtbetalingRoutesTest {
         testApi(
             SokosUtbetalingConsumer(
                 client = sokosHttpClient,
-                baseUrl = URL(testHost),
+                baseUrl = createUrl(testHost),
                 tokendingsService = tokendingsMockk,
                 sokosUtbetaldataClientId = "test:client:id"
             )
@@ -366,7 +365,7 @@ class UtbetalingRoutesTest {
         testApi(
             SokosUtbetalingConsumer(
                 client = sokosHttpClient,
-                baseUrl = URL(testHost),
+                baseUrl = createUrl(testHost),
                 tokendingsService = tokendingsMockk,
                 sokosUtbetaldataClientId = "test:client:id"
             )
@@ -380,7 +379,7 @@ class UtbetalingRoutesTest {
         testApi(
             SokosUtbetalingConsumer(
                 client = sokosHttpClient,
-                baseUrl = URL(testHost),
+                baseUrl = createUrl(testHost),
                 tokendingsService = tokendingsMockk,
                 sokosUtbetaldataClientId = "test:client:id"
             )
@@ -399,7 +398,7 @@ class UtbetalingRoutesTest {
         testApi(
             SokosUtbetalingConsumer(
                 client = sokosHttpClient,
-                baseUrl = URL(testHost),
+                baseUrl = createUrl(testHost),
                 tokendingsService = tokendingsMockk,
                 sokosUtbetaldataClientId = "test:client:id"
             )
@@ -417,7 +416,7 @@ class UtbetalingRoutesTest {
         testApi(
             SokosUtbetalingConsumer(
                 client = sokosHttpClient,
-                baseUrl = URL(testHost),
+                baseUrl = createUrl(testHost),
                 tokendingsService = tokendingsMockk,
                 sokosUtbetaldataClientId = "test:client:id"
             )
@@ -442,7 +441,7 @@ class UtbetalingRoutesTest {
         testApi(
             (SokosUtbetalingConsumer(
                 client = sokosHttpClient,
-                baseUrl = URL(testHost),
+                baseUrl = createUrl(testHost),
                 sokosUtbetaldataClientId = "test:client:id",
                 tokendingsService = tokendingsMockk
             ))
@@ -468,7 +467,7 @@ class UtbetalingRoutesTest {
         testApi(
             SokosUtbetalingConsumer(
                 client = sokosHttpClient,
-                baseUrl = URL(testHost),
+                baseUrl = createUrl(testHost),
                 tokendingsService = tokendingsMockk,
                 sokosUtbetaldataClientId = "test:client:id"
             )
@@ -495,7 +494,7 @@ class UtbetalingRoutesTest {
         testApi(
             SokosUtbetalingConsumer(
                 client = sokosHttpClient,
-                baseUrl = URL(testHost),
+                baseUrl = createUrl(testHost),
                 tokendingsService = tokendingsMockk,
                 sokosUtbetaldataClientId = "test:client:id"
             )
@@ -527,7 +526,7 @@ class UtbetalingRoutesTest {
         testApi(
             SokosUtbetalingConsumer(
                 client = sokosHttpClient,
-                baseUrl = URL(testHost),
+                baseUrl = createUrl(testHost),
                 tokendingsService = tokendingsMockk,
                 sokosUtbetaldataClientId = "test:client:id"
             )
