@@ -49,12 +49,13 @@ data class UtbetalingEkstern(
 
     companion object {
         fun List<UtbetalingEkstern>.sisteUtbetaling(): UtbetalingEkstern? =
-            this.filter { it.utbetalingsdato != null }
+            this.filter { it.erUtbetalt }
                 .maxByOrNull { it.utbetalingsdato.toLocalDate() }
 
         fun List<UtbetalingEkstern>.nesteUtbetaling(): UtbetalingEkstern? =
-            this.filter { (it.ytelsesdato()?.isAfter(LocalDate.now().minusDays(1)) ?: false) }
+            this.filter { !it.erUtbetalt && (it.ytelsesdato()?.isAfter(LocalDate.now().minusDays(1)) ?: false) }
                 .minByOrNull { it.forfallsdato.toLocalDate() }
+
 
         fun String?.toLocalDate(): LocalDate = try {
             LocalDate.parse(this)
