@@ -1,8 +1,12 @@
 package no.nav.tms.utbetalingsoversikt.api.ytelse.domain.external
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.serialization.Serializable
 import no.nav.tms.utbetalingsoversikt.api.utbetaling.UtbetalingSerializationException
 import java.time.LocalDate
+
+private val log = KotlinLogging.logger { }
+
 
 @Serializable
 data class UtbetalingEkstern(
@@ -34,7 +38,16 @@ data class UtbetalingEkstern(
                 return "${"x".repeat(5)}${it.substring(numberMaskedChars)}"
             } ?: ""
 
-    val erUtbetalt = utbetalingsdato != null
+    fun erUtbetalt(now: LocalDate):Boolean{
+
+
+        val harUtbetalingsdato = utbetalingsdato != null
+        val ytelsesdato = this.ytelsesdato() ?: throw IllegalStateException("Feil i filtrering - mangler ytelsesdato.")
+        if(ytelsesdato.isBefore(now) && utbetalingsdato === null ){
+            log.info { "Utbetaling med utgått forfallsdato men uten utbetalingsdato " }
+        }
+        return ytelsesdato.isBefore(now) || ytelsesdato.isEqual(now) && harUtbetalingsdato
+    }
 
     fun isInPeriod(fomDate: LocalDate, tomDate: LocalDate): Boolean {
         return when {
@@ -48,12 +61,12 @@ data class UtbetalingEkstern(
         ?: forfallsdato?.let { LocalDate.parse(it) }
 
     companion object {
-        fun List<UtbetalingEkstern>.sisteUtbetaling(): UtbetalingEkstern? =
-            this.filter { it.erUtbetalt }
+        fun List<UtbetalingEkstern>.sisteUtbetaling(now: LocalDate): UtbetalingEkstern? =
+            this.filter { it.erUtbetalt(now) }
                 .maxByOrNull { it.utbetalingsdato.toLocalDate() }
 
-        fun List<UtbetalingEkstern>.nesteUtbetaling(): UtbetalingEkstern? =
-            this.filter { !it.erUtbetalt && (it.ytelsesdato()?.isAfter(LocalDate.now().minusDays(1)) ?: false) }
+        fun List<UtbetalingEkstern>.nesteUtbetaling(now: LocalDate): UtbetalingEkstern? =
+            this.filter { !it.erUtbetalt(now)}
                 .minByOrNull { it.forfallsdato.toLocalDate() }
 
 
