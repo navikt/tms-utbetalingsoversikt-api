@@ -41,9 +41,8 @@ data class UtbetalingEkstern(
     fun erUtbetalt(now: LocalDate): Boolean {
         val harUtbetalingsdato = utbetalingsdato != null
         val ytelsesdato = this.ytelsesdato() ?: throw IllegalStateException("Feil i filtrering - mangler ytelsesdato.")
-        log.warn { "utbetalingsdato: $utbetalingsdato   forfallsdato: $forfallsdato" }
-        if (ytelsesdato.isBefore(now) && !harUtbetalingsdato) {
-            log.debug { "Utbetaling med utgått forfallsdato men uten utbetalingsdato, [forfallsdato: ${this.forfallsdato} utbetalingsdato: ${this.utbetalingsdato}]" }
+        if (forfallsdato != null && LocalDate.parse(forfallsdato).isBefore(now) && !harUtbetalingsdato) {
+            log.info { "Utbetaling med utgått forfallsdato men uten utbetalingsdato, [forfallsdato: ${this.forfallsdato} utbetalingsdato: ${this.utbetalingsdato}]" }
         }
         return ytelsesdato.isBefore(now) || ytelsesdato.isEqual(now) && harUtbetalingsdato
     }
@@ -62,18 +61,11 @@ data class UtbetalingEkstern(
     companion object {
         fun List<UtbetalingEkstern>.sisteUtbetaling(now: LocalDate): UtbetalingEkstern? =
             this.filter { it.erUtbetalt(now) }
-                .maxByOrNull { it.utbetalingsdato.toLocalDate() }
+                .maxByOrNull { it.ytelsesdato()!! }
 
         fun List<UtbetalingEkstern>.nesteUtbetaling(now: LocalDate): UtbetalingEkstern? =
             this.filter { !it.erUtbetalt(now) }
-                .minByOrNull { it.forfallsdato.toLocalDate() }
-
-
-        fun String?.toLocalDate(): LocalDate = try {
-            LocalDate.parse(this)
-        } catch (e: Exception) {
-            throw UtbetalingSerializationException("Fant ikke utbetalingsdato, ${e.message}")
-        }
+                .minByOrNull { it.ytelsesdato()!! }
 
     }
 
