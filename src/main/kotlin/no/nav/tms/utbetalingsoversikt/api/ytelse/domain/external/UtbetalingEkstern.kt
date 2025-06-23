@@ -41,6 +41,7 @@ data class UtbetalingEkstern(
     fun erUtbetalt(now: LocalDate): Boolean {
         val harUtbetalingsdato = utbetalingsdato != null
         val ytelsesdato = this.ytelsesdato() ?: throw IllegalStateException("Feil i filtrering - mangler ytelsesdato.")
+        log.debug { "utbetalingsdato: $utbetalingsdato   forfallsdato: $forfallsdato" }
         if (ytelsesdato.isBefore(now) && !harUtbetalingsdato) {
             log.debug { "Utbetaling med utgått forfallsdato men uten utbetalingsdato, [forfallsdato: ${this.forfallsdato} utbetalingsdato: ${this.utbetalingsdato}]" }
         }
