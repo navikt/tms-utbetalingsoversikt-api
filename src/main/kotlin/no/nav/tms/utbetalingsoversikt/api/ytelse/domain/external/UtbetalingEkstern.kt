@@ -38,10 +38,10 @@ data class UtbetalingEkstern(
                 return "${"x".repeat(5)}${it.substring(numberMaskedChars)}"
             } ?: ""
 
-    fun erUtbetalt(now: LocalDate):Boolean{
+    fun erUtbetalt(now: LocalDate): Boolean {
         val harUtbetalingsdato = utbetalingsdato != null
         val ytelsesdato = this.ytelsesdato() ?: throw IllegalStateException("Feil i filtrering - mangler ytelsesdato.")
-        if(ytelsesdato.isBefore(now) && !harUtbetalingsdato ){
+        if (ytelsesdato.isBefore(now) && !harUtbetalingsdato) {
             log.info { "Utbetaling med utgått forfallsdato men uten utbetalingsdato, [forfallsdato: ${this.forfallsdato} utbetalingsdato: ${this.utbetalingsdato}]" }
         }
         return ytelsesdato.isBefore(now) || ytelsesdato.isEqual(now) && harUtbetalingsdato
@@ -64,7 +64,7 @@ data class UtbetalingEkstern(
                 .maxByOrNull { it.utbetalingsdato.toLocalDate() }
 
         fun List<UtbetalingEkstern>.nesteUtbetaling(now: LocalDate): UtbetalingEkstern? =
-            this.filter { !it.erUtbetalt(now)}
+            this.filter { !it.erUtbetalt(now) }
                 .minByOrNull { it.forfallsdato.toLocalDate() }
 
 
