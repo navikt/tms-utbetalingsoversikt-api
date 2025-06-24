@@ -2,8 +2,6 @@ package no.nav.tms.utbetalingsoversikt.api.ytelse.domain.external
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.serialization.Serializable
-import no.nav.tms.utbetalingsoversikt.api.utbetaling.UtbetalingSerializationException
-import no.nav.tms.utbetalingsoversikt.api.utbetaling.YtelseIdUtil
 import java.time.LocalDate
 
 private val log = KotlinLogging.logger { }
@@ -59,13 +57,22 @@ data class UtbetalingEkstern(
     fun ytelsesdato(): LocalDate? = utbetalingsdato?.let { LocalDate.parse(it) }
         ?: forfallsdato?.let { LocalDate.parse(it) }
 
+    fun harYtelsesdato(): Boolean = if (ytelsesdato() != null) {
+        true
+    } else {
+        log.warn { "Utbetaling mangler både forfalls- og utbetalingsdato" }
+        false
+    }
+
     companion object {
         fun List<UtbetalingEkstern>.sisteUtbetaling(now: LocalDate): UtbetalingEkstern? =
-            this.filter { it.erUtbetalt(now) }
+            filter { it.harYtelsesdato() }
+                .filter { it.erUtbetalt(now) }
                 .maxByOrNull { it.ytelsesdato()!! }
 
         fun List<UtbetalingEkstern>.nesteUtbetaling(now: LocalDate): UtbetalingEkstern? =
-            this.filter { !it.erUtbetalt(now) }
+            filter { it.harYtelsesdato() }
+                .filter { !it.erUtbetalt(now) }
                 .minByOrNull { it.ytelsesdato()!! }
 
     }
