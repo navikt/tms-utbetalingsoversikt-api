@@ -31,7 +31,7 @@ object HovedytelseTransformer {
                     UnderytelseTransformer.createUnderytelser(komponentList)
                 } ?: emptyList(),
                 trekk = TrekkTransformer.createTrekkList(ytelseEkstern),
-                erUtbetalt = utbetaling.erUtbetalt,
+                erUtbetalt = utbetaling.erUtbetalt(LocalDate.now()),
                 melding = utbetaling.utbetalingsmelding ?: ""
             )
         }

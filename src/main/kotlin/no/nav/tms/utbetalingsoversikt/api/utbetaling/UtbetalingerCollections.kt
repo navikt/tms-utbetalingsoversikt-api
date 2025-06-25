@@ -24,9 +24,7 @@ data class UtbetalingerContainer(
                 .filter { it.isInPeriod(requestedFomDate, requestedTomDate) }
                 .partition {
                     val now = LocalDate.now()
-                    val ytelsesdato = it.ytelsesdato() ?: throw IllegalStateException("Feil i filtrering - mangler ytelsesdato.")
-
-                    ytelsesdato.isBefore(now) || ytelsesdato.isEqual(now) && it.erUtbetalt
+                    it.erUtbetalt(now)
                 }
                 .let { (tidligere, kommende) ->
                     UtbetalingerContainer(

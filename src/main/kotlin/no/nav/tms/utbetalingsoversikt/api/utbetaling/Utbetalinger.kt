@@ -47,8 +47,9 @@ data class SisteOgNesteUtbetaling(
     companion object {
 
         fun fromSokosResponse(utbetalinger: List<UtbetalingEkstern>): SisteOgNesteUtbetaling {
-            val siste = utbetalinger.sisteUtbetaling()
-            val nesteUtbetaling = utbetalinger.nesteUtbetaling()
+            val now: LocalDate = LocalDate.now()
+            val siste = utbetalinger.sisteUtbetaling(now)
+            val nesteUtbetaling = utbetalinger.nesteUtbetaling(now)
 
             return SisteOgNesteUtbetaling(
                 hasUtbetaling = siste != null,

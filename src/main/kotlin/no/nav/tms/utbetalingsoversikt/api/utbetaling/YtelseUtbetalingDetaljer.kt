@@ -50,7 +50,7 @@ class YtelseUtbetalingDetaljer private constructor(
                         metode = utbetalingEkstern.utbetalingsmetode
                     ),
                     ytelse = ytelseEkstern.ytelsestype ?: "Ukjent",
-                    erUtbetalt = utbetalingEkstern.erUtbetalt,
+                    erUtbetalt = utbetalingEkstern.erUtbetalt(LocalDate.now()),
                     ytelsePeriode = FomTom(
                         fom = LocalDate.parse(ytelseEkstern.ytelsesperiode.fom),
                         tom = LocalDate.parse(ytelseEkstern.ytelsesperiode.tom)
