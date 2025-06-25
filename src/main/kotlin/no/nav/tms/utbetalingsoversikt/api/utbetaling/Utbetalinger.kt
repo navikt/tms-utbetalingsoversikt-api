@@ -61,7 +61,7 @@ data class SisteOgNesteUtbetaling(
                         utbetaling = ytelse.ytelseNettobeloep,
                         kontonummer = utbetalingEkstern.maskertKontonummer(),
                         ytelse = ytelse.ytelsestype ?: "Diverse",
-                        dato = LocalDate.parse(utbetalingEkstern.utbetalingsdato)
+                        dato = utbetalingEkstern.ytelsesdato()!!
                     )
                 },
                 kommende = nesteUtbetaling?.let { utbetalingEkstern ->
@@ -71,7 +71,7 @@ data class SisteOgNesteUtbetaling(
                         utbetaling = ytelse.ytelseNettobeloep,
                         kontonummer = utbetalingEkstern.maskertKontonummer(),
                         ytelse = ytelse.ytelsestype ?: "Diverse",
-                        dato = LocalDate.parse(utbetalingEkstern.forfallsdato)
+                        dato = utbetalingEkstern.ytelsesdato()!!
                     )
                 }
             )
