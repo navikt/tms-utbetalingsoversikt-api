@@ -41,6 +41,9 @@ data class UtbetalingEkstern(
         val harUtbetalingsdato = utbetalingsdato != null
         val ytelsesdato = this.ytelsesdato() ?: throw IllegalStateException("Feil i filtrering - mangler ytelsesdato.")
         if (forfallsdato != null && LocalDate.parse(forfallsdato).isBefore(now) && !harUtbetalingsdato) {
+            log.warn { "Utbetaling med utgått forfallsdato men uten utbetalingsdato, [forfallsdato: ${this.forfallsdato} utbetalingsdato: ${this.utbetalingsdato}]" }
+        }
+        if (forfallsdato != null && LocalDate.parse(forfallsdato).isBefore(now) && !harUtbetalingsdato) {
             log.info { "Utbetaling med utgått forfallsdato men uten utbetalingsdato, [forfallsdato: ${this.forfallsdato} utbetalingsdato: ${this.utbetalingsdato}]" }
         }
         return ytelsesdato.isBefore(now) || ytelsesdato.isEqual(now) && harUtbetalingsdato
