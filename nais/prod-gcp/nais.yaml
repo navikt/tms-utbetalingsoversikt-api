@@ -31,6 +31,10 @@ spec:
       level: Level3
   secureLogs:
     enabled: true
+  observability:
+    autoInstrumentation:
+      enabled: true
+      runtime: java
   accessPolicy:
     outbound:
       rules:
