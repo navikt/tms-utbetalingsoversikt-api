@@ -29,8 +29,6 @@ spec:
     sidecar:
       enabled: true
       level: Level3
-  secureLogs:
-    enabled: true
   observability:
     autoInstrumentation:
       enabled: true
@@ -41,6 +39,8 @@ spec:
         - application: sokos-utbetaldata
           namespace: okonomi
           cluster: prod-fss
+        - application: logging
+          namespace: nais-system
       external:
         - host: sokos-utbetaldata.prod-fss-pub.nais.io
     inbound:
