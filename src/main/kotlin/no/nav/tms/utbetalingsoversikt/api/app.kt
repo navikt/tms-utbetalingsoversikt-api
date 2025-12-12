@@ -17,6 +17,7 @@ import io.ktor.server.plugins.defaultheaders.*
 import io.ktor.server.plugins.statuspages.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import no.nav.tms.common.logging.TeamLogs
 import no.nav.tms.common.metrics.installTmsMicrometerMetrics
 import no.nav.tms.common.observability.ApiMdc
 import no.nav.tms.common.util.config.StringEnvVar
@@ -75,7 +76,7 @@ fun Application.utbetalingApi(
     corsAllowedSchemes: List<String>
 ) {
     val log = KotlinLogging.logger { }
-    val secureLog = KotlinLogging.logger("secureLog")
+    val teamLog = TeamLogs.logger { }
 
     install(DefaultHeaders)
 
@@ -98,17 +99,19 @@ fun Application.utbetalingApi(
                 }
 
                 is UtbetalingSerializationException -> {
-                    log.error(cause) { cause.message }
+                    log.error { cause.message }
+                    teamLog.error(cause) { cause.message }
                     call.respond(HttpStatusCode.ServiceUnavailable)
                 }
 
                 is ApiException -> {
                     log.error { cause.errorMessage }
+                    teamLog.error(cause) { cause.errorMessage }
                     call.respond(HttpStatusCode.ServiceUnavailable)
                 }
 
                 else -> {
-                    secureLog.error(cause) {
+                    teamLog.error(cause) {
                         "Uventet feil ${cause::class.simpleName}"
                     }
                     log.error { "Uventet feil. Svarer med feilkode. ${cause::class.simpleName}" }

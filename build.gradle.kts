@@ -40,6 +40,7 @@ dependencies {
     implementation(TmsCommonLib.utils)
     implementation(TmsCommonLib.metrics)
     implementation(TmsCommonLib.observability)
+    implementation(TmsCommonLib.teamLogger)
     implementation(TmsKtorTokenSupport.tokendingsExchange)
     implementation(TmsKtorTokenSupport.tokenXValidation)
     implementation(TmsKtorTokenSupport.idportenSidecar)
