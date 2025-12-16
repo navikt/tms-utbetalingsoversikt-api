@@ -20,13 +20,6 @@ fun Route.utbetalingRoutes(sokosUtbetalingConsumer: SokosUtbetalingConsumer) {
 
         get("/alle") {
 
-            val utbetalinger = sokosUtbetalingConsumer.fetchUtbetalingsInfo(
-                user = authenticatedUser,
-                fom = call.fromDateParamAdjusted,
-                tom = call.toDateParam
-            ).let {
-                UtbetalingerContainer.fromSokosResponse(it, call.fromDateParam, call.toDateParam)
-            }
             val kommendeUtbetalinger = listOf<UtbetalingForYtelse>(
                 UtbetalingForYtelse(
                     "test-mock-id-1",
