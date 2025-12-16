@@ -10,6 +10,7 @@ import no.nav.tms.token.support.idporten.sidecar.user.IdportenUserFactory
 import no.nav.tms.token.support.tokenx.validation.user.TokenXUser
 import no.nav.tms.token.support.tokenx.validation.user.TokenXUserFactory
 import no.nav.tms.utbetalingsoversikt.api.ytelse.SokosUtbetalingConsumer
+import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -74,7 +75,94 @@ fun Route.utbetalingRoutesTokenX(sokosUtbetalingConsumer: SokosUtbetalingConsume
                 UtbetalingerContainer.fromSokosResponse(it, call.fromDateParam, call.toDateParam)
             }
 
-            call.respond(HttpStatusCode.OK, utbetalinger)
+            val kommendeUtbetalinger = listOf<UtbetalingForYtelse>(
+                UtbetalingForYtelse(
+                    "test-mock-id-1",
+                    100.0,
+                    LocalDate.now().minusDays(1),
+                    ytelse = "test-mock-ytelse-1"
+                ),
+                UtbetalingForYtelse(
+                    "test-mock-id-1",
+                    100.0,
+                    LocalDate.now().minusDays(1),
+                    ytelse = "test-mock-ytelse-1"
+                ),
+                UtbetalingForYtelse(
+                    "test-mock-id-2",
+                    110.0,
+                    LocalDate.now().minusDays(1),
+                    ytelse = "test-mock-ytelse-2"
+                )
+            )
+
+            val tidligereUtbetalinger = listOf<TidligereUtbetalingerPrMåned>(
+                TidligereUtbetalingerPrMåned(
+                    2025, 12, listOf(
+                        UtbetalingForYtelse(
+                            "test-mock-id-1",
+                            100.0,
+                            LocalDate.now().minusDays(1),
+                            ytelse = "test-mock-ytelse-1"
+                        ),
+                        UtbetalingForYtelse(
+                            "test-mock-id-1",
+                            100.0,
+                            LocalDate.now().minusDays(1),
+                            ytelse = "test-mock-ytelse-1"
+                        ),
+                        UtbetalingForYtelse(
+                            "test-mock-id-2",
+                            200.0,
+                            LocalDate.now().minusDays(1),
+                            ytelse = "test-mock-ytelse-2"
+                        ),
+                        UtbetalingForYtelse(
+                            "test-mock-id-2",
+                            250.0,
+                            LocalDate.now().minusDays(1),
+                            ytelse = "test-mock-ytelse-2"
+                        ),
+                        UtbetalingForYtelse(
+                            "test-mock-id-3",
+                            300.0,
+                            LocalDate.now().minusDays(1),
+                            ytelse = "test-mock-ytelse-3"
+                        ),
+                        )
+
+                ),
+                TidligereUtbetalingerPrMåned(
+                    2025, 12, listOf(
+                        UtbetalingForYtelse(
+                            "test-mock-id-1",
+                            100.0,
+                            LocalDate.now().minusDays(1),
+                            ytelse = "test-mock-ytelse-1"
+                        ),
+                        UtbetalingForYtelse(
+                            "test-mock-id-2",
+                            200.0,
+                            LocalDate.now().minusDays(1),
+                            ytelse = "test-mock-ytelse-2"
+                        ),
+                        UtbetalingForYtelse(
+                            "test-mock-id-3",
+                            300.0,
+                            LocalDate.now().minusDays(1),
+                            ytelse = "test-mock-ytelse-3"
+                        ),
+                    )
+
+                )
+            )
+
+            call.respond(
+                HttpStatusCode.OK, UtbetalingerContainer(kommendeUtbetalinger, tidligereUtbetalinger,
+                    UtbetalingerIPeriode(false, BigDecimal(0),BigDecimal(0), BigDecimal(0), listOf()))
+            )
+
+            //call.respond(HttpStatusCode.OK, utbetalinger)
         }
 
         get("/siste") {
