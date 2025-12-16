@@ -110,8 +110,25 @@ fun Route.utbetalingRoutes(sokosUtbetalingConsumer: SokosUtbetalingConsumer) {
             )
 
             call.respond(
-                HttpStatusCode.OK, UtbetalingerContainer(kommendeUtbetalinger, tidligereUtbetalinger,
-                    UtbetalingerIPeriode(false, BigDecimal(0),BigDecimal(0), BigDecimal(0), listOf()))
+                HttpStatusCode.OK, UtbetalingerContainer(
+                    kommendeUtbetalinger, tidligereUtbetalinger,
+                    UtbetalingerIPeriode(
+                        false, BigDecimal(0), BigDecimal(0), BigDecimal(0), listOf(
+                            UtbetalingerIPeriode.Ytelse(
+                                "test-mock-ytelse-1",
+                                BigDecimal(0)
+                            ),
+                            UtbetalingerIPeriode.Ytelse(
+                                "test-mock-ytelse-2",
+                                BigDecimal(0)
+                            ),
+                            UtbetalingerIPeriode.Ytelse(
+                                "test-mock-ytelse-3",
+                                BigDecimal(0)
+                            )
+                        )
+                    )
+                )
             )
 
             //call.respond(HttpStatusCode.OK, utbetalinger)
@@ -215,7 +232,7 @@ fun Route.utbetalingRoutesTokenX(sokosUtbetalingConsumer: SokosUtbetalingConsume
                             LocalDate.now().minusDays(1),
                             ytelse = "test-mock-ytelse-3"
                         ),
-                        )
+                    )
 
                 ),
                 TidligereUtbetalingerPrMåned(
@@ -244,8 +261,10 @@ fun Route.utbetalingRoutesTokenX(sokosUtbetalingConsumer: SokosUtbetalingConsume
             )
 
             call.respond(
-                HttpStatusCode.OK, UtbetalingerContainer(kommendeUtbetalinger, tidligereUtbetalinger,
-                    UtbetalingerIPeriode(false, BigDecimal(0),BigDecimal(0), BigDecimal(0), listOf()))
+                HttpStatusCode.OK, UtbetalingerContainer(
+                    kommendeUtbetalinger, tidligereUtbetalinger,
+                    UtbetalingerIPeriode(false, BigDecimal(0), BigDecimal(0), BigDecimal(0), listOf())
+                )
             )
 
             //call.respond(HttpStatusCode.OK, utbetalinger)
