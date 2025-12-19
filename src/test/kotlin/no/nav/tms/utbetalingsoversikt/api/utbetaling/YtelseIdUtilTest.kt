@@ -3,6 +3,7 @@ package no.nav.tms.utbetalingsoversikt.api.utbetaling
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.EksternModelObjectMother
+import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.external.PeriodeEkstern
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 
@@ -155,5 +156,22 @@ internal class YtelseIdUtilTest {
         val id2 = YtelseIdUtil.calculateId(postering, ytelse2)
 
         id1 shouldBe id2
+    }
+
+    @Test
+    fun `ulike perioder gir ulike id-er`() {
+        val postering = LocalDate.now().toString()
+
+        val ytelse1 = EksternModelObjectMother.giveMeYtelseEkstern(
+            ytelsesperiode = PeriodeEkstern("2025-12-01", "2025-12-07")
+        )
+        val ytelse2 = EksternModelObjectMother.giveMeYtelseEkstern(
+            ytelsesperiode = PeriodeEkstern("2025-12-08", "2025-12-14")
+        )
+
+        val id1 = YtelseIdUtil.calculateId(postering, ytelse1)
+        val id2 = YtelseIdUtil.calculateId(postering, ytelse2)
+
+        id1 shouldNotBe id2
     }
 }
