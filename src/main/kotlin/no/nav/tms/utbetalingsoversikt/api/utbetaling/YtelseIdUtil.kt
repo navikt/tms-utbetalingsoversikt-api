@@ -29,6 +29,8 @@ object YtelseIdUtil {
             ytelse.ytelseNettobeloep,
             ytelse.trekksum,
             ytelse.skattsum,
+            ytelse.ytelsesperiode.fom,
+            ytelse.ytelsesperiode.tom,
             *mapBeskrivelseToBelop(ytelse.ytelseskomponentListe)
         )
             .toByteArray()
