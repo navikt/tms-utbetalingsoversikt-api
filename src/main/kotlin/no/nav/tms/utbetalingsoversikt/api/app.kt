@@ -22,13 +22,10 @@ import no.nav.tms.common.metrics.installTmsMicrometerMetrics
 import no.nav.tms.common.observability.ApiMdc
 import no.nav.tms.common.util.config.StringEnvVar
 import no.nav.tms.common.util.config.UrlEnvVar
-import no.nav.tms.token.support.idporten.sidecar.IdPortenLogin
-import no.nav.tms.token.support.idporten.sidecar.LevelOfAssurance.SUBSTANTIAL
-import no.nav.tms.token.support.idporten.sidecar.idPorten
-import no.nav.tms.token.support.tokendings.exchange.TokendingsServiceBuilder
-import no.nav.tms.token.support.tokenx.validation.LevelOfAssurance
-import no.nav.tms.token.support.tokenx.validation.TokenXAuthenticator
-import no.nav.tms.token.support.tokenx.validation.tokenX
+import no.nav.tms.token.support.user.login.routes.UserLoginRoutes
+import no.nav.tms.token.support.user.token.exchange.UserTokenExchangerBuilder
+import no.nav.tms.token.support.user.token.verification.LevelOfAssurance
+import no.nav.tms.token.support.user.token.verification.userToken
 import no.nav.tms.utbetalingsoversikt.api.config.HttpClientBuilder
 import no.nav.tms.utbetalingsoversikt.api.config.healthApi
 import no.nav.tms.utbetalingsoversikt.api.config.jsonConfig
@@ -39,11 +36,11 @@ import java.net.URI
 
 fun main() {
     val httpClient = HttpClientBuilder.build()
-    val tokendingsService = TokendingsServiceBuilder.buildTokendingsService()
+    val tokenExchanger = UserTokenExchangerBuilder.build()
     val sokosUtbetalingConsumer = SokosUtbetalingConsumer(
         client = httpClient,
         sokosUtbetaldataClientId = StringEnvVar.getEnvVar("SOKOS_UTBETALING_TOKENX_CLIENT_ID"),
-        tokendingsService = tokendingsService,
+        tokenExchanger = tokenExchanger,
         baseUrl = UrlEnvVar.getEnvVarAsURL("SOKOS_UTBETALDATA_URL"),
     )
 
@@ -133,14 +130,14 @@ fun Application.utbetalingApi(
         installMicrometerPlugin = true
     }
 
-    install(ApiMdc)
+    install(ApiMdc) {
+
+    }
 
     routing {
         healthApi()
         authenticate {
             utbetalingRoutes(sokosUtbetalingConsumer)
-        }
-        authenticate(TokenXAuthenticator.name) {
             utbetalingRoutesTokenX(sokosUtbetalingConsumer)
         }
     }
@@ -150,16 +147,11 @@ fun Application.utbetalingApi(
 
 private fun setupAuth(): Application.() -> Unit = {
     authentication {
-        idPorten {
-            setAsDefault = true
-            levelOfAssurance = SUBSTANTIAL
-        }
-        tokenX {
-            setAsDefault = false
-            levelOfAssurance = LevelOfAssurance.SUBSTANTIAL
+        userToken {
+            levelOfAssurance = LevelOfAssurance.Substantial
         }
     }
-    install(IdPortenLogin)
+    install(UserLoginRoutes)
 }
 
 private fun Application.configureShutdownHook(httpClient: HttpClient) {

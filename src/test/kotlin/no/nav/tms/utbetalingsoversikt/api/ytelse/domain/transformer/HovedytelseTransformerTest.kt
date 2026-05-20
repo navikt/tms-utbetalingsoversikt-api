@@ -55,8 +55,8 @@ internal class HovedytelseTransformerTest {
     }
 
     private fun validateKontonummer(expected: UtbetalingEkstern, toValidate: String) {
-        if (expected.utbetaltTilKonto != null && expected.utbetaltTilKonto!!.kontonummer.isNotBlank()) {
-            expected.utbetaltTilKonto!!.kontonummer shouldContain toValidate.substring(max(toValidate.length -5, 0))
+        if (expected.utbetaltTilKonto != null && expected.utbetaltTilKonto.kontonummer.isNotBlank()) {
+            expected.utbetaltTilKonto.kontonummer shouldContain toValidate.substring(max(toValidate.length -5, 0))
         } else {
             toValidate shouldBe expected.utbetalingsmetode
         }
