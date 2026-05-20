@@ -2,14 +2,13 @@ package no.nav.tms.utbetalingsoversikt.api.utbetaling
 
 import io.ktor.http.*
 import io.ktor.server.application.*
+import io.ktor.server.auth.principal
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.util.pipeline.*
-import no.nav.tms.token.support.idporten.sidecar.user.IdportenUser
-import no.nav.tms.token.support.idporten.sidecar.user.IdportenUserFactory
-import no.nav.tms.token.support.tokenx.validation.user.TokenXUser
-import no.nav.tms.token.support.tokenx.validation.user.TokenXUserFactory
+import no.nav.tms.token.support.user.token.verification.UserPrincipal
 import no.nav.tms.utbetalingsoversikt.api.ytelse.SokosUtbetalingConsumer
+import java.lang.IllegalStateException
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -20,7 +19,7 @@ fun Route.utbetalingRoutes(sokosUtbetalingConsumer: SokosUtbetalingConsumer) {
         get("/alle") {
 
             val utbetalinger = sokosUtbetalingConsumer.fetchUtbetalingsInfo(
-                user = authenticatedUser,
+                user = call.user,
                 fom = call.fromDateParamAdjusted,
                 tom = call.toDateParam
             ).let {
@@ -32,7 +31,7 @@ fun Route.utbetalingRoutes(sokosUtbetalingConsumer: SokosUtbetalingConsumer) {
 
         get("/siste") {
             val sisteUtbetaling = sokosUtbetalingConsumer.fetchUtbetalingsInfo(
-                user = authenticatedUser,
+                user = call.user,
                 fom = LocalDate.now().minusMonths(3),
                 tom = LocalDate.now().plusMonths(3)
             )
@@ -46,7 +45,7 @@ fun Route.utbetalingRoutes(sokosUtbetalingConsumer: SokosUtbetalingConsumer) {
             val date = YtelseIdUtil.unmarshalDateFromId(ytelseId)
 
             val ytelseDetaljer = sokosUtbetalingConsumer.fetchUtbetalingsInfo(
-                user = authenticatedUser,
+                user = call.user,
                 fom = date,
                 tom = date
             ).takeIf {
@@ -66,8 +65,8 @@ fun Route.utbetalingRoutesTokenX(sokosUtbetalingConsumer: SokosUtbetalingConsume
 
         get("/alle") {
 
-            val utbetalinger = sokosUtbetalingConsumer.fetchUtbetalingsInfoForTokenX(
-                user = tokenXUser,
+            val utbetalinger = sokosUtbetalingConsumer.fetchUtbetalingsInfo(
+                user = call.user,
                 fom = call.fromDateParamAdjusted,
                 tom = call.toDateParam
             ).let {
@@ -78,8 +77,8 @@ fun Route.utbetalingRoutesTokenX(sokosUtbetalingConsumer: SokosUtbetalingConsume
         }
 
         get("/siste") {
-            val sisteUtbetaling = sokosUtbetalingConsumer.fetchUtbetalingsInfoForTokenX(
-                user = tokenXUser,
+            val sisteUtbetaling = sokosUtbetalingConsumer.fetchUtbetalingsInfo(
+                user = call.user,
                 fom = LocalDate.now().minusMonths(3),
                 tom = LocalDate.now().plusMonths(3)
             )
@@ -92,8 +91,8 @@ fun Route.utbetalingRoutesTokenX(sokosUtbetalingConsumer: SokosUtbetalingConsume
             val ytelseId = call.parameters["ytelseId"] ?: throw IllegalYtelseIdException("Ytelseid kan ikke være null")
             val date = YtelseIdUtil.unmarshalDateFromId(ytelseId)
 
-            val ytelseDetaljer = sokosUtbetalingConsumer.fetchUtbetalingsInfoForTokenX(
-                user = tokenXUser,
+            val ytelseDetaljer = sokosUtbetalingConsumer.fetchUtbetalingsInfo(
+                user = call.user,
                 fom = date,
                 tom = date
             ).takeIf {
@@ -133,8 +132,5 @@ private fun getEarlierFromDateWithinMaxBound(fromDate: LocalDate): LocalDate {
 val ApplicationCall.toDateParam: LocalDate
     get() = request.queryParameters["tom"].localDateOrDefault()
 
-val RoutingContext.tokenXUser: TokenXUser
-    get() = TokenXUserFactory.createTokenXUser(call)
-
-val RoutingContext.authenticatedUser: IdportenUser
-    get() = IdportenUserFactory.createIdportenUser(call)
+val ApplicationCall.user get() = principal<UserPrincipal>()
+    ?: throw IllegalStateException("Fant ikke UserPrincipal i context")

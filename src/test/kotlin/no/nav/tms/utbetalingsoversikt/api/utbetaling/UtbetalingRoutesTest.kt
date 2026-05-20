@@ -6,7 +6,7 @@ import io.kotest.assertions.withClue
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.ktor.client.plugins.*
-import io.ktor.client.request.*
+import io.ktor.client.request.get
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
@@ -21,11 +21,11 @@ import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkObject
-import no.nav.tms.token.support.idporten.sidecar.mock.LevelOfAssurance.HIGH
-import no.nav.tms.token.support.idporten.sidecar.mock.idPortenMock
-import no.nav.tms.token.support.tokendings.exchange.TokendingsService
-import no.nav.tms.token.support.tokenx.validation.mock.LevelOfAssurance
-import no.nav.tms.token.support.tokenx.validation.mock.tokenXMock
+import no.nav.tms.token.support.user.token.exchange.UserTokenExchanger
+import no.nav.tms.token.support.user.token.verification.Issuer
+import no.nav.tms.token.support.user.token.verification.LevelOfAssurance
+import no.nav.tms.token.support.user.token.verificaton.mock.mockAuthorizedHeader
+import no.nav.tms.token.support.user.token.verificaton.mock.userTokenMock
 import no.nav.tms.utbetalingsoversikt.api.createUrl
 import no.nav.tms.utbetalingsoversikt.api.config.jsonConfig
 import no.nav.tms.utbetalingsoversikt.api.utbetalingApi
@@ -39,7 +39,7 @@ import java.time.LocalDate
 class UtbetalingRoutesTest {
     private val objectMapper = jacksonObjectMapper()
     private val testHost = "https://utbetaling.ekstern.test"
-    private val tokendingsMockk = mockk<TokendingsService>().also {
+    private val tokendingsMockk = mockk<UserTokenExchanger>().also {
         coEvery {
             it.exchangeToken(any(), any())
         } returns "<dummytoken>"
@@ -53,7 +53,7 @@ class UtbetalingRoutesTest {
             SokosUtbetalingConsumer(
                 client = sokosHttpClient,
                 baseUrl = createUrl(testHost),
-                tokendingsService = tokendingsMockk,
+                tokenExchanger = tokendingsMockk,
                 sokosUtbetaldataClientId = "test:client:id"
             )
         )
@@ -92,7 +92,7 @@ class UtbetalingRoutesTest {
             SokosUtbetalingConsumer(
                 client = sokosHttpClient,
                 baseUrl = createUrl(testHost),
-                tokendingsService = tokendingsMockk,
+                tokenExchanger = tokendingsMockk,
                 sokosUtbetaldataClientId = "test:client:id"
             )
         )
@@ -150,7 +150,7 @@ class UtbetalingRoutesTest {
             SokosUtbetalingConsumer(
                 client = sokosHttpClient,
                 baseUrl = createUrl(testHost),
-                tokendingsService = tokendingsMockk,
+                tokenExchanger = tokendingsMockk,
                 sokosUtbetaldataClientId = "test:client:id"
             )
         )
@@ -209,7 +209,7 @@ class UtbetalingRoutesTest {
             SokosUtbetalingConsumer(
                 client = sokosHttpClient,
                 baseUrl = createUrl(testHost),
-                tokendingsService = tokendingsMockk,
+                tokenExchanger = tokendingsMockk,
                 sokosUtbetaldataClientId = "test:client:id"
             )
         )
@@ -240,7 +240,7 @@ class UtbetalingRoutesTest {
             SokosUtbetalingConsumer(
                 client = sokosHttpClient,
                 baseUrl = createUrl(testHost),
-                tokendingsService = tokendingsMockk,
+                tokenExchanger = tokendingsMockk,
                 sokosUtbetaldataClientId = "test:client:id"
             )
         )
@@ -277,7 +277,7 @@ class UtbetalingRoutesTest {
             SokosUtbetalingConsumer(
                 client = sokosHttpClient,
                 baseUrl = createUrl(testHost),
-                tokendingsService = tokendingsMockk,
+                tokenExchanger = tokendingsMockk,
                 sokosUtbetaldataClientId = "test:client:id"
             )
         )
@@ -300,7 +300,7 @@ class UtbetalingRoutesTest {
             SokosUtbetalingConsumer(
                 client = sokosHttpClient,
                 baseUrl = createUrl(testHost),
-                tokendingsService = tokendingsMockk,
+                tokenExchanger = tokendingsMockk,
                 sokosUtbetaldataClientId = "test:client:id"
             )
         )
@@ -366,7 +366,7 @@ class UtbetalingRoutesTest {
             SokosUtbetalingConsumer(
                 client = sokosHttpClient,
                 baseUrl = createUrl(testHost),
-                tokendingsService = tokendingsMockk,
+                tokenExchanger = tokendingsMockk,
                 sokosUtbetaldataClientId = "test:client:id"
             )
         )
@@ -380,7 +380,7 @@ class UtbetalingRoutesTest {
             SokosUtbetalingConsumer(
                 client = sokosHttpClient,
                 baseUrl = createUrl(testHost),
-                tokendingsService = tokendingsMockk,
+                tokenExchanger = tokendingsMockk,
                 sokosUtbetaldataClientId = "test:client:id"
             )
         )
@@ -399,7 +399,7 @@ class UtbetalingRoutesTest {
             SokosUtbetalingConsumer(
                 client = sokosHttpClient,
                 baseUrl = createUrl(testHost),
-                tokendingsService = tokendingsMockk,
+                tokenExchanger = tokendingsMockk,
                 sokosUtbetaldataClientId = "test:client:id"
             )
         )
@@ -417,7 +417,7 @@ class UtbetalingRoutesTest {
             SokosUtbetalingConsumer(
                 client = sokosHttpClient,
                 baseUrl = createUrl(testHost),
-                tokendingsService = tokendingsMockk,
+                tokenExchanger = tokendingsMockk,
                 sokosUtbetaldataClientId = "test:client:id"
             )
         )
@@ -443,7 +443,7 @@ class UtbetalingRoutesTest {
                 client = sokosHttpClient,
                 baseUrl = createUrl(testHost),
                 sokosUtbetaldataClientId = "test:client:id",
-                tokendingsService = tokendingsMockk
+                tokenExchanger = tokendingsMockk
             ))
         )
         externalServices {
@@ -468,7 +468,7 @@ class UtbetalingRoutesTest {
             SokosUtbetalingConsumer(
                 client = sokosHttpClient,
                 baseUrl = createUrl(testHost),
-                tokendingsService = tokendingsMockk,
+                tokenExchanger = tokendingsMockk,
                 sokosUtbetaldataClientId = "test:client:id"
             )
         )
@@ -484,7 +484,9 @@ class UtbetalingRoutesTest {
         """.trimIndent()
         ) { true }
 
-        client.get("/utbetalinger/ssr/alle").assert {
+        client.get("/utbetalinger/ssr/alle") {
+            mockAuthorizedHeader(ident = "12345", issuer = Issuer.Tokenx, levelOfAssurance = LevelOfAssurance.Substantial)
+        }.assert {
             status shouldBe HttpStatusCode.OK
         }
     }
@@ -495,7 +497,7 @@ class UtbetalingRoutesTest {
             SokosUtbetalingConsumer(
                 client = sokosHttpClient,
                 baseUrl = createUrl(testHost),
-                tokendingsService = tokendingsMockk,
+                tokenExchanger = tokendingsMockk,
                 sokosUtbetaldataClientId = "test:client:id"
             )
         )
@@ -516,7 +518,9 @@ class UtbetalingRoutesTest {
             actualFom == expectedFom && actualTom == expectedTom
         }
 
-        client.get("/utbetalinger/ssr/siste").assert {
+        client.get("/utbetalinger/ssr/siste") {
+            mockAuthorizedHeader(ident = "12345", issuer = Issuer.Tokenx, levelOfAssurance = LevelOfAssurance.Substantial)
+        }.assert {
             status shouldBe HttpStatusCode.OK
         }
     }
@@ -527,7 +531,7 @@ class UtbetalingRoutesTest {
             SokosUtbetalingConsumer(
                 client = sokosHttpClient,
                 baseUrl = createUrl(testHost),
-                tokendingsService = tokendingsMockk,
+                tokenExchanger = tokendingsMockk,
                 sokosUtbetaldataClientId = "test:client:id"
             )
         )
@@ -536,7 +540,9 @@ class UtbetalingRoutesTest {
         every { YtelseIdUtil.unmarshalDateFromId("<mockID>") } returns LocalDate.now()
         every { YtelseIdUtil.calculateId("2023-08-24", any()) } returns "<mockID>"
 
-        client.get("/utbetalinger/ssr/<mockID>").assert {
+        client.get("/utbetalinger/ssr/<mockID>") {
+            mockAuthorizedHeader(ident = "12345", issuer = Issuer.Tokenx, levelOfAssurance = LevelOfAssurance.Substantial)
+        }.assert {
             status shouldBe HttpStatusCode.OK
         }
     }
@@ -583,17 +589,14 @@ private fun ApplicationTestBuilder.testApi(sokosUtbetalingConsumer: SokosUtbetal
             sokosUtbetalingConsumer = sokosUtbetalingConsumer,
             authConfig = {
                 authentication {
-                    idPortenMock {
-                        setAsDefault = true
-                        staticLevelOfAssurance = HIGH
-                        staticUserPid = "12345"
-                        alwaysAuthenticated = true
-                    }
-                    tokenXMock {
-                        setAsDefault = false
-                        staticLevelOfAssurance = LevelOfAssurance.SUBSTANTIAL
-                        staticUserPid = "12345"
-                        alwaysAuthenticated = true
+                    userTokenMock {
+                        configureIssuers(Issuer.IdPorten, Issuer.Tokenx)
+                        levelOfAssurance = LevelOfAssurance.Substantial
+                        enableDefaultAuthentication {
+                            tokenIssuer = Issuer.IdPorten
+                            tokenIdent = "12345"
+                            tokenLoa = LevelOfAssurance.High
+                        }
                     }
                 }
             },

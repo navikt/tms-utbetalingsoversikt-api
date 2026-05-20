@@ -2,12 +2,11 @@ package no.nav.tms.utbetalingsoversikt.api.ytelse
 
 import io.mockk.*
 import kotlinx.coroutines.runBlocking
-import no.nav.tms.token.support.idporten.sidecar.user.IdportenUser
-import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.external.RolleEkstern.UTBETALT_TIL
 import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.external.UtbetalingEkstern
 import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.internal.Hovedytelse
 import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.transformer.HovedytelseTransformer
 import io.kotest.matchers.shouldBe
+import no.nav.tms.token.support.user.token.verification.UserPrincipal
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
@@ -33,7 +32,7 @@ internal class HovedytelseServiceTest {
     @Test
     fun `should return list of transformed hovedytelse`() {
 
-        val user: IdportenUser = mockk()
+        val user: UserPrincipal = mockk()
         val fom: LocalDate = mockk()
         val tom: LocalDate = mockk()
 
