@@ -3,6 +3,8 @@ package no.nav.tms.utbetalingsoversikt.api.utbetaling
 import kotlinx.serialization.Serializable
 import no.nav.tms.utbetalingsoversikt.api.config.LocalDateSerializer
 import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.external.UtbetalingEkstern
+import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.external.UtbetalingEkstern.Companion.listeMedKommendeUtbetalinger
+import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.external.UtbetalingEkstern.Companion.listeMedSisteUtbetalinger
 import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.external.UtbetalingEkstern.Companion.nesteUtbetaling
 import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.external.UtbetalingEkstern.Companion.sisteUtbetaling
 import no.nav.tms.utbetalingsoversikt.api.ytelse.domain.external.YtelseEkstern
@@ -65,6 +67,49 @@ data class SisteOgNesteUtbetaling(
                     )
                 },
                 kommende = nesteUtbetaling?.let { utbetalingEkstern ->
+                    val ytelse = utbetalingEkstern.ytelseListe.first()
+                    UtbetalingOppsummering(
+                        id = YtelseIdUtil.calculateId(utbetalingEkstern.posteringsdato, ytelse),
+                        utbetaling = ytelse.ytelseNettobeloep,
+                        kontonummer = utbetalingEkstern.maskertKontonummer(),
+                        ytelse = ytelse.ytelsestype ?: "Diverse",
+                        dato = utbetalingEkstern.ytelsesdato()!!
+                    )
+                }
+            )
+        }
+    }
+}
+
+
+@Serializable
+data class SisteOgKommendeUtbetalinger(
+    val hasUtbetaling: Boolean,
+    val hasKommende: Boolean,
+    val sisteUtbetaling: List<UtbetalingOppsummering>,
+    val kommende: List<UtbetalingOppsummering>
+) {
+    companion object {
+
+        fun fromSokosResponse(utbetalinger: List<UtbetalingEkstern>): SisteOgKommendeUtbetalinger {
+            val now: LocalDate = LocalDate.now()
+            val siste = utbetalinger.listeMedSisteUtbetalinger(now,2)
+            val nesteUtbetaling = utbetalinger.listeMedKommendeUtbetalinger(now,2)
+
+            return SisteOgKommendeUtbetalinger(
+                hasUtbetaling = siste.size > 0,
+                hasKommende = nesteUtbetaling.size > 0,
+                sisteUtbetaling = siste.map { utbetalingEkstern ->
+                    val ytelse = utbetalingEkstern.ytelseListe.first()
+                    UtbetalingOppsummering(
+                        id = YtelseIdUtil.calculateId(utbetalingEkstern.posteringsdato, ytelse),
+                        utbetaling = ytelse.ytelseNettobeloep,
+                        kontonummer = utbetalingEkstern.maskertKontonummer(),
+                        ytelse = ytelse.ytelsestype ?: "Diverse",
+                        dato = utbetalingEkstern.ytelsesdato()!!
+                    )
+                },
+                kommende = nesteUtbetaling.map { utbetalingEkstern ->
                     val ytelse = utbetalingEkstern.ytelseListe.first()
                     UtbetalingOppsummering(
                         id = YtelseIdUtil.calculateId(utbetalingEkstern.posteringsdato, ytelse),
