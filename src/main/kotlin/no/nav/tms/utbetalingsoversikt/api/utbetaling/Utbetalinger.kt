@@ -84,10 +84,8 @@ data class SisteOgNesteUtbetaling(
 
 @Serializable
 data class SisteOgKommendeUtbetalinger(
-    val hasUtbetaling: Boolean,
-    val hasKommende: Boolean,
-    val sisteUtbetaling: List<UtbetalingOppsummering>,
-    val kommende: List<UtbetalingOppsummering>
+    val sisteUtbetalinger: List<UtbetalingOppsummering>,
+    val kommendeUtbetalinger: List<UtbetalingOppsummering>
 ) {
     companion object {
 
@@ -97,9 +95,7 @@ data class SisteOgKommendeUtbetalinger(
             val nesteUtbetaling = utbetalinger.listeMedKommendeUtbetalinger(now,2)
 
             return SisteOgKommendeUtbetalinger(
-                hasUtbetaling = siste.size > 0,
-                hasKommende = nesteUtbetaling.size > 0,
-                sisteUtbetaling = siste.map { utbetalingEkstern ->
+                sisteUtbetalinger = siste.map { utbetalingEkstern ->
                     val ytelse = utbetalingEkstern.ytelseListe.first()
                     UtbetalingOppsummering(
                         id = YtelseIdUtil.calculateId(utbetalingEkstern.posteringsdato, ytelse),
@@ -109,7 +105,7 @@ data class SisteOgKommendeUtbetalinger(
                         dato = utbetalingEkstern.ytelsesdato()!!
                     )
                 },
-                kommende = nesteUtbetaling.map { utbetalingEkstern ->
+                kommendeUtbetalinger = nesteUtbetaling.map { utbetalingEkstern ->
                     val ytelse = utbetalingEkstern.ytelseListe.first()
                     UtbetalingOppsummering(
                         id = YtelseIdUtil.calculateId(utbetalingEkstern.posteringsdato, ytelse),
