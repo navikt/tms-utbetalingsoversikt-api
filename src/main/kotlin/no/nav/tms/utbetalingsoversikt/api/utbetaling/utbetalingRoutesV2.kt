@@ -42,8 +42,8 @@ fun Route.utbetalingRoutes(sokosUtbetalingConsumer: SokosUtbetalingConsumer) {
         get("/minside-widget") {
             val sisteUtbetaling = sokosUtbetalingConsumer.fetchUtbetalingsInfo(
                 user = call.user,
-                fom = LocalDate.now().minusMonths(3),
-                tom = LocalDate.now().plusMonths(3)
+                fom = LocalDate.now().minusDays(21),
+                tom = LocalDate.now().minusDays(21)
             )
 
             call.respond(HttpStatusCode.OK, SisteOgKommendeUtbetalinger.fromSokosResponse(sisteUtbetaling))
@@ -94,6 +94,16 @@ fun Route.utbetalingRoutesTokenX(sokosUtbetalingConsumer: SokosUtbetalingConsume
             )
 
             call.respond(HttpStatusCode.OK, SisteOgNesteUtbetaling.fromSokosResponse(sisteUtbetaling))
+        }
+
+        get("/minside-widget") {
+            val sisteUtbetaling = sokosUtbetalingConsumer.fetchUtbetalingsInfo(
+                user = call.user,
+                fom = LocalDate.now().minusDays(21),
+                tom = LocalDate.now().minusDays(21)
+            )
+
+            call.respond(HttpStatusCode.OK, SisteOgKommendeUtbetalinger.fromSokosResponse(sisteUtbetaling))
         }
 
         get("/{ytelseId}") {
