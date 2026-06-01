@@ -83,11 +83,10 @@ data class UtbetalingEkstern(
                 .take(antall)
 
 
-        fun List<UtbetalingEkstern>.listeMedKommendeUtbetalinger(now: LocalDate, antall: Int): List<UtbetalingEkstern> =
+        fun List<UtbetalingEkstern>.listeMedKommendeUtbetalinger(now: LocalDate): List<UtbetalingEkstern> =
             filter { it.harYtelsesdato() }
                 .filter { !it.erUtbetalt(now) }
                 .sortedBy { it.ytelsesdato()!! }
-                .take(antall)
 
     }
 

@@ -91,30 +91,33 @@ data class SisteOgKommendeUtbetalinger(
 
         fun fromSokosResponse(utbetalinger: List<UtbetalingEkstern>): SisteOgKommendeUtbetalinger {
             val now: LocalDate = LocalDate.now()
-            val siste = utbetalinger.listeMedSisteUtbetalinger(now,2)
-            val nesteUtbetaling = utbetalinger.listeMedKommendeUtbetalinger(now,2)
+            val antall = 2
+            val siste = utbetalinger.listeMedSisteUtbetalinger(now, antall)
+            val nesteUtbetaling = utbetalinger.listeMedKommendeUtbetalinger(now)
 
             return SisteOgKommendeUtbetalinger(
-                sisteUtbetalinger = siste.map { utbetalingEkstern ->
-                    val ytelse = utbetalingEkstern.ytelseListe.first()
-                    UtbetalingOppsummering(
-                        id = YtelseIdUtil.calculateId(utbetalingEkstern.posteringsdato, ytelse),
-                        utbetaling = ytelse.ytelseNettobeloep,
-                        kontonummer = utbetalingEkstern.maskertKontonummer(),
-                        ytelse = ytelse.ytelsestype ?: "Diverse",
-                        dato = utbetalingEkstern.ytelsesdato()!!
-                    )
-                },
-                kommendeUtbetalinger = nesteUtbetaling.map { utbetalingEkstern ->
-                    val ytelse = utbetalingEkstern.ytelseListe.first()
-                    UtbetalingOppsummering(
-                        id = YtelseIdUtil.calculateId(utbetalingEkstern.posteringsdato, ytelse),
-                        utbetaling = ytelse.ytelseNettobeloep,
-                        kontonummer = utbetalingEkstern.maskertKontonummer(),
-                        ytelse = ytelse.ytelsestype ?: "Diverse",
-                        dato = utbetalingEkstern.ytelsesdato()!!
-                    )
-                }
+                sisteUtbetalinger = siste.flatMap { utbetalingEkstern ->
+                    utbetalingEkstern.ytelseListe.map { ytelse ->
+                        UtbetalingOppsummering(
+                            id = YtelseIdUtil.calculateId(utbetalingEkstern.posteringsdato, ytelse),
+                            utbetaling = ytelse.ytelseNettobeloep,
+                            kontonummer = utbetalingEkstern.maskertKontonummer(),
+                            ytelse = ytelse.ytelsestype ?: "Diverse",
+                            dato = utbetalingEkstern.ytelsesdato()!!
+                        )
+                    }
+                }.take(antall),
+                kommendeUtbetalinger = nesteUtbetaling.flatMap { utbetalingEkstern ->
+                    utbetalingEkstern.ytelseListe.map { ytelse ->
+                        UtbetalingOppsummering(
+                            id = YtelseIdUtil.calculateId(utbetalingEkstern.posteringsdato, ytelse),
+                            utbetaling = ytelse.ytelseNettobeloep,
+                            kontonummer = utbetalingEkstern.maskertKontonummer(),
+                            ytelse = ytelse.ytelsestype ?: "Diverse",
+                            dato = utbetalingEkstern.ytelsesdato()!!
+                        )
+                    }
+                }.take(antall)
             )
         }
     }

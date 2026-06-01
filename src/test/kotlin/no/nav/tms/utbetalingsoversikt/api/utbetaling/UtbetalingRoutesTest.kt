@@ -547,6 +547,52 @@ class UtbetalingRoutesTest {
         }
     }
 
+    @Test
+    fun `returnerer siste og kommende utbetalinger for minside-widget for tokenx`() = testApplication {
+        testApi(
+            SokosUtbetalingConsumer(client = sokosHttpClient, baseUrl = createUrl(testHost), tokenExchanger = tokendingsMockk, sokosUtbetaldataClientId = "test:client:id")
+        )
+
+        withExternalServiceResponse(
+            body = """[
+                ${tidligereYtelseJson(1, 2000.0, 1100.0 to 1000.0, 1200.0 to 1000.0, 1300.0 to 1000.0)},
+                ${tidligereYtelseJson(3, 8700.0, 2311.13 to 1000.0, 2600.87 to 1000.0, 3788.0 to 1000.0)},
+                ${nesteYtelseJson(3)},
+                ${nesteYtelseJson(1)}
+            ]""".trimIndent()
+        ) {
+            val fomtom = objectMapper.readTree(call.receiveText())
+            val expectedFom = LocalDate.now().minusDays(21)
+            val expectedTom = LocalDate.now().plusDays(8)
+            val actualFom = LocalDate.parse(fomtom["periode"]["fom"].asText())
+            val actualTom = LocalDate.parse(fomtom["periode"]["tom"].asText())
+            actualFom == expectedFom && actualTom == expectedTom
+        }
+
+        client.get("/utbetalinger/ssr/minside-widget") {
+            mockAuthorizedHeader(ident = "12345", issuer = Issuer.Tokenx, levelOfAssurance = LevelOfAssurance.Substantial)
+        }.assert {
+            status shouldBe HttpStatusCode.OK
+            val response = objectMapper.readTree(bodyAsText())
+            response["sisteUtbetalinger"].toList().size shouldBe 2
+            response["kommendeUtbetalinger"].toList().size shouldBe 2
+
+            response["sisteUtbetalinger"][0]["dato"].asText() shouldBe LocalDate.now().minusDays(1).toString()
+            response["sisteUtbetalinger"][0]["ytelse"].asText() shouldBe "Foreldrepenger"
+            response["sisteUtbetalinger"][0]["utbetaling"].asText().toDouble() shouldBe 1200.0
+            response["sisteUtbetalinger"][1]["ytelse"].asText() shouldBe "Økonomisk Sosialhjelp"
+            response["sisteUtbetalinger"][1]["utbetaling"].asText().toDouble() shouldBe 1100.0
+
+
+            response["kommendeUtbetalinger"][0]["dato"].asText() shouldBe LocalDate.now().plusDays(1).toString()
+            response["kommendeUtbetalinger"][0]["ytelse"].asText() shouldBe "Dagpenger"
+            response["kommendeUtbetalinger"][0]["utbetaling"].asText().toDouble() shouldBe 3788.0
+            response["kommendeUtbetalinger"][1]["ytelse"].asText() shouldBe "Foreldrepenger"
+            response["kommendeUtbetalinger"][1]["utbetaling"].asText().toDouble() shouldBe 2600.87
+
+        }
+    }
+
     private fun ApplicationTestBuilder.withExternalServiceResponse(
         body: String,
         replyIf: suspend RoutingContext.() -> Boolean = { true }
