@@ -43,7 +43,7 @@ fun Route.utbetalingRoutes(sokosUtbetalingConsumer: SokosUtbetalingConsumer) {
             val sisteUtbetaling = sokosUtbetalingConsumer.fetchUtbetalingsInfo(
                 user = call.user,
                 fom = LocalDate.now().minusDays(21),
-                tom = LocalDate.now().minusDays(21)
+                tom = LocalDate.now().plusDays(7)
             )
 
             call.respond(HttpStatusCode.OK, SisteOgKommendeUtbetalinger.fromSokosResponse(sisteUtbetaling))
@@ -100,7 +100,7 @@ fun Route.utbetalingRoutesTokenX(sokosUtbetalingConsumer: SokosUtbetalingConsume
             val sisteUtbetaling = sokosUtbetalingConsumer.fetchUtbetalingsInfo(
                 user = call.user,
                 fom = LocalDate.now().minusDays(21),
-                tom = LocalDate.now().minusDays(21)
+                tom = LocalDate.now().plusDays(7)
             )
 
             call.respond(HttpStatusCode.OK, SisteOgKommendeUtbetalinger.fromSokosResponse(sisteUtbetaling))
