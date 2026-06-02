@@ -74,7 +74,7 @@ internal fun sokoTestResponse(
 
 
 @Language("JSON")
-fun nesteYtelseJson(plusDays: Long = 5) = """
+fun treKommendeUtbetalingerJson(plusDays: Long = 5) = """
       {
         "posteringsdato": "${LocalDate.now().minusDays(plusDays)}",
         "utbetaltTil": {
@@ -212,7 +212,91 @@ fun nesteYtelseJson(plusDays: Long = 5) = """
 """.trimIndent()
 
 @Language("JSON")
-fun tidligereYtelseJson(
+fun enUtbetalingJson(
+    dagerFraNaa: Long = 5,
+    erTidligere: Boolean = false,
+    ytelse: String = "Foreldrepenger",
+    utbetaltBeløp: Double = 1000.0,
+    trekkBeløp: Double = 200.0,
+    kontonummer: String = "1234567890",
+    satsAntall: Int = 1,
+) : String {
+    val ytelsesdato = if (erTidligere) {
+        LocalDate.now().minusDays(dagerFraNaa)
+    } else {
+        LocalDate.now().plusDays(dagerFraNaa)
+    }
+
+    val utbetalingsdato = if (erTidligere) {
+        "\"$ytelsesdato\""
+    } else {
+        "null"
+    }
+
+    return """
+      {
+        "posteringsdato": "${LocalDate.now().minusDays(dagerFraNaa)}",
+        "utbetaltTil": {
+          "aktoertype": "PERSON",
+          "ident": "123345567",
+          "navn": "string"
+        },
+        "utbetalingNettobeloep": $utbetaltBeløp,
+        "utbetalingsmelding": "string",
+        "utbetalingsdato": $utbetalingsdato,
+        "forfallsdato": "$ytelsesdato",
+        "utbetaltTilKonto": {
+          "kontonummer": "$kontonummer",
+          "kontotype": "Norsk bank"
+        },
+        "utbetalingsmetode": "Til konto",
+        "utbetalingsstatus": "something",
+        "ytelseListe": [
+          {
+            "ytelsestype": "$ytelse",
+            "ytelsesperiode": {
+              "fom": "$ytelsesdato",
+              "tom": "$ytelsesdato"
+            },
+            "ytelseskomponentListe": [
+              {
+                "ytelseskomponenttype": "string",
+                "satsbeloep": ${utbetaltBeløp+trekkBeløp},
+                "satstype": "string",
+                "satsantall": $satsAntall,
+                "ytelseskomponentbeloep": 42
+              }
+            ],
+            "ytelseskomponentersum": 111.22,
+            "trekkListe": [
+              {
+                "trekktype": "string",
+                "trekkbeloep": 100,
+                "kreditor": "string"
+              }
+            ],
+            "trekksum": $trekkBeløp,
+            "skattListe": [
+              {
+                "skattebeloep": 99.9
+              }
+            ],
+            "skattsum": 1000.5,
+            "ytelseNettobeloep": $utbetaltBeløp,
+            "bilagsnummer": "84172491",
+            "rettighetshaver": {
+              "aktoertype": "PERSON",
+              "ident": "1234567890g",
+              "navn": "Navn Navnesen"
+            }
+          }
+        ]
+      }
+""".trimIndent()
+}
+
+@Language("JSON")
+fun treTidligereUtbetalinger(
     minusDays: Long,
     nettoUtbetalt: Double,
     økonomiskSosialhjelp: NettoOgTrekk,
@@ -369,7 +453,7 @@ internal fun Int.tidligereYtelser(
     val trekkPrThing = (expectedTrekk / this) / 3
     for (i in 1..this) {
         ytelse.add(
-            tidligereYtelseJson(
+            treTidligereUtbetalinger(
                 minusDays = this.toLong() * 8,
                 nettoUtbetalt = expectedUtbetalt,
                 økonomiskSosialhjelp = NettoOgTrekk(expectedØkonomiskSosialhjelp - trekkPrThing, trekkPrThing),
