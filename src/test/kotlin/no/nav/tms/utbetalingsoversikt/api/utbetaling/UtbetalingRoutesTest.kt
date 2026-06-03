@@ -569,7 +569,7 @@ class UtbetalingRoutesTest {
             actualFom == expectedFom && actualTom == expectedTom
         }
 
-        client.get("/utbetalinger/ssr/minside-widget") {
+        client.get("/utbetalinger/minside-widget") {
             mockAuthorizedHeader(ident = "12345", issuer = Issuer.Tokenx, levelOfAssurance = LevelOfAssurance.Substantial)
         }.assert {
             status shouldBe HttpStatusCode.OK
@@ -612,7 +612,7 @@ class UtbetalingRoutesTest {
             ]""".trimIndent()
         ) { hasMinsideWidgetRequestWindow() }
 
-        client.get("/utbetalinger/ssr/minside-widget") {
+        client.get("/utbetalinger/minside-widget") {
             mockAuthorizedHeader(ident = "12345", issuer = Issuer.Tokenx, levelOfAssurance = LevelOfAssurance.Substantial)
         }.assert {
             status shouldBe HttpStatusCode.OK
@@ -647,7 +647,7 @@ class UtbetalingRoutesTest {
             ]""".trimIndent()
         ) { hasMinsideWidgetRequestWindow() }
 
-        client.get("/utbetalinger/ssr/minside-widget") {
+        client.get("/utbetalinger/minside-widget") {
             mockAuthorizedHeader(ident = "12345", issuer = Issuer.Tokenx, levelOfAssurance = LevelOfAssurance.Substantial)
         }.assert {
             status shouldBe HttpStatusCode.OK
@@ -670,7 +670,7 @@ class UtbetalingRoutesTest {
 
         withExternalServiceResponse("[]") { hasMinsideWidgetRequestWindow() }
 
-        client.get("/utbetalinger/ssr/minside-widget") {
+        client.get("/utbetalinger/minside-widget") {
             mockAuthorizedHeader(ident = "12345", issuer = Issuer.Tokenx, levelOfAssurance = LevelOfAssurance.Substantial)
         }.assert {
             status shouldBe HttpStatusCode.OK

@@ -96,16 +96,6 @@ fun Route.utbetalingRoutesTokenX(sokosUtbetalingConsumer: SokosUtbetalingConsume
             call.respond(HttpStatusCode.OK, SisteOgNesteUtbetaling.fromSokosResponse(sisteUtbetaling))
         }
 
-        get("/minside-widget") {
-            val sisteUtbetaling = sokosUtbetalingConsumer.fetchUtbetalingsInfo(
-                user = call.user,
-                fom = LocalDate.now().minusDays(21),
-                tom = LocalDate.now().plusDays(7)
-            )
-
-            call.respond(HttpStatusCode.OK, SisteOgKommendeUtbetalinger.fromSokosResponse(sisteUtbetaling))
-        }
-
         get("/{ytelseId}") {
 
             val ytelseId = call.parameters["ytelseId"] ?: throw IllegalYtelseIdException("Ytelseid kan ikke være null")
