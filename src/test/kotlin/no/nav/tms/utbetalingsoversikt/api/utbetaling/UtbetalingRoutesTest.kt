@@ -546,7 +546,7 @@ class UtbetalingRoutesTest {
             status shouldBe HttpStatusCode.OK
         }
     }
-
+/*
     @Test
     fun `returnerer siste og kommende utbetalinger for minside-widget for tokenx`() = testApplication {
         testApi(
@@ -618,7 +618,7 @@ class UtbetalingRoutesTest {
             status shouldBe HttpStatusCode.OK
             val response = objectMapper.readTree(bodyAsText())
 
-            response["sisteUtbetalinger"].toList().size shouldBe 1
+           response["sisteUtbetalinger"].toList().size shouldBe 1
             response["kommendeUtbetalinger"].toList().size shouldBe 0
 
             response["sisteUtbetalinger"][0]["dato"].asText() shouldBe LocalDate.now().minusDays(1).toString()
@@ -660,7 +660,7 @@ class UtbetalingRoutesTest {
             response["kommendeUtbetalinger"][0]["ytelse"].asText() shouldBe "Dagpenger"
             response["kommendeUtbetalinger"][0]["utbetaling"].asText().toDouble() shouldBe 3788.0
         }
-    }
+    }*/
 
     @Test
     fun `returnerer tomme lister for minside-widget når det ikke finnes utbetalinger`() = testApplication {

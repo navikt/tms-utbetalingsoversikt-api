@@ -42,7 +42,7 @@ fun Route.utbetalingRoutes(sokosUtbetalingConsumer: SokosUtbetalingConsumer) {
         get("/minside-widget") {
             val sisteUtbetaling = sokosUtbetalingConsumer.fetchUtbetalingsInfo(
                 user = call.user,
-                fom = LocalDate.now().minusDays(21),
+                fom = LocalDate.now().minusDays(90),
                 tom = LocalDate.now().plusDays(7)
             )
 
