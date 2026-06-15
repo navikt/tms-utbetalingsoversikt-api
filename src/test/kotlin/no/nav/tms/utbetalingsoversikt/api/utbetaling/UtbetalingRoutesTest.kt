@@ -562,7 +562,7 @@ class UtbetalingRoutesTest {
             ]""".trimIndent()
         ) {
             val fomtom = objectMapper.readTree(call.receiveText())
-            val expectedFom = LocalDate.now().minusDays(21)
+            val expectedFom = LocalDate.now().minusDays(31)
             val expectedTom = LocalDate.now().plusDays(8)
             val actualFom = LocalDate.parse(fomtom["periode"]["fom"].asText())
             val actualTom = LocalDate.parse(fomtom["periode"]["tom"].asText())
@@ -708,7 +708,7 @@ class UtbetalingRoutesTest {
 
     private suspend fun RoutingContext.hasMinsideWidgetRequestWindow(): Boolean {
         val fomtom = objectMapper.readTree(call.receiveText())
-        val expectedFom = LocalDate.now().minusDays(21)
+        val expectedFom = LocalDate.now().minusDays(31)
         val expectedTom = LocalDate.now().plusDays(8)
         val actualFom = LocalDate.parse(fomtom["periode"]["fom"].asText())
         val actualTom = LocalDate.parse(fomtom["periode"]["tom"].asText())
