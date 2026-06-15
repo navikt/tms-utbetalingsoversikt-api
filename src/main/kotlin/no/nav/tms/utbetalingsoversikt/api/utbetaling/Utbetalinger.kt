@@ -89,11 +89,16 @@ data class SisteOgKommendeUtbetalinger(
 ) {
     companion object {
 
-        fun fromSokosResponse(utbetalinger: List<UtbetalingEkstern>): SisteOgKommendeUtbetalinger {
+        fun fromSokosResponse(
+            utbetalinger: List<UtbetalingEkstern>,
+            fom: LocalDate,
+            tom: LocalDate
+        ): SisteOgKommendeUtbetalinger {
             val now: LocalDate = LocalDate.now()
             val antall = 2
-            val siste = utbetalinger.listeMedSisteUtbetalinger(now, antall)
-            val nesteUtbetaling = utbetalinger.listeMedKommendeUtbetalinger(now)
+            val iPeriode = utbetalinger.filter { it.isInPeriod(fom, tom) }
+            val siste = iPeriode.listeMedSisteUtbetalinger(now, antall)
+            val nesteUtbetaling = iPeriode.listeMedKommendeUtbetalinger(now)
 
             return SisteOgKommendeUtbetalinger(
                 sisteUtbetalinger = siste.flatMap { utbetalingEkstern ->
