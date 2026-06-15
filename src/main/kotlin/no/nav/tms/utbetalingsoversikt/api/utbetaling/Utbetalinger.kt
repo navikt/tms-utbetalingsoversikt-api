@@ -97,11 +97,11 @@ data class SisteOgKommendeUtbetalinger(
             val now: LocalDate = LocalDate.now()
             val antall = 2
             val iPeriode = utbetalinger.filter { it.isInPeriod(fom, tom) }
-            val siste = iPeriode.listeMedSisteUtbetalinger(now, antall)
-            val nesteUtbetaling = iPeriode.listeMedKommendeUtbetalinger(now)
+            val sisteUtbetalinger = iPeriode.listeMedSisteUtbetalinger(now, antall)
+            val nesteUtbetalinger = iPeriode.listeMedKommendeUtbetalinger(now)
 
             return SisteOgKommendeUtbetalinger(
-                sisteUtbetalinger = siste.flatMap { utbetalingEkstern ->
+                sisteUtbetalinger = sisteUtbetalinger.flatMap { utbetalingEkstern ->
                     utbetalingEkstern.ytelseListe.map { ytelse ->
                         UtbetalingOppsummering(
                             id = YtelseIdUtil.calculateId(utbetalingEkstern.posteringsdato, ytelse),
@@ -112,7 +112,7 @@ data class SisteOgKommendeUtbetalinger(
                         )
                     }
                 }.take(antall),
-                kommendeUtbetalinger = nesteUtbetaling.flatMap { utbetalingEkstern ->
+                kommendeUtbetalinger = nesteUtbetalinger.flatMap { utbetalingEkstern ->
                     utbetalingEkstern.ytelseListe.map { ytelse ->
                         UtbetalingOppsummering(
                             id = YtelseIdUtil.calculateId(utbetalingEkstern.posteringsdato, ytelse),

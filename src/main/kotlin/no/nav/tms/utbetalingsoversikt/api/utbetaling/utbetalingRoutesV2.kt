@@ -44,7 +44,7 @@ fun Route.utbetalingRoutes(sokosUtbetalingConsumer: SokosUtbetalingConsumer) {
             val visningFom = now.minusDays(WIDGET_DAYS_BACK)
             val tom = now.plusDays(WIDGET_DAYS_FORWARD)
 
-            val sisteUtbetaling = sokosUtbetalingConsumer.fetchUtbetalingsInfo(
+            val sisteUtbetalinger = sokosUtbetalingConsumer.fetchUtbetalingsInfo(
                 user = call.user,
                 fom = visningFom.minusDays(WIDGET_FROM_DATE_OFFSET_DAYS),
                 tom = tom
@@ -52,7 +52,7 @@ fun Route.utbetalingRoutes(sokosUtbetalingConsumer: SokosUtbetalingConsumer) {
 
             call.respond(
                 HttpStatusCode.OK,
-                SisteOgKommendeUtbetalinger.fromSokosResponse(sisteUtbetaling, visningFom, tom)
+                SisteOgKommendeUtbetalinger.fromSokosResponse(sisteUtbetalinger, visningFom, tom)
             )
         }
 
