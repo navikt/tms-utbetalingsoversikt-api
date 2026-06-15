@@ -141,7 +141,7 @@ val ApplicationCall.fromDateParam: LocalDate
 
 private const val FROM_DATE_OFFSET_DAYS = 20L
 
-private const val WIDGET_DAYS_BACK = 21L
+private const val WIDGET_DAYS_BACK = 31L
 private const val WIDGET_DAYS_FORWARD = 7L
 private const val WIDGET_FROM_DATE_OFFSET_DAYS = 30L
 
