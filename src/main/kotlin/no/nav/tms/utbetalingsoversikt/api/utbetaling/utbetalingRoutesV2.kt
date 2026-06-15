@@ -39,6 +39,23 @@ fun Route.utbetalingRoutes(sokosUtbetalingConsumer: SokosUtbetalingConsumer) {
             call.respond(HttpStatusCode.OK, SisteOgNesteUtbetaling.fromSokosResponse(sisteUtbetaling))
         }
 
+        get("/minside-widget") {
+            val now = LocalDate.now()
+            val visningFom = now.minusDays(WIDGET_DAYS_BACK)
+            val tom = now.plusDays(WIDGET_DAYS_FORWARD)
+
+            val sisteUtbetalinger = sokosUtbetalingConsumer.fetchUtbetalingsInfo(
+                user = call.user,
+                fom = visningFom.minusDays(WIDGET_FROM_DATE_OFFSET_DAYS),
+                tom = tom
+            )
+
+            call.respond(
+                HttpStatusCode.OK,
+                SisteOgKommendeUtbetalinger.fromSokosResponse(sisteUtbetalinger, visningFom, tom)
+            )
+        }
+
         get("/{ytelseId}") {
 
             val ytelseId = call.parameters["ytelseId"] ?: throw IllegalYtelseIdException("Ytelseid kan ikke være null")
@@ -123,6 +140,11 @@ val ApplicationCall.fromDateParam: LocalDate
     )
 
 private const val FROM_DATE_OFFSET_DAYS = 20L
+
+private const val WIDGET_DAYS_BACK = 31L
+private const val WIDGET_DAYS_FORWARD = 7L
+private const val WIDGET_FROM_DATE_OFFSET_DAYS = 30L
+
 private val EARLIEST_POSSIBLE_FROM_DATE get() = LocalDate.now().minusYears(3).withDayOfYear(1)
 private fun getEarlierFromDateWithinMaxBound(fromDate: LocalDate): LocalDate {
     val adjustedDate = fromDate.minusDays(FROM_DATE_OFFSET_DAYS)
