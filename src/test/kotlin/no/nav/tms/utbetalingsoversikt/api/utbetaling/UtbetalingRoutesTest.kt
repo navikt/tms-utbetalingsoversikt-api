@@ -548,7 +548,7 @@ class UtbetalingRoutesTest {
     }
 
     @Test
-    fun `returnerer siste og kommende utbetalinger for minside-widget for tokenx`() = testApplication {
+    fun `henter maks 4 siste og 2 kommende utbetalinger sortert etter dato for minside-widget`() = testApplication {
         testApi(
             SokosUtbetalingConsumer(client = sokosHttpClient, baseUrl = createUrl(testHost), tokenExchanger = tokendingsMockk, sokosUtbetaldataClientId = "test:client:id")
         )
@@ -574,15 +574,21 @@ class UtbetalingRoutesTest {
         }.assert {
             status shouldBe HttpStatusCode.OK
             val response = objectMapper.readTree(bodyAsText())
-            response["sisteUtbetalinger"].toList().size shouldBe 2
+            response["sisteUtbetalinger"].toList().size shouldBe 4
             response["kommendeUtbetalinger"].toList().size shouldBe 2
 
             response["sisteUtbetalinger"][0]["dato"].asText() shouldBe LocalDate.now().minusDays(1).toString()
             response["sisteUtbetalinger"][0]["ytelse"].asText() shouldBe "Foreldrepenger"
             response["sisteUtbetalinger"][0]["utbetaling"].asText().toDouble() shouldBe 1200.0
+            response["sisteUtbetalinger"][1]["dato"].asText() shouldBe LocalDate.now().minusDays(1).toString()
             response["sisteUtbetalinger"][1]["ytelse"].asText() shouldBe "Økonomisk Sosialhjelp"
             response["sisteUtbetalinger"][1]["utbetaling"].asText().toDouble() shouldBe 1100.0
-
+            response["sisteUtbetalinger"][2]["dato"].asText() shouldBe LocalDate.now().minusDays(1).toString()
+            response["sisteUtbetalinger"][2]["ytelse"].asText() shouldBe "Kontantstøtte"
+            response["sisteUtbetalinger"][2]["utbetaling"].asText().toDouble() shouldBe 1300.0
+            response["sisteUtbetalinger"][3]["dato"].asText() shouldBe LocalDate.now().minusDays(3).toString()
+            response["sisteUtbetalinger"][3]["ytelse"].asText() shouldBe "Foreldrepenger"
+            response["sisteUtbetalinger"][3]["utbetaling"].asText().toDouble() shouldBe 2600.87
 
             response["kommendeUtbetalinger"][0]["dato"].asText() shouldBe LocalDate.now().plusDays(1).toString()
             response["kommendeUtbetalinger"][0]["ytelse"].asText() shouldBe "Dagpenger"
