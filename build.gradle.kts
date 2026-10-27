@@ -25,33 +25,33 @@ repositories {
 }
 
 dependencies {
-    implementation(managed.kotlinx) //TODO .coroutines
-    implementation(managed.kotlin.logging) //TODO: kotlinlogging i ett ord
-    implementation(managed.ktor.client.apache5)
-    implementation(managed.ktor.client.content) //TODO: contentnegotiation
-    implementation(managed.ktor.serialization.kotlinx)
-    implementation(managed.ktor.server.content) //TODO: contentnegotiation
+    implementation(managed.kotlinx.coroutines)
+    implementation(managed.kotlinLogging)
+    implementation(managed.bundles.ktorClient)
+    implementation(managed.bundles.ktorServer)
+    implementation(managed.ktor.server.contentNegotiation)
+    implementation("io.ktor:ktor-serialization-kotlinx-json:${managed.versions.ktor.get()}")
     implementation(managed.ktor.server.auth)
     implementation(managed.ktor.server.cors)
-    implementation(managed.ktor.server.header) //TODO: defaultheader
+    implementation(managed.ktor.server.defaultHeaders)
     implementation(managed.ktor.server.netty)
-    implementation(managed.ktor.server.status) //TODO: statuspages
+    implementation(managed.ktor.server.statusPages)
     implementation(managed.logback.encoder)
-    implementation(managed.tms.common.lib.utils) //todo: commonlib i ett ord
-    implementation(managed.tms.common.lib.metrics)
-    implementation(managed.tms.common.lib.teamLogger)
-    implementation(managed.tms.common.lib.observability)
-    implementation(managed.tms.ktor.support.entraId.login) //TODO: tms-ktor-support-entraId-login = {group = "no.nav.tms.token.support", name = "user-login-routes", version.ref = "tmsKtorSupport" } ---> user login routes
-    implementation(managed.tms.ktor.support.exchange) //TODO: userTokenExchane
-    implementation(managed.tms.ktor.support.verification) //TODO: userTokenVerification
+    implementation(managed.tms.commonLib.utils)
+    implementation(managed.tms.commonLib.metrics)
+    implementation(managed.tms.commonLib.teamLogger)
+    implementation(managed.tms.commonLib.observability)
+    implementation(managed.tms.ktorTokenSupport.userToken.loginRoutes)
+    implementation(managed.tms.ktorTokenSupport.userToken.exchange)
+    implementation(managed.tms.ktorTokenSupport.userToken.verification)
 
     testImplementation(managed.bundles.junit)
-    testImplementation(managed.kotest.runner) //TODO: runnnerJunit5
+    testImplementation(managed.kotest.runner)
     testImplementation(managed.kotest.assertion)
     testImplementation(managed.ktor.test.server)
-    testImplementation(managed.tms.ktor.support.verification.mock)
+    testImplementation(managed.tms.ktorTokenSupport.userToken.verificationMock)
     testImplementation(managed.bundles.jackson)
-    testImplementation(managed.mockk.default)
+    testImplementation(managed.mockk)
 }
 
 application {

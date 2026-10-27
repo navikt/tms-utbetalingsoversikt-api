@@ -7,7 +7,7 @@ dependencyResolutionManagement {
     }
     versionCatalogs {
         create("managed") {
-            from("no.nav.tms:tms-dependency-admin:20261026.5.1")
+            from("no.nav.tms:tms-dependency-admin:20261027.7.1")
         }
     }
 }
